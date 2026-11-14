@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sổ tay PCCC QCVN 06</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#b42318">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: một cột kiểu ứng dụng điện thoại — thanh đầu dính có ô tìm, nội dung là các khối gập mở, thanh điều hướng dưới đáy. */
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --tint: #f1ebe1; --line: #ddd3c5;
+  --ink: #1f1a17; --muted: #5e554d;
+  --fire: #b42318; --fire-bg: #fde4e1; --on-fire: #ffffff;
+  --exit: #067647; --exit-bg: #dcf5e7;
+  --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
+  --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --nav-h: 60px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
+  --ink: #f3ece3; --muted: #b8ada1;
+  --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
+  --exit: #47cd89; --exit-bg: #0f3a26;
+  --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
+  --ink: #f3ece3; --muted: #b8ada1;
+  --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
+  --exit: #47cd89; --exit-bg: #0f3a26;
+  --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+input[type=search]::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: var(--sans); font-size: 15px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--fire); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 760px; margin: 0 auto; }
+
+/* Header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--fire); color: var(--on-fire); padding-block: 10px 12px; }
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; min-height: 32px; }
+.brand h1 { font-size: 17px; line-height: 1.2; font-weight: 800; margin: 0; flex: 1; min-width: 0; letter-spacing: -0.01em; }
+.brand small { display: block; font-weight: 500; font-size: 12px; opacity: .85; }
+.back { border: 0; background: transparent; color: inherit; width: 36px; height: 36px; margin-left: -8px; border-radius: 8px; display: grid; place-items: center; cursor: pointer; }
+.back svg { width: 22px; height: 22px; }
+.search { position: relative; }
+.search input { width: 100%; height: 44px; border-radius: 10px; border: 0; padding: 0 40px 0 40px; font: inherit; font-size: 16px; background: var(--panel); color: var(--ink); }
+.search input::placeholder { color: var(--muted); }
+.search .ico { position: absolute; left: 12px; top: 12px; width: 20px; height: 20px; color: var(--muted); pointer-events: none; }
+.search .clear { position: absolute; right: 4px; top: 4px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; font-size: 20px; line-height: 1; }
+
+main { padding-block: 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom, 0px)); }
+
+/* Bottom nav */
+nav.bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--panel); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+nav.bottom .row { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 760px; margin: 0 auto; height: var(--nav-h); }
+nav.bottom button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer; }
+nav.bottom button svg { width: 22px; height: 22px; }
+nav.bottom button[aria-current="page"] { color: var(--fire); }
+
+/* Home */
+.intro { font-size: 14px; color: var(--muted); margin: 0 0 16px; }
+.label { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 24px 0 8px; }
+.label:first-child { margin-top: 0; }
+.toc { list-style: none; margin: 0; padding: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.toc li + li { border-top: 1px solid var(--line); }
+.toc button { width: 100%; text-align: left; border: 0; background: transparent; display: grid; grid-template-columns: 36px 1fr 16px; gap: 12px; align-items: center; padding: 12px 14px; cursor: pointer; min-height: 60px; }
+.toc .num { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; font-family: var(--mono); font-size: 13px; background: var(--tint); color: var(--ink); }
+.toc .num.f { background: var(--fire-bg); color: var(--fire); }
+.toc .num.x { background: var(--exit-bg); color: var(--exit); }
+.toc .num.a { background: var(--amber-bg); color: var(--amber-ink); }
+.toc b { display: block; font-size: 15px; line-height: 1.3; }
+.toc span.d { display: block; font-size: 13px; color: var(--muted); line-height: 1.35; margin-top: 2px; }
+.toc .chev { color: var(--muted); }
+
+/* Quick lookup */
+.quick { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.quick h2 { font-size: 15px; margin: 0 0 10px; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.seg button { min-width: 44px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-weight: 700; font-family: var(--mono); }
+.seg button[aria-pressed="true"] { background: var(--fire); border-color: var(--fire); color: var(--on-fire); }
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 0; margin: 0; }
+.kv dt, .kv dd { margin: 0; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.kv dt { color: var(--muted); padding-right: 12px; }
+.kv dd { font-family: var(--mono); font-weight: 500; text-align: right; color: var(--fire); white-space: nowrap; }
+.kv dt:first-of-type, .kv dt:first-of-type + dd { border-top: 0; }
+.quick .note { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+
+/* Article */
+.doc h1.page { font-size: 24px; line-height: 1.25; margin: 0 0 12px; text-wrap: balance; letter-spacing: -0.01em; }
+.doc details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 10px; }
+.doc summary { list-style: none; cursor: pointer; padding: 14px 44px 14px 14px; position: relative; font-weight: 700; font-size: 16px; line-height: 1.35; }
+.doc summary::-webkit-details-marker { display: none; }
+.doc summary::after { content: ""; position: absolute; right: 18px; top: 50%; width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: translateY(-70%) rotate(45deg); transition: transform .15s; }
+.doc details[open] > summary::after { transform: translateY(-30%) rotate(-135deg); }
+.doc .body { padding: 0 14px 14px; min-width: 0; }
+.doc .lead { margin-bottom: 12px; }
+.doc h3 { font-size: 15px; margin: 18px 0 6px; }
+.doc p { margin: 0 0 10px; }
+.doc ul, .doc ol { margin: 0 0 10px; padding-left: 20px; }
+.doc li { margin: 4px 0; }
+.doc blockquote { margin: 0 0 12px; padding: 10px 12px; background: var(--tint); border-radius: 8px; font-size: 14px; }
+.doc blockquote p:last-child { margin: 0; }
+.doc code { font-family: var(--mono); font-size: 12.5px; background: var(--tint); padding: 1px 5px; border-radius: 4px; }
+.doc a { color: var(--fire); font-weight: 600; text-underline-offset: 2px; }
+.tbl { overflow-x: auto; margin: 0 0 12px; border: 1px solid var(--line); border-radius: 8px; -webkit-overflow-scrolling: touch; }
+.tbl table { border-collapse: collapse; font-size: 13.5px; line-height: 1.4; min-width: 100%; }
+.tbl th, .tbl td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.tbl th { background: var(--tint); font-size: 12.5px; font-weight: 700; white-space: normal; min-width: 88px; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td:first-child, .tbl th:first-child { position: sticky; left: 0; background: var(--panel); box-shadow: 1px 0 0 var(--line); }
+.tbl th:first-child { background: var(--tint); }
+.tbl td { font-variant-numeric: tabular-nums; min-width: 80px; }
+.tbl.wide td { min-width: 96px; }
+.hint { font-size: 12px; color: var(--muted); margin: -6px 0 12px; }
+.flag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--amber-ink); background: var(--amber-bg); border-radius: 4px; padding: 0 5px; line-height: 18px; vertical-align: 1px; white-space: nowrap; }
+.amend { display: inline-block; font-size: 11px; font-weight: 700; color: var(--fire); background: var(--fire-bg); border-radius: 4px; padding: 0 5px; line-height: 18px; vertical-align: 1px; white-space: nowrap; }
+mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding: 0 1px; box-shadow: 0 0 0 1px var(--amber); }
+
+/* Checklist */
+.check { list-style: none; padding: 0 !important; }
+.check li { margin: 0; border-top: 1px solid var(--line); }
+.check li:first-child { border-top: 0; }
+.check label { display: grid; grid-template-columns: 24px 1fr; gap: 10px; padding: 10px 0; cursor: pointer; align-items: start; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--exit); }
+.check input:checked + span { color: var(--muted); text-decoration: line-through; }
+.progress { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+.bar { flex: 1; height: 8px; background: var(--tint); border-radius: 4px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--exit); width: 0; transition: width .2s; }
+.reset { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; height: 36px; padding: 0 12px; cursor: pointer; font-size: 13px; }
+
+/* Save star */
+.star { position: absolute; right: 40px; top: 8px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; display: grid; place-items: center; }
+.star svg { width: 20px; height: 20px; }
+.star[aria-pressed="true"] { color: var(--amber); }
+.star[aria-pressed="true"] svg { fill: currentColor; }
+.doc summary { padding-right: 84px; }
+
+/* Search results */
+.results { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.results button { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 12px 14px; cursor: pointer; }
+.results .sec { font-size: 12px; color: var(--muted); font-weight: 600; }
+.results .ttl { font-weight: 700; display: block; margin: 2px 0 4px; }
+.results .snip { font-size: 13.5px; color: var(--ink); display: block; line-height: 1.45; }
+.empty { text-align: center; color: var(--muted); padding: 40px 12px; font-size: 14px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; justify-content: center; }
+.chips button { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+
+.disclaimer { font-size: 12.5px; color: var(--amber-ink); background: var(--amber-bg); border-radius: 10px; padding: 10px 12px; margin: 16px 0 0; }
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.pager button { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 10px 12px; text-align: left; cursor: pointer; font-size: 13px; min-height: 56px; }
+.pager button.next { text-align: right; grid-column: 2; }
+.pager small { display: block; color: var(--muted); font-size: 11.5px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header class="top gutter">
+  <div class="wrap">
+    <div class="brand">
+      <button class="back" id="backBtn" aria-label="Quay lại" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h1 id="hdr">Sổ tay PCCC<small>QCVN 06:2022/BXD · Sửa đổi 1:2023</small></h1>
+    </div>
+    <div class="search">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Tìm: buồng thang N3, REI 150, F1.3…" aria-label="Tìm trong sổ tay">
+      <button class="clear" id="clearQ" aria-label="Xóa tìm kiếm" hidden>×</button>
+    </div>
+  </div>
+</header>
+
+<main class="gutter"><div class="wrap" id="view"></div></main>
+
+<nav class="bottom" aria-label="Điều hướng chính">
+  <div class="row">
+    <button data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>Mục lục</button>
+    <button data-nav="tra-nhanh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="3"/></svg>Tra nhanh</button>
+    <button data-nav="da-luu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Đã lưu</button>
+    <button data-nav="checklist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9l2 2 4-4M8 16h8"/></svg>Checklist</button>
+  </div>
+</nav>
+
+<script>
+const DATA = {"README.md": "# Sổ tay QCVN 06:2022\n\nTra cứu nhanh các yêu cầu **kiến trúc – kết cấu** về an toàn cháy theo **QCVN 06:2022/BXD** (ban hành kèm Thông tư 06/2022/TT-BXD) và **Sửa đổi 1:2023** (ban hành kèm Thông tư 09/2023/TT-BXD ngày 16/10/2023).\n\n> Sổ tay là tài liệu **tóm tắt để tra cứu**, không thay thế văn bản quy chuẩn. Trước khi ghi vào thuyết minh, hồ sơ thẩm duyệt hay trả lời ý kiến thẩm định, luôn đối chiếu điều khoản gốc — tốt nhất là **văn bản hợp nhất QCVN 06:2022/BXD + SĐ1:2023** do Bộ Xây dựng công bố.\n\n## Cách dùng sổ tay — trình tự 7 bước\n\nMọi hồ sơ thiết kế PCCC phần kiến trúc đi theo cùng một chuỗi quyết định. Bước sau phụ thuộc kết quả bước trước, nên tra theo đúng thứ tự:\n\n| Bước | Câu hỏi cần trả lời | Mục tra cứu |\n| --- | --- | --- |\n| 1 | Nhà thuộc **nhóm nguy hiểm cháy theo công năng** nào (F1…F5)? Có phần nào khác nhóm không? | [Phân loại](01-phan-loai.md) – Bảng 6 |\n| 2 | **Chiều cao PCCC** bao nhiêu? Số tầng hầm, diện tích sàn? | [Thuật ngữ](08-thuat-ngu.md) |\n| 3 | Chọn **bậc chịu lửa** (I–V) và **cấp nguy hiểm cháy kết cấu** (S0–S3) → GHCL từng cấu kiện | [Phân loại](01-phan-loai.md) – Bảng 4, 5 |\n| 4 | **Diện tích khoang cháy** cho phép? Cần tường/sàn ngăn cháy ở đâu? | [Ngăn cháy](02-ngan-chay.md) – Phụ lục H |\n| 5 | **Thoát nạn**: số lối ra, khoảng cách, chiều rộng, loại buồng thang | [Thoát nạn](03-thoat-nan.md) – Phụ lục G |\n| 6 | **Ngăn cháy lan** trong nhà và giữa các nhà | [Cháy lan](04-chay-lan.md) – Phụ lục E |\n| 7 | **Tiếp cận chữa cháy & cứu nạn**: đường xe, bãi đỗ, thang máy chữa cháy, lối ra mái | [Chữa cháy & cứu nạn](05-chua-chay-cuu-nan.md) |\n\nSau đó: rà các điểm [Sửa đổi 1:2023](06-sua-doi-1-2023.md) và chạy [Checklist hồ sơ](07-checklist.md).\n\n## Giọng văn của sổ tay\n\n- **Một dòng – một yêu cầu – một con số.** Mỗi yêu cầu ghi: đối tượng → giá trị → điều kiện áp dụng → điều khoản. Ví dụ: *Vế thang thoát nạn ≥ 1,2 m khi số người ở tầng đông nhất > 200 (mục 3.4).*\n- Dùng đúng thuật ngữ của quy chuẩn: *lối ra thoát nạn*, *đường thoát nạn*, *chiều cao PCCC*, *khoang cháy*, *buồng thang bộ không nhiễm khói N1/N2/N3*. Không dùng từ đời thường thay thế (\"cầu thang thoát hiểm\", \"cửa chống cháy\" chỉ dùng trong ngoặc giải thích).\n- Đơn vị viết theo TCVN: dấu phẩy thập phân (1,2 m), GHCL viết liền (REI 150 hoặc REI150 đều được trong sổ, nhưng hồ sơ nên thống nhất một cách).\n- Không suy diễn: điều gì quy chuẩn không quy định, ghi \"không quy định\" — không tự đặt giá trị.\n\n## Nền tảng thị giác\n\nMàu trong sổ tay mang nghĩa, không trang trí:\n\n| Token | Nghĩa | Dùng cho |\n| --- | --- | --- |\n| `fire-600` | Ngăn cháy, chịu lửa | Tiêu đề bảng GHCL, đường tường ngăn cháy trên sơ đồ |\n| `exit-600` | Thoát nạn | Mọi nội dung lối ra, đường thoát nạn, buồng thang (theo màu xanh của biển EXIT) |\n| `amber-500` / `amber-ink` | Cần đối chiếu | Nhãn ⚑ và ghi chú cảnh báo |\n| `ink`, `muted` | Văn bản | Chữ chính / chú thích |\n| `surface-100`, `surface-200`, `line` | Nền giấy | Nền trang, ô bảng xen kẽ, kẻ bảng |\n\nPhân biệt \"ngăn cháy\" (đỏ) và \"thoát nạn\" (xanh) bằng **độ sáng** chứ không chỉ sắc độ — luôn kèm chữ hoặc ký hiệu, vì người mù màu đỏ–lục không phân biệt được hai màu này.\n\nChữ: **Be Vietnam Pro** (hỗ trợ đầy đủ dấu tiếng Việt) cho nội dung; **JetBrains Mono** cho mã điều khoản, ký hiệu GHCL và số liệu bảng.\n\n## Ký hiệu\n\n| Ký hiệu | Nghĩa |\n| --- | --- |\n| **R** | Khả năng chịu lực (mất ổn định / sụp đổ) |\n| **E** | Tính toàn vẹn (xuất hiện vết nứt, lỗ để lửa xuyên qua) |\n| **I** | Khả năng cách nhiệt (nhiệt độ mặt không tiếp xúc lửa tăng quá giới hạn) |\n| **REI 150** | Giới hạn chịu lửa 150 phút theo cả ba tiêu chí |\n| **K0…K3** | Cấp nguy hiểm cháy của cấu kiện |\n| **S0…S3** | Cấp nguy hiểm cháy kết cấu của nhà |\n| **F1.1…F5.3** | Nhóm nguy hiểm cháy theo công năng |\n| **A, B, C1–C4, D, E** | Hạng nguy hiểm cháy và cháy nổ của nhà/gian phòng sản xuất, kho |\n| ✱ | Nội dung có liên quan Sửa đổi 1:2023 |\n| ⚑ | Giá trị tóm tắt cần đối chiếu nguyên văn trước khi dùng trong hồ sơ |\n\n## Cấu trúc QCVN 06:2022/BXD (tóm lược)\n\n1. Quy định chung — phạm vi, đối tượng, tài liệu viện dẫn, thuật ngữ\n2. Phân loại kỹ thuật về cháy — vật liệu, cấu kiện, bộ phận ngăn cháy, buồng thang, nhà\n3. Bảo đảm an toàn cho người — lối ra, đường thoát nạn, cầu thang và buồng thang bộ\n4. Ngăn chặn cháy lan\n5. Hệ thống kỹ thuật / cấp nước chữa cháy ⚑ (tên chương: kiểm tra bản gốc)\n6. Chữa cháy và cứu nạn — đường xe chữa cháy, lối ra mái, thang máy chữa cháy\n7–8. Quy định về quản lý, tổ chức thực hiện\n\nCác phụ lục hay dùng cho phần kiến trúc: **C** – phân hạng nguy hiểm cháy nổ ⚑; **E** – khoảng cách PCCC giữa các nhà, công trình; **F** – GHCL danh định của cấu kiện ⚑; **G** – khoảng cách đến lối ra thoát nạn và chiều rộng lối ra; **H** – bậc chịu lửa, chiều cao, diện tích khoang cháy theo nhóm nhà.\n\n## Phạm vi sổ tay\n\nChỉ gồm nội dung **kiến trúc – kết cấu**: phân loại, GHCL, ngăn cháy, thoát nạn, cháy lan, tiếp cận chữa cháy. Không gồm: tính toán hệ thống báo cháy, chữa cháy tự động, cấp nước, hút khói (chỉ nêu khi ảnh hưởng tới giải pháp kiến trúc).\n", "01-phan-loai.md": "# 1. Phân loại kỹ thuật về cháy\n\nChương 2 của QCVN 06:2022. Đây là đầu vào cho mọi yêu cầu còn lại.\n\n## 1.1 Vật liệu xây dựng\n\n| Đặc tính | Phân nhóm | Ghi chú |\n| --- | --- | --- |\n| Tính cháy | **KC** (không cháy); **Ch1** cháy yếu → **Ch4** cháy mạnh | Nền tảng để xếp cấp K của cấu kiện |\n| Tính bắt cháy | **BC1** khó bắt cháy, **BC2** bắt cháy vừa, **BC3** dễ bắt cháy | Áp dụng cho vật liệu cháy được |\n| Lan truyền lửa trên bề mặt | **LT1** không lan truyền → **LT4** lan truyền mạnh | Quan trọng với vật liệu phủ sàn |\n| Khả năng sinh khói | **SK1** thấp, **SK2** vừa, **SK3** cao | |\n| Độc tính sản phẩm cháy | **ĐT1** ít độc → **ĐT4** đặc biệt độc | |\n\n**Vật liệu hoàn thiện trên đường thoát nạn** (tường, trần, sàn của sảnh, buồng thang, hành lang chung) phải thỏa yêu cầu theo nhóm nhà và chiều cao — xem bảng trong Phụ lục B ⚑. Nguyên tắc chung: buồng thang bộ và sảnh thang yêu cầu cao nhất, rồi đến hành lang chung, rồi đến gian phòng.\n\n## 1.2 Cấu kiện xây dựng\n\n**Giới hạn chịu lửa (GHCL)** — thời gian (phút) đến khi xuất hiện một trong các trạng thái giới hạn:\n\n- **R** – mất khả năng chịu lực\n- **E** – mất tính toàn vẹn\n- **I** – mất khả năng cách nhiệt (nhiệt độ trung bình mặt không đốt tăng > 140 °C hoặc tại một điểm > 180 °C ⚑)\n\nThang giá trị thường dùng: 15, 30, 45, 60, 90, 120, 150, 180, 240, 360 phút.\n\n**Cấp nguy hiểm cháy của cấu kiện**: K0 (không nguy hiểm cháy) → K1 (ít) → K2 (vừa) → K3 (nguy hiểm cháy). Xác định theo thí nghiệm: kích thước vùng hư hại, có/không cháy có ngọn lửa và giọt nóng chảy.\n\nGHCL danh định của các cấu kiện thông dụng (cột, dầm, sàn bê tông cốt thép theo chiều dày lớp bảo vệ; tường gạch theo chiều dày…) tra **Phụ lục F** ⚑ — dùng được khi không có kết quả thử nghiệm.\n\n## 1.3 Bậc chịu lửa của nhà — Bảng 4\n\nGHCL **tối thiểu** của cấu kiện theo bậc chịu lửa:\n\n| Bậc | Bộ phận chịu lực (cột, dầm, tường chịu lực, giàn, khung) | Tường ngoài không chịu lực | Sàn giữa các tầng (kể cả sàn tầng áp mái, trên tầng hầm) | Sàn mái không có lớp gác mái | Dầm, giàn, vì kèo mái | Tường trong buồng thang bộ | Bản thang, chiếu nghỉ |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| **I** | R 150 | E 30 | REI 60 | RE 30 | R 30 | REI 150 | R 60 |\n| **II** | R 120 | E 15 | REI 45 | RE 15 | R 15 | REI 120 | R 60 |\n| **III** | R 90 | E 15 | REI 45 | RE 15 | R 15 | REI 90 | R 60 |\n| **IV** | R 30 | E 15 | REI 15 | RE 15 | R 15 | REI 45 | R 15 |\n| **V** | không quy định | không quy định | không quy định | không quy định | không quy định | không quy định | không quy định |\n\n⚑ Bảng này là tóm tắt; các chú thích của Bảng 4 (ngoại lệ cho bộ phận chịu lực chỉ đỡ mái, kết cấu thép không bọc của nhà một tầng, nhà sản xuất…) phải đọc nguyên văn. ✱ SĐ1:2023 có điều chỉnh cho một số trường hợp nhà sản xuất, kho — xem [Sửa đổi 1:2023](06-sua-doi-1-2023.md).\n\nLưu ý thường gặp khi thẩm duyệt:\n\n- Bộ phận chịu lực **bao gồm cả** dầm, giằng, sàn tham gia đảm bảo ổn định tổng thể — không chỉ cột.\n- Kết cấu thép: phải có giải pháp bảo vệ (sơn chống cháy, bọc bảng, phun vữa) với **chứng nhận/kiểm định** cho đúng GHCL và đúng hệ số tiết diện.\n- Vách kính, vách thạch cao: phải có kết quả thử nghiệm cho đúng cấu tạo lắp dựng.\n\n## 1.4 Cấp nguy hiểm cháy kết cấu của nhà — Bảng 5\n\n| Cấp | Bộ phận chịu lực | Tường ngoài phía ngoài | Tường, vách ngăn, sàn, mái không có lớp gác mái | Tường buồng thang, vách ngăn cháy | Bản thang, chiếu nghỉ |\n| --- | --- | --- | --- | --- | --- |\n| **S0** | K0 | K0 | K0 | K0 | K0 |\n| **S1** | K0 | K2 | K1 | K0 | K0 |\n| **S2** | K1 | K3 | K2 | K1 | K1 |\n| **S3** | không quy định | không quy định | không quy định | K1 | K3 ⚑ |\n\n⚑ Đối chiếu Bảng 5 bản gốc trước khi dùng — đặc biệt các ô cấp S2, S3.\n\n## 1.5 Nhóm nguy hiểm cháy theo công năng — Bảng 6 ✱\n\n| Nhóm | Phân nhóm | Ví dụ điển hình |\n| --- | --- | --- |\n| **F1** – để ở thường xuyên/tạm thời | F1.1 | Nhà trẻ, mẫu giáo; bệnh viện có nội trú; nhà dưỡng lão; khu ngủ của trường nội trú |\n|  | F1.2 | Khách sạn, nhà nghỉ, ký túc xá, khu ngủ nhà điều dưỡng, nhà an dưỡng |\n|  | F1.3 | Nhà chung cư (kể cả căn hộ kiểu ký túc xá) |\n|  | F1.4 | Nhà ở riêng lẻ, nhà liền kề, nhà ở kết hợp ⚑ (xem SĐ1) |\n| **F2** – văn hóa, giải trí | F2.1 | Nhà hát, rạp chiếu phim, hội trường, câu lạc bộ, nhà thể thao có khán đài — trong nhà kín |\n|  | F2.2 | Bảo tàng, triển lãm, phòng nhảy, vũ trường — trong nhà kín |\n|  | F2.3 | Như F2.1 nhưng ở ngoài trời |\n|  | F2.4 | Như F2.2 nhưng ở ngoài trời |\n| **F3** – dịch vụ công cộng | F3.1 | Thương mại: chợ, siêu thị, trung tâm thương mại, cửa hàng |\n|  | F3.2 | Ăn uống: nhà hàng, quán ăn, quán bar |\n|  | F3.3 | Nhà ga, bến xe, cảng hàng không |\n|  | F3.4 | Phòng khám, khám ngoại trú, trạm y tế (không nội trú) |\n|  | F3.5 | Dịch vụ sinh hoạt: bưu điện, ngân hàng giao dịch ⚑, tiệm làm tóc, giặt là… |\n|  | F3.6 | Thể thao trong nhà không có khán đài, bể bơi, phòng tập |\n| **F4** – học tập, khoa học, hành chính | F4.1 | Trường phổ thông, trung tâm giáo dục nghề nghiệp ⚑ |\n|  | F4.2 | Trường cao đẳng, đại học, đào tạo nâng cao |\n|  | F4.3 | Cơ quan hành chính, văn phòng, viện nghiên cứu, thư viện ⚑ |\n|  | F4.4 | Trạm (trụ sở) phòng cháy chữa cháy |\n| **F5** – sản xuất, kho | F5.1 | Nhà sản xuất, phòng thí nghiệm |\n|  | F5.2 | Kho, nhà để xe không có dịch vụ bảo dưỡng – sửa chữa, kho sách, lưu trữ |\n|  | F5.3 | Nhà nông nghiệp |\n\n✱ Bảng 6 có sửa đổi, bổ sung tại SĐ1:2023 — dùng bảng trong bản hợp nhất.\n\n**Nhà hỗn hợp**: mỗi phần có công năng khác nhau được xếp nhóm riêng; yêu cầu ngăn cách giữa các phần theo mục 4 (thường tường/sàn ngăn cháy). Phần phụ trợ (kỹ thuật, kho nhỏ) nằm trong nhà nhóm khác được xếp theo nhóm chính khi thỏa điều kiện diện tích/ngăn cách ⚑.\n\n## 1.6 Hạng nguy hiểm cháy và cháy nổ (nhà sản xuất, kho)\n\n| Hạng | Đặc trưng |\n| --- | --- |\n| **A** – nguy hiểm cháy nổ cao | Khí cháy; chất lỏng có nhiệt độ bùng cháy ≤ 28 °C, có thể tạo hỗn hợp nổ với áp suất nổ dư > 5 kPa |\n| **B** – nguy hiểm cháy nổ | Bụi, sợi cháy được; chất lỏng có nhiệt độ bùng cháy > 28 °C; áp suất nổ dư > 5 kPa |\n| **C1** | Nguy hiểm cháy — tải trọng cháy riêng g > 2 200 MJ/m² |\n| **C2** | g = 1 401 – 2 200 MJ/m² |\n| **C3** | g = 181 – 1 400 MJ/m² |\n| **C4** | g = 1 – 180 MJ/m² |\n| **D** | Chất/vật liệu không cháy ở trạng thái nóng, nóng chảy; khí, lỏng, rắn đốt làm nhiên liệu |\n| **E** | Chất/vật liệu không cháy ở trạng thái nguội |\n\nHạng của **nhà** xác định từ tỷ lệ diện tích các gian phòng hạng cao (ví dụ nhà hạng A khi tổng diện tích gian phòng hạng A > 5 % diện tích các gian phòng hoặc > 200 m² ⚑). Phương pháp tính chi tiết: Phụ lục C ⚑.\n", "02-ngan-chay.md": "# 2. Bộ phận ngăn cháy và khoang cháy\n\n## 2.1 Loại bộ phận ngăn cháy và GHCL tối thiểu\n\n| Bộ phận ngăn cháy | Loại | GHCL tối thiểu |\n| --- | --- | --- |\n| Tường ngăn cháy | 1 | REI 150 |\n|  | 2 | REI 45 |\n| Vách ngăn cháy | 1 | EI 45 |\n|  | 2 | EI 15 |\n| Sàn ngăn cháy | 1 | REI 150 |\n|  | 2 | REI 60 |\n|  | 3 | REI 45 |\n|  | 4 | REI 15 |\n| Cửa đi, cổng, cửa nắp, van ngăn cháy | 1 | EI 60 |\n|  | 2 | EI 30 |\n|  | 3 | EI 15 |\n| Cửa sổ ngăn cháy | 1 | E 60 |\n|  | 2 | E 30 |\n|  | 3 | E 15 |\n| Màn chắn ngăn cháy | 1 | EI 60 |\n\nCửa ngăn cháy trên đường thoát nạn và cửa có kính: cho phép tiêu chí **E** thay **EI** trong các trường hợp quy chuẩn nêu (ví dụ cửa có kính chiếm diện tích lớn, cửa vào buồng thang có áp suất dương) ⚑ — đọc nguyên văn chú thích.\n\n## 2.2 Phối hợp các phần tử — bộ phận ngăn cháy cần cửa và khoang đệm loại nào\n\n| Bộ phận ngăn cháy | Cửa, cổng, van trong đó | Khoang đệm |\n| --- | --- | --- |\n| Tường ngăn cháy loại 1 | Loại 1 | Loại 1 |\n| Tường ngăn cháy loại 2 | Loại 2 | Loại 2 |\n| Vách ngăn cháy loại 1 | Loại 2 | Loại 1 |\n| Vách ngăn cháy loại 2 | Loại 3 | Loại 2 |\n| Sàn ngăn cháy loại 1 | Loại 1 | Loại 1 |\n| Sàn ngăn cháy loại 2, 3 | Loại 2 | Loại 1 |\n| Sàn ngăn cháy loại 4 | Loại 3 | Loại 2 |\n\n**Khoang đệm ngăn cháy**\n\n| Loại | Vách | Sàn | Cửa |\n| --- | --- | --- | --- |\n| Khoang đệm loại 1 | Vách ngăn cháy loại 1 | Sàn ngăn cháy loại 3 | Cửa ngăn cháy loại 2 |\n| Khoang đệm loại 2 | Vách ngăn cháy loại 2 | Sàn ngăn cháy loại 4 | Cửa ngăn cháy loại 3 |\n\n## 2.3 Tường ngăn cháy — cấu tạo\n\n- Đặt **suốt chiều cao nhà**, ngăn chia toàn bộ khoang cháy; bảo đảm không sụp đổ khi kết cấu một bên bị phá hủy do cháy.\n- **Vượt lên trên mái**: ≥ 60 cm nếu một trong các bộ phận mái (trừ lớp lợp) làm bằng vật liệu nhóm Ch2–Ch4; ≥ 30 cm nếu mái bằng vật liệu Ch1 ⚑. Không cần vượt mái khi mọi bộ phận mái bằng vật liệu KC/Ch1 và tường ngăn cháy tiếp giáp kín với mái.\n- **Vượt ra ngoài mặt tường ngoài** ≥ 30 cm khi tường ngoài làm bằng vật liệu cháy được (Ch2–Ch4) ⚑.\n- Khi tường ngoài có lỗ mở ở hai bên tường ngăn cháy: khoảng cách theo phương ngang giữa mép các lỗ mở ≥ **4 m**; nếu nhỏ hơn, các lỗ mở trong đoạn 4 m phải là cửa sổ/cửa ngăn cháy ⚑.\n- Hai khối nhà tạo góc nhau tại tường ngăn cháy: khoảng cách giữa các lỗ mở ở hai phía góc ≥ 4 m ⚑.\n- Lỗ mở trong tường ngăn cháy (cửa, ô thông gió, lỗ xuyên kỹ thuật) phải chèn bịt hoặc dùng phần tử ngăn cháy cùng loại theo §2.2. Tổng diện tích lỗ mở trong bộ phận ngăn cháy (trừ tường bao buồng thang) không vượt quá **25 %** diện tích bộ phận đó ⚑.\n- Đường ống, cáp xuyên qua: chèn bịt bằng vật liệu/cụm chèn có GHCL không thấp hơn GHCL bộ phận được xuyên.\n\n## 2.4 Khoang cháy — Phụ lục H ✱\n\nDiện tích sàn **lớn nhất** trong một khoang cháy và **chiều cao PCCC lớn nhất** cho phép phụ thuộc:\n\n1. Nhóm F (mỗi nhóm có bảng riêng trong Phụ lục H)\n2. Bậc chịu lửa (I–V) và cấp nguy hiểm cháy kết cấu (S0–S3)\n3. Số tầng (một tầng / nhiều tầng)\n4. Có/không có hệ thống chữa cháy tự động — thường cho phép **tăng diện tích** khoang cháy (thường gấp đôi ⚑ trừ khi bảng ghi khác)\n5. Với F5: hạng nguy hiểm cháy nổ A…E\n\nCách dùng:\n\n1. Xác định nhóm F → mở bảng tương ứng ở Phụ lục H.\n2. Chọn hàng theo bậc chịu lửa + cấp S dự kiến.\n3. Đọc chiều cao cho phép và diện tích sàn khoang cháy cho phép.\n4. Nếu diện tích sàn vượt → chia khoang bằng tường ngăn cháy loại 1 (hoặc loại 2 tùy bảng) và sàn ngăn cháy; hoặc nâng bậc chịu lửa; hoặc bổ sung chữa cháy tự động khi bảng cho phép.\n\nDiện tích khoang cháy tính bằng **tổng diện tích sàn các tầng** trong khoang (không phải diện tích một tầng) — trừ khi bảng ghi \"diện tích sàn của một tầng\" ⚑. ✱ SĐ1:2023 có điều chỉnh các bảng Phụ lục H cho một số nhóm — dùng bản hợp nhất.\n\n## 2.5 Các gian phòng phải ngăn cách bằng bộ phận ngăn cháy (thường gặp)\n\n| Gian phòng | Giải pháp thường gặp ⚑ |\n| --- | --- |\n| Phòng kỹ thuật điện, máy phát, trạm biến áp trong nhà | Tường/vách ngăn cháy loại 1, sàn ngăn cháy loại 3, cửa ngăn cháy loại 2 trở lên |\n| Phòng bơm chữa cháy, phòng trực điều khiển chống cháy | Vách ngăn cháy loại 1, sàn loại 3; lối ra trực tiếp ra ngoài hoặc vào buồng thang/hành lang thoát nạn |\n| Kho chứa chất cháy, phòng rác, buồng chứa rác | Vách ngăn cháy loại 1, cửa ngăn cháy loại 2 |\n| Gara/chỗ để xe trong nhà nhóm khác | Tường và sàn ngăn cháy loại 1 ngăn với phần còn lại |\n| Phòng hạng A, B, C1–C3 trong nhà sản xuất | Tường/vách ngăn cháy theo yêu cầu điều 4 và bảng Phụ lục H |\n| Bếp nhà hàng, khu ăn uống trong TTTM | Vách ngăn cháy, kiểm tra yêu cầu hút khói |\n\n## 2.6 Trục kỹ thuật, giếng thang máy, ống rác\n\n- Kết cấu bao che giếng thang máy và trục kỹ thuật (ngoài buồng thang bộ) có GHCL theo yêu cầu của **vách ngăn cháy loại 1 / sàn ngăn cháy loại 2** hoặc tương đương ⚑; cửa giếng thang máy có GHCL **EI 30** (hoặc E 30 khi có khoang đệm/sảnh ngăn cháy) ⚑.\n- Trục kỹ thuật thẳng đứng: chèn bịt tại mỗi sàn hoặc bao che bằng kết cấu có GHCL tương ứng; cửa kiểm tra trục là cửa ngăn cháy.\n- Thang máy trong nhà có chiều cao PCCC > 28 m: phải có giải pháp ngăn khói vào giếng (sảnh/khoang đệm, tăng áp) ⚑.\n", "03-thoat-nan.md": "# 3. Thoát nạn\n\nChương 3 — Bảo đảm an toàn cho người. Phụ lục G cho khoảng cách và chiều rộng.\n\n## 3.1 Lối ra thoát nạn là gì\n\nLối ra được coi là **lối ra thoát nạn** khi dẫn:\n\n- Từ tầng 1 **trực tiếp ra ngoài** hoặc qua sảnh, hành lang, buồng thang bộ ra ngoài;\n- Từ tầng bất kỳ (trừ tầng 1) **vào buồng thang bộ** hoặc **thang bộ loại 3** (thang hở bên ngoài);\n- Vào **gian phòng lân cận** trên cùng tầng có lối ra thoát nạn như trên (với điều kiện gian đó không phải hạng A, B và không phải gian có nhóm khác ⚑);\n- Từ tầng hầm/nửa hầm: trực tiếp ra ngoài, hoặc vào buồng thang bộ **có lối ra riêng** ra ngoài, tách biệt với phần trên mặt đất.\n\n**Không** được coi là lối ra thoát nạn: cửa thang máy, cửa xoay, cửa trượt, cửa cuốn, cửa nâng (trừ trường hợp quy chuẩn cho phép ở nhà nhóm F1.4, F5 ⚑).\n\n## 3.2 Số lượng lối ra thoát nạn\n\n**Từ gian phòng** — phải có ≥ 2 lối ra thoát nạn khi (tóm tắt ⚑):\n\n| Trường hợp | Ngưỡng |\n| --- | --- |\n| Gian phòng nhóm F1.1 | > 15 người |\n| Tầng hầm, tầng nửa hầm | > 15 người (gian có > 6–15 người tùy trường hợp ⚑) |\n| Gian phòng nhóm F2–F4 nói chung | > 50 người |\n| Gian phòng F5 hạng A, B | > 5 người |\n| Gian phòng F5 hạng C1–C4 | > 25 người hoặc diện tích > 1 000 m² ⚑ |\n\n**Từ tầng** — tầng của nhà phải có ≥ 2 lối ra thoát nạn, trừ các trường hợp cho phép 1 lối ra (nhà/tầng diện tích nhỏ, số người ít, chiều cao hạn chế — điều kiện riêng từng nhóm F) ⚑. Với nhà **F1.3**: tầng có tổng diện tích căn hộ ≤ 500 m² và chiều cao PCCC ≤ 15 m được phép 1 lối ra vào buồng thang bộ khi thỏa điều kiện kèm theo ⚑ (✱ SĐ1 có điều chỉnh liên quan).\n\n**Bố trí phân tán**: khi có ≥ 2 lối ra, khoảng cách giữa hai lối ra xa nhất ≥ **1/2 chiều dài đường chéo lớn nhất** của mặt bằng gian phòng/tầng (đo theo đường thẳng) ⚑; nhà có sprinkler toàn bộ cho phép giảm còn 1/3 ⚑.\n\n## 3.3 Kích thước lối ra và đường thoát nạn\n\n| Hạng mục | Yêu cầu tối thiểu |\n| --- | --- |\n| Chiều cao thông thủy lối ra thoát nạn | **≥ 1,9 m** |\n| Chiều rộng thông thủy lối ra thoát nạn | **≥ 0,8 m** (chung); **≥ 1,2 m** từ gian phòng F1.1 có > 15 người, và từ gian phòng/tầng có > 50 người ⚑ |\n| Cửa ra ngoài từ buồng thang bộ | Không nhỏ hơn chiều rộng vế thang |\n| Chiều cao thông thủy đường thoát nạn (hành lang, lối đi) | **≥ 2,0 m** |\n| Chiều rộng hành lang thoát nạn | **≥ 1,0 m** (chung); ≥ 1,2 m với hành lang chung có > 50 người thoát qua ⚑ |\n| Chiều rộng lối đi trong gian phòng | ≥ 1,0 m ⚑ |\n| Chênh cao trên đường thoát nạn | < 45 cm phải dùng **dốc ≤ 1:6** hoặc bậc (tối thiểu 3 bậc ⚑); không dùng 1–2 bậc lẻ |\n\nChiều rộng tổng các lối ra tính theo **số người** thoát qua và tiêu chuẩn chiều rộng cho 100 người — Phụ lục G (theo nhóm F, bậc chịu lửa, mật độ người) ⚑.\n\n**Cửa trên đường thoát nạn**\n\n- **Mở theo chiều thoát nạn** (trừ gian ≤ 15 người, kho ≤ 200 m² không có chỗ làm việc thường xuyên, khu vệ sinh, căn hộ ⚑).\n- Mở **tự do từ bên trong không cần chìa khóa**.\n- Cửa vào buồng thang bộ, sảnh thang, hành lang có ngăn khói: **tự đóng và có gioăng kín**; cửa được giữ mở phải có cơ cấu tự đóng khi cháy.\n- Cánh cửa khi mở không làm giảm chiều rộng chiếu nghỉ/hành lang dưới mức tối thiểu.\n\n## 3.4 Khoảng cách thoát nạn — Phụ lục G\n\nKhoảng cách giới hạn từ **cửa gian phòng/căn hộ xa nhất** (hoặc điểm xa nhất trong gian) đến **lối ra thoát nạn gần nhất**, phụ thuộc nhóm F, bậc chịu lửa, cấp S, và vị trí (giữa hai lối ra hay hành lang cụt).\n\nVí dụ tham khảo nhà **F1.3** (khoảng cách từ cửa căn hộ đến lối ra thoát nạn gần nhất) ⚑:\n\n| Bậc chịu lửa | Cấp S | Giữa 2 lối ra | Hành lang cụt |\n| --- | --- | --- | --- |\n| I, II | S0 | 40 m | 25 m |\n| II, III | S1 | 30 m | 15 m |\n| IV | S0, S1 | 25 m | 15 m ⚑ |\n| IV, V | S2, S3 | 20 m | 10 m |\n\nLưu ý: có hệ thống chữa cháy tự động / hệ thống hút khói thường cho phép tăng khoảng cách (thường 50 %) ⚑. Đọc bảng Phụ lục G tương ứng nhóm nhà trước khi dùng.\n\n## 3.5 Cầu thang bộ và buồng thang bộ\n\n**Các loại cầu thang thoát nạn**\n\n| Loại | Mô tả |\n| --- | --- |\n| Thang bộ loại 1 | Thang bên trong nhà, đặt trong buồng thang |\n| Thang bộ loại 2 | Thang bên trong nhà, để hở |\n| Thang bộ loại 3 | Thang bên ngoài nhà, để hở |\n\n**Các loại buồng thang bộ**\n\n| Loại | Đặc điểm |\n| --- | --- |\n| **L1** | Có lỗ mở (cửa sổ) chiếu sáng tự nhiên trên tường ngoài ở **mỗi tầng** |\n| **L2** | Chiếu sáng tự nhiên qua lỗ mở trên mái |\n| **N1** | Không nhiễm khói — lối vào từ tầng đi qua **khoảng đệm ngoài trời** (ban công, lô gia, cầu thông ngoài nhà) |\n| **N2** | Không nhiễm khói — có **áp suất không khí dương** trong buồng thang khi cháy |\n| **N3** | Không nhiễm khói — lối vào từ tầng qua **khoang đệm** có áp suất dương (thường xuyên hoặc khi cháy) |\n\n**Yêu cầu loại buồng thang theo chiều cao** (tóm tắt ⚑)\n\n| Trường hợp | Buồng thang yêu cầu |\n| --- | --- |\n| Nhà chiều cao PCCC ≤ 28 m | L1, L2 (L2 hạn chế với nhà ≤ 5 tầng ⚑ hoặc có khe hở giữa các vế thang ≥ 0,75 m ⚑) |\n| Nhà chiều cao PCCC > 28 m | Buồng thang **không nhiễm khói**; với F1.3 ưu tiên N1, có thể dùng N2/N3 khi thỏa điều kiện ⚑ |\n| Tầng hầm (≥ 2 tầng hầm ⚑) | Buồng thang không nhiễm khói N3 hoặc buồng thang có khoang đệm ngăn cháy tăng áp ⚑ |\n\n**Kích thước thang**\n\n| Hạng mục | Yêu cầu tối thiểu |\n| --- | --- |\n| Chiều rộng vế thang | ≥ chiều rộng lối ra vào buồng thang; ≥ **1,35 m** nhà F1.1; ≥ **1,2 m** nhà có > 200 người ở tầng đông nhất; ≥ **0,9 m** các trường hợp khác; ≥ 0,7 m thang tới chỗ làm việc đơn lẻ |\n| Độ dốc | ≤ **1:1** |\n| Mặt bậc | ≥ **25 cm** |\n| Chiều cao bậc | ≤ **22 cm** (≥ 5 cm ⚑) |\n| Chiếu nghỉ | Chiều rộng ≥ chiều rộng vế thang; chiều dài chiếu nghỉ giữa ≥ **1,0 m** |\n| Bậc thang | Không dùng bậc rẻ quạt, bậc có mặt bậc thay đổi trên vế thang thoát nạn ⚑ |\n\n**Cửa sổ buồng thang L1**: diện tích lỗ mở ≥ **1,2 m²** ở mỗi tầng; cơ cấu mở đặt ≤ 1,7 m so với mặt chiếu nghỉ/sàn ⚑.\n\n**Trong buồng thang bộ không được bố trí**: ống dẫn khí cháy, chất lỏng cháy; tủ tường (trừ tủ thông tin liên lạc, tủ họng nước chữa cháy); cáp điện hở (trừ chiếu sáng hành lang, buồng thang); lối ra từ giếng thang máy chở hàng; thiết bị nhô ra làm hẹp lối đi dưới độ cao 2,2 m ⚑.\n\n**Buồng thang thoát ra ngoài** trực tiếp hoặc qua sảnh ngăn cách với hành lang bằng vách ngăn cháy loại 1 ⚑; số tầng thông nhau qua sảnh — đọc điều kiện cụ thể.\n\n**Thang bộ loại 3 (bên ngoài nhà)**: vật liệu KC; chiều rộng ≥ 0,7 m ⚑; độ dốc ≤ 45°; khi dùng thay buồng thang, cửa ra thang là cửa ngăn cháy và cửa sổ trong phạm vi quy định quanh thang phải là cửa sổ ngăn cháy ⚑.\n\n## 3.6 Lối ra khẩn cấp\n\nLối ra không đáp ứng yêu cầu lối ra thoát nạn nhưng có thể dùng khi khẩn cấp — **không tính** vào số lượng/chiều rộng lối ra thoát nạn. Ví dụ: ban công/lô gia có tường đặc ≥ 1,2 m và khoảng cách giữa các ô cửa…, lối ra mái, cửa sổ kích thước ≥ 0,6 × 0,8 m ⚑. Dùng phổ biến cho căn hộ F1.3 cao tầng (cửa ra ban công có tường đặc).\n\n## 3.7 Lan can, chiếu sáng, vạch dẫn\n\n- Lan can cầu thang, ban công, mái có người: chiều cao ≥ **0,9 m** (thang), ≥ **1,2 m** ở thang hở bên ngoài, ban công/mái ⚑; lan can mái nhà có độ cao chênh lớn tham chiếu QCVN 04/QCVN 10.\n- Đường thoát nạn có chiếu sáng sự cố và chỉ dẫn thoát nạn (TCVN 13456 / TCVN 3890 ⚑).\n", "04-chay-lan.md": "# 4. Ngăn chặn cháy lan\n\nChương 4 và Phụ lục E.\n\n## 4.1 Khoảng cách PCCC giữa các nhà — Phụ lục E\n\nKhoảng cách tính từ **mặt tường ngoài** (hoặc kết cấu nhô ra bằng vật liệu cháy được > 1 m) của nhà này tới nhà kia.\n\n**Nhà ở, nhà công cộng, nhà phụ trợ (Bảng E.1)** — khoảng cách tối thiểu (m) ⚑:\n\n| Bậc chịu lửa – cấp S của nhà thứ nhất | ↔ I, II, III – S0 | ↔ II, III, IV – S1 | ↔ IV, V – S2, S3 |\n| --- | --- | --- | --- |\n| I, II, III – S0 | 6 | 8 | 10 |\n| II, III, IV – S1 | 8 | 10 | 12 |\n| IV, V – S2, S3 | 10 | 12 | 15 |\n\nCác trường hợp **giảm** khoảng cách (đọc nguyên văn điều kiện) ⚑:\n\n- Tường ngoài phía đối diện là **tường ngăn cháy loại 1** → không quy định khoảng cách (với nhà bậc I, II).\n- Tường ngoài đối diện là tường đặc không có lỗ mở, đủ GHCL → được giảm.\n- Nhà có hệ thống chữa cháy tự động → giảm theo quy định.\n- **Phương pháp khoảng cách đến ranh giới** (E.3) và giới hạn **diện tích lỗ mở không được bảo vệ** trên tường ngoài theo khoảng cách (Bảng E.4a, E.4b) — ✱ SĐ1:2023: nhà có sprinkler được **tăng gấp đôi** tỷ lệ % lỗ mở cho phép theo Bảng E.4a, E.4b ⚑.\n\n**Nhà sản xuất, kho (Bảng E.2 ⚑)**: phụ thuộc bậc chịu lửa, cấp S và hạng nguy hiểm cháy nổ; thường từ 9 m đến 18 m ⚑. Khoảng cách tới **bãi đỗ xe, kho chứa nhiên liệu, trạm xăng** theo các bảng riêng của Phụ lục E và quy chuẩn chuyên ngành.\n\n## 4.2 Chống cháy lan theo mặt ngoài nhà\n\n- **Dải ngăn cháy theo phương đứng** giữa các lỗ mở tầng trên và tầng dưới: tường đặc (khoảng cách theo phương đứng giữa mép trên lỗ mở tầng dưới và mép dưới lỗ mở tầng trên) ≥ **1,2 m** ⚑, hoặc **ô văng/ban công** đặc bằng vật liệu KC nhô ra ≥ 0,75 m ⚑, có GHCL không thấp hơn sàn.\n- **Vách kính mặt dựng (curtain wall)**: tại cao độ mỗi sàn phải có dải ngăn cháy (chèn bịt khe giữa mép sàn và mặt dựng) có GHCL ≥ GHCL của sàn — bản chất là duy trì **EI của sàn** liên tục đến mặt ngoài.\n- **Vật liệu hoàn thiện, cách nhiệt mặt ngoài**: nhà chiều cao PCCC > 28 m ⚑ dùng vật liệu KC hoặc Ch1 cho hệ mặt ngoài (lớp cách nhiệt, tấm ốp, khung đỡ); hệ mặt dựng có khe thông gió phải có dải chặn lửa trong khe tại mỗi tầng.\n- **Biển quảng cáo, lam che nắng** che phủ mặt ngoài: không được che lỗ mở dùng cho cứu nạn, không chặn đường xả khói; vật liệu theo quy định ⚑.\n\n## 4.3 Chống cháy lan bên trong nhà\n\n| Chỗ thường gây cháy lan | Giải pháp yêu cầu |\n| --- | --- |\n| Lỗ mở thông tầng (giếng trời, atrium, thang cuốn) | Bao che bằng vách ngăn cháy + màn ngăn cháy/ cửa ngăn cháy tự động; hoặc giải pháp hút khói + sprinkler khi quy chuẩn cho phép ⚑ |\n| Trần treo, sàn kỹ thuật | Không gian trong trần không được làm lan truyền cháy qua vách ngăn cháy: vách ngăn cháy phải kéo tới sàn/kết cấu trên |\n| Ống gió xuyên tường/sàn ngăn cháy | Van ngăn cháy cùng loại phần tử (§2.2) |\n| Đường ống, cáp xuyên kết cấu ngăn cháy | Chèn bịt bằng cụm chèn có GHCL ≥ kết cấu bị xuyên |\n| Mái tiếp giáp tường có cửa sổ của nhà cao hơn | Đoạn mái trong phạm vi quy định (thường 6 m ⚑) phải có GHCL, vật liệu KC hoặc tường cao hơn không có lỗ mở |\n| Khe co giãn, khe lún | Chèn bằng vật liệu không cháy, đảm bảo GHCL của bộ phận ngăn cháy |\n\n## 4.4 Nhà hỗn hợp — ngăn cách các phần khác nhóm F\n\n- Các phần nhà có nhóm F khác nhau **ngăn cách bằng tường và sàn ngăn cháy** có loại theo quy định (thường loại 1 với phần thương mại, gara dưới nhà ở ⚑).\n- Nhà ở F1.3 có phần công cộng ở tầng dưới: lối thoát nạn của phần ở và phần công cộng **độc lập** (trừ điều kiện quy chuẩn cho phép dùng chung ⚑).\n- Gara ô tô dưới nhà ở: tách bằng sàn ngăn cháy loại 1, sảnh thang máy ở tầng hầm có khoang đệm ngăn cháy ⚑.\n\n## 4.5 Mái\n\n- Mái và tầng áp mái: vật liệu, GHCL theo Bảng 4 (sàn mái RE, dầm mái R).\n- Lối ra mái: xem [Chữa cháy & cứu nạn](05-chua-chay-cuu-nan.md).\n- Lớp lợp, lớp chống thấm cháy được trên mái lớn: phải chia thành các phần diện tích không quá giới hạn bằng dải vật liệu không cháy ⚑.\n", "05-chua-chay-cuu-nan.md": "# 5. Tiếp cận chữa cháy và cứu nạn\n\nChương 6 — Chữa cháy và cứu nạn ⚑ (số chương: kiểm tra bản gốc).\n\n## 5.1 Đường cho xe chữa cháy\n\n| Hạng mục | Yêu cầu tối thiểu |\n| --- | --- |\n| Chiều rộng thông thủy phần xe chạy | **≥ 3,5 m** |\n| Chiều cao thông thủy | **≥ 4,5 m** |\n| Tải trọng | Chịu được tải trọng xe chữa cháy theo yêu cầu thiết kế và chủng loại phương tiện của lực lượng PCCC địa phương ⚑ |\n| Độ dốc | ≤ 1:8,3 ⚑ |\n| Đường cụt | Dài > 150 m ⚑ phải có bãi quay xe: hình tam giác đều cạnh ≥ 7 m, hoặc vuông ≥ 12 × 12 m, hoặc tròn đường kính ≥ 10 m ⚑ |\n\n**Khoảng cách từ mép đường xe chữa cháy đến tường nhà** ⚑:\n\n| Chiều cao PCCC của nhà | Khoảng cách |\n| --- | --- |\n| ≤ 12 m | ≤ 25 m |\n| > 12 m đến ≤ 28 m | 5 – 8 m |\n| > 28 m | 8 – 10 m |\n\nTrong khoảng giữa đường và tường nhà **không được** trồng cây cao, đặt kết cấu cố định, dây điện cản trở hoạt động xe thang ⚑.\n\n**Bố trí đường theo chu vi nhà** ⚑:\n\n- Nhà có chiều rộng > 18 m hoặc nhà nhóm F1.1, F3 > 1 tầng…: đường xe chữa cháy tiếp cận **từ hai phía dọc**.\n- Nhà có chiều cao PCCC > 28 m hoặc diện tích lớn: tiếp cận **từ mọi phía** hoặc theo bãi đỗ xe chữa cháy theo quy định.\n- Khi đường không tiếp cận được toàn chu vi, phải có **bãi đỗ xe chữa cháy** bố trí theo vị trí lối vào cho lực lượng chữa cháy.\n\n## 5.2 Bãi đỗ xe chữa cháy (nhà cao tầng)\n\n- Kích thước tối thiểu bãi đỗ ⚑ (ví dụ ≥ 6 × 15 m), độ dốc ≤ 1:15 ⚑, chịu được tải trọng xe thang/xe cẩu.\n- Vị trí: gần lối vào cho lực lượng chữa cháy; mép bãi đỗ cách tường nhà trong phạm vi quy định ⚑.\n- Không có vật cản phía trên (cây, cáp, mái che) trong phạm vi vươn của xe thang.\n\n## 5.3 Lối vào cho lực lượng chữa cháy và lỗ mở cứu nạn\n\n- Mỗi tầng (trên mặt đất, trong phạm vi tầm với xe thang) có **lỗ mở trên tường ngoài** cho lực lượng chữa cháy tiếp cận: kích thước ≥ **0,8 m (rộng) × 1,1 m (cao)** ⚑; mép dưới ≤ 1,2 m ⚑ so với sàn; khoảng cách giữa các lỗ ≤ 20 m ⚑; có thể mở từ bên ngoài hoặc dùng kính có thể phá; có ký hiệu nhận biết.\n- Lối vào cho lực lượng chữa cháy ở tầng 1: dẫn trực tiếp tới buồng thang bộ/sảnh thang máy chữa cháy.\n- Nhà có tầng hầm: lối vào cho lực lượng chữa cháy xuống hầm qua buồng thang bộ riêng hoặc có khoang đệm ngăn cháy.\n\n## 5.4 Lối ra mái và thang chữa cháy bên ngoài\n\n| Trường hợp | Yêu cầu ⚑ |\n| --- | --- |\n| Nhà chiều cao ≥ 10 m tính đến mái / đỉnh tường ngoài | Có lối ra mái: từ buồng thang bộ, hoặc thang chữa cháy bên ngoài loại P1, P2 |\n| Số lối ra mái | ≥ 1 cho mỗi 100 m chiều dài nhà (nhà có tầng áp mái), mỗi khu mái tách biệt ≥ 1 |\n| Chênh cao giữa các phần mái > 1 m | Thang chữa cháy (P1) giữa các phần mái |\n| Thang **P1** | Thang đứng (thẳng đứng); chiều rộng ≥ 0,7 m ⚑ |\n| Thang **P2** | Thang bậc có độ dốc ≤ 6:1 ⚑; chiều rộng ≥ 0,7 m; chiếu nghỉ mỗi ≤ 8 m chiều cao ⚑ |\n| Lan can mái | Mái bằng có lối ra mái: lan can ≥ 0,6 m ⚑ (lan can an toàn sử dụng theo QCVN 04/QCVN 10) |\n\n## 5.5 Thang máy chữa cháy\n\n| Hạng mục | Yêu cầu ⚑ |\n| --- | --- |\n| Khi nào phải có | Nhà chiều cao PCCC **> 28 m**; nhà có tầng hầm sâu > 15 m ⚑ |\n| Số lượng | Mỗi khoang cháy ≥ 1 thang; vị trí sao cho khoảng cách từ thang tới điểm xa nhất của tầng trong phạm vi quy định ⚑ |\n| Phục vụ | Mọi tầng (kể cả tầng hầm) |\n| Sảnh thang máy chữa cháy | Là **khoang đệm ngăn cháy loại 1** có áp suất dương khi cháy; diện tích đủ đặt cáng; thường kết hợp với buồng thang bộ không nhiễm khói |\n| Thời gian lên tầng cao nhất | ≤ 60 s ⚑ |\n| Tải trọng, cabin | Tải trọng ≥ 1 000 kg ⚑; kích thước cabin cho phép vận chuyển cáng |\n| Giếng thang | Kết cấu bao che GHCL REI 120 ⚑ (nhà bậc I); cửa tầng EI 60 ⚑ |\n| Cấp điện | Hai nguồn độc lập, cáp chống cháy |\n\n## 5.6 Khu vực lánh nạn / tầng lánh nạn\n\n- Nhà có chiều cao PCCC lớn (thường > 100 m ⚑): yêu cầu tầng/gian lánh nạn theo khoảng cách chiều cao quy định ⚑ — kiểm tra nguyên văn và các yêu cầu bổ sung cho nhà siêu cao tầng.\n- Nhà F1.1 (bệnh viện, nhà dưỡng lão) nhiều tầng: khu vực an toàn trên tầng cho người không tự di chuyển được ⚑.\n- Tham chiếu thêm QCVN 10 về khả năng tiếp cận của người khuyết tật khi bố trí chỗ chờ cứu nạn.\n", "06-sua-doi-1-2023.md": "# 6. Sửa đổi 1:2023 ✱\n\n**Văn bản**: Sửa đổi 1:2023 QCVN 06:2022/BXD, ban hành kèm **Thông tư 09/2023/TT-BXD ngày 16/10/2023** của Bộ Xây dựng.\n**Ngày hiệu lực**: ⚑ các nguồn thứ cấp ghi khác nhau — kiểm tra điều khoản hiệu lực trong Thông tư 09/2023/TT-BXD.\n**Nguyên tắc áp dụng**: nội dung không được nêu trong Sửa đổi 1 tiếp tục áp dụng QCVN 06:2022/BXD. Nên dùng **văn bản hợp nhất** QCVN 06:2022/BXD + SĐ1:2023 do Bộ Xây dựng công bố để tránh sót.\n\n> Trang này liệt kê **các nhóm nội dung** chịu tác động của Sửa đổi 1 theo chủ đề, để kỹ sư biết **chỗ nào phải mở bản hợp nhất**. Giá trị cụ thể của điều khoản sửa đổi phải lấy từ văn bản gốc — không lấy từ sổ tay.\n\n## Các nhóm nội dung sửa đổi, bổ sung\n\n| Chủ đề | Vị trí trong QCVN | Tác động tới thiết kế kiến trúc | Mức chắc chắn |\n| --- | --- | --- | --- |\n| Phạm vi điều chỉnh, đối tượng áp dụng; cách áp dụng cho công trình cải tạo, chuyển đổi công năng | Mục 1.1 – 1.2 | Xác định công trình nào phải áp dụng toàn bộ / áp dụng có điều kiện | ⚑ |\n| Phân nhóm nguy hiểm cháy theo công năng | **Bảng 6** | Xếp nhóm F cho một số loại công trình (nhà ở kết hợp, cơ sở y tế, giáo dục…) | Xác nhận có sửa Bảng 6 |\n| Bảng thông số liên quan nhóm/bậc chịu lửa | **Bảng 8** ⚑ | Ảnh hưởng điều kiện cho phép theo nhóm nhà | Xác nhận có sửa Bảng 8 |\n| Chiều cao PCCC tối đa cho **bệnh viện** và **nhà khám bệnh đa khoa ngoại trú** | Bảng/Phụ lục H ⚑ | Giới hạn chiều cao nhà y tế | ⚑ |\n| Tỷ lệ % lỗ mở không được bảo vệ trên tường ngoài | **Phụ lục E – Bảng E.4a, E.4b** | Nhà có **sprinkler được tăng gấp đôi** tỷ lệ % lỗ mở cho phép | ⚑ (nguồn thứ cấp) |\n| Thoát nạn: điều kiện 1 lối ra, buồng thang, lối ra khẩn cấp cho một số loại nhà | Chương 3 | Có thể giảm số buồng thang cho nhà quy mô nhỏ khi thỏa điều kiện | ⚑ |\n| Nhà sản xuất, kho: bậc chịu lửa, kết cấu thép, diện tích khoang cháy | Bảng 4 chú thích, Phụ lục H | Có thể nới GHCL kết cấu thép / tăng diện tích khoang cháy với điều kiện kèm theo | ⚑ |\n| Đường, bãi đỗ xe chữa cháy | Chương 6 | Điều kiện bố trí đường xe chữa cháy | ⚑ |\n\n## Cách tra khi lập/ thẩm tra hồ sơ\n\n1. Ghi rõ trong thuyết minh: *\"Thiết kế tuân thủ QCVN 06:2022/BXD và Sửa đổi 1:2023 (Thông tư 09/2023/TT-BXD)\"*.\n2. Với mỗi bảng tra **Bảng 6, Bảng 8, Phụ lục E, Phụ lục H**: luôn trích theo bản hợp nhất, ghi số hiệu bảng như trong bản hợp nhất.\n3. Khi áp dụng một điều khoản \"được nới\" của SĐ1, ghi kèm **điều kiện đi kèm** (thường là sprinkler toàn nhà, hệ thống hút khói, hoặc giới hạn số tầng/diện tích) và chứng minh công trình thỏa điều kiện đó.\n4. Theo dõi các văn bản hướng dẫn của Bộ Xây dựng về cách hiểu Bảng 6, Bảng 8 (đã có công văn trả lời kiến nghị năm 2025 ⚑).\n\n## Văn bản liên quan cần theo dõi\n\n- QCVN 06:2022/BXD — Thông tư 06/2022/TT-BXD\n- Sửa đổi 1:2023 — Thông tư 09/2023/TT-BXD\n- Văn bản hợp nhất QCVN 06:2022/BXD (Bộ Xây dựng công bố; có bản hợp nhất năm 2026 ⚑)\n- Các quy chuẩn liên quan: QCVN 04 (nhà chung cư), QCVN 10 (tiếp cận), QCVN 13 (gara), TCVN 3890, TCVN 5738, TCVN 7336, TCVN 13456… ⚑ (kiểm tra phiên bản hiện hành)\n", "07-checklist.md": "# 7. Checklist hồ sơ kiến trúc PCCC\n\nDùng khi tự kiểm tra trước khi nộp thẩm duyệt. Mỗi dòng phải có **bản vẽ/thuyết minh chứng minh**.\n\n## A. Thông tin đầu vào\n\n- [ ] Nhóm F của từng phần nhà (Bảng 6, bản hợp nhất SĐ1) — có sơ đồ phân vùng công năng\n- [ ] Chiều cao PCCC — mặt cắt ghi rõ cao độ mặt đường xe chữa cháy và mép dưới cửa sổ tầng trên cùng\n- [ ] Số tầng hầm, chiều sâu tầng hầm\n- [ ] Hạng nguy hiểm cháy nổ (nếu F5) — bảng tính tải trọng cháy\n\n## B. Kết cấu và GHCL\n\n- [ ] Bậc chịu lửa và cấp S đã chọn, phù hợp Phụ lục H với chiều cao và diện tích khoang cháy\n- [ ] Bảng GHCL từng cấu kiện (cột, dầm, sàn, tường chịu lực, tường buồng thang, bản thang, mái) ≥ Bảng 4\n- [ ] Chứng nhận/kết quả thử nghiệm GHCL cho vật liệu bảo vệ kết cấu thép, vách nhẹ, cửa ngăn cháy, vách kính\n- [ ] Cấp K của cấu kiện phù hợp cấp S (Bảng 5)\n\n## C. Ngăn cháy\n\n- [ ] Mặt bằng phân khoang cháy, ghi diện tích từng khoang ≤ giới hạn\n- [ ] Ký hiệu tường/vách/sàn ngăn cháy loại 1/2…, cửa ngăn cháy EI…, khoang đệm loại 1/2 — khớp bảng phối hợp\n- [ ] Tường ngăn cháy vượt mái / vượt tường ngoài; khoảng cách lỗ mở hai bên ≥ 4 m\n- [ ] Tổng diện tích lỗ mở trong bộ phận ngăn cháy ≤ giới hạn\n- [ ] Phòng kỹ thuật, kho, phòng rác, gara được ngăn cách đúng loại\n- [ ] Chi tiết chèn bịt lỗ xuyên kỹ thuật, khe mặt dựng – sàn\n\n## D. Thoát nạn\n\n- [ ] Số lối ra từ mỗi gian phòng và mỗi tầng\n- [ ] Hai lối ra bố trí phân tán (≥ 1/2 đường chéo)\n- [ ] Khoảng cách thoát nạn (giữa 2 lối ra / hành lang cụt) ≤ Phụ lục G — vẽ đường đo trên mặt bằng\n- [ ] Chiều rộng lối ra, hành lang, vế thang ≥ yêu cầu và ≥ tính toán theo số người\n- [ ] Chiều cao thông thủy lối ra ≥ 1,9 m, đường thoát nạn ≥ 2,0 m\n- [ ] Loại buồng thang (L1/L2/N1/N2/N3) phù hợp chiều cao; cửa sổ L1 ≥ 1,2 m²\n- [ ] Buồng thang thoát trực tiếp ra ngoài ở tầng 1; thang hầm tách biệt phần trên\n- [ ] Chiều mở cửa, cửa tự đóng có gioăng tại buồng thang, sảnh\n- [ ] Vật liệu hoàn thiện đường thoát nạn đúng nhóm\n- [ ] Lối ra khẩn cấp (ban công căn hộ…) nếu áp dụng\n\n## E. Cháy lan\n\n- [ ] Khoảng cách tới nhà lân cận, ranh giới khu đất (Phụ lục E); tỷ lệ lỗ mở mặt ngoài (E.4a, E.4b — lưu ý SĐ1)\n- [ ] Dải ngăn cháy theo phương đứng ở mặt ngoài\n- [ ] Vật liệu mặt ngoài, lớp cách nhiệt, tấm ốp\n- [ ] Giải pháp cho lỗ thông tầng, atrium, thang cuốn\n\n## F. Tiếp cận chữa cháy\n\n- [ ] Tổng mặt bằng đường xe chữa cháy: rộng ≥ 3,5 m, cao thông thủy ≥ 4,5 m, bán kính quay, bãi quay xe\n- [ ] Khoảng cách mép đường – tường nhà theo chiều cao\n- [ ] Bãi đỗ xe chữa cháy, lối vào cho lực lượng chữa cháy\n- [ ] Lỗ mở cứu nạn trên mặt ngoài mỗi tầng\n- [ ] Lối ra mái, thang P1/P2\n- [ ] Thang máy chữa cháy (nhà > 28 m): số lượng, sảnh khoang đệm, phục vụ tầng hầm\n", "08-thuat-ngu.md": "# 8. Thuật ngữ và cách đo\n\nĐịnh nghĩa tóm tắt — nguyên văn tại mục 1.4 QCVN 06:2022 (và SĐ1:2023 nếu có bổ sung).\n\n| Thuật ngữ | Định nghĩa tóm tắt |\n| --- | --- |\n| **Chiều cao PCCC** | Khoảng cách theo phương đứng từ **mặt đường thấp nhất cho xe chữa cháy tiếp cận** tới **mép dưới của lỗ mở (cửa sổ) trên tường ngoài của tầng trên cùng**, không kể tầng kỹ thuật trên cùng. Không có lỗ mở → tính tới nửa chiều cao tầng trên cùng ⚑ |\n| **Tầng hầm** | Tầng có quá nửa chiều cao nằm dưới cao độ mặt đất đặt công trình theo quy hoạch được duyệt |\n| **Tầng nửa hầm** | Tầng có một nửa chiều cao nằm trên hoặc ngang cao độ mặt đất ⚑ |\n| **Tầng trên mặt đất** | Tầng có cao độ sàn ≥ cao độ mặt đất ⚑ |\n| **Tầng kỹ thuật** | Tầng bố trí thiết bị kỹ thuật; có thể là tầng hầm, tầng trên mặt đất, tầng áp mái hoặc tầng giữa |\n| **Khoang cháy** | Phần nhà ngăn cách với các phần khác bằng tường ngăn cháy loại 1 (hoặc loại khác theo quy định) và sàn ngăn cháy, có giới hạn diện tích theo Phụ lục H |\n| **Lối ra thoát nạn** | Lối ra dẫn vào đường thoát nạn, trực tiếp ra ngoài hoặc vào vùng an toàn, đáp ứng mục 3.2 |\n| **Lối ra khẩn cấp** | Lối ra không đáp ứng yêu cầu lối ra thoát nạn, không được tính vào thoát nạn |\n| **Đường thoát nạn** | Đường di chuyển của người dẫn tới lối ra thoát nạn, được bảo vệ khỏi tác động nguy hiểm của đám cháy |\n| **Buồng thang bộ** | Buồng có tường bao che, cửa, chứa thang bộ |\n| **Buồng thang bộ không nhiễm khói** | Buồng thang bảo vệ khỏi nhiễm khói khi cháy: N1, N2, N3 |\n| **Khoang đệm (ngăn cháy)** | Không gian giữa hai cửa, bao bởi bộ phận ngăn cháy, ngăn cháy lan và khói từ phòng này sang phòng khác |\n| **Bộ phận ngăn cháy** | Tường, vách, sàn, cửa, van, màn, khoang đệm có GHCL để ngăn cháy lan |\n| **Giới hạn chịu lửa (GHCL)** | Thời gian (phút) từ lúc bắt đầu thử nghiệm đến khi xuất hiện trạng thái giới hạn R, E hoặc I |\n| **Tải trọng cháy riêng (g)** | Nhiệt lượng tỏa ra khi cháy hoàn toàn các chất cháy trong gian phòng chia cho diện tích phân bố, MJ/m² |\n| **Vùng an toàn** | Vùng mà người ở đó được bảo vệ khỏi tác động nguy hiểm của đám cháy |\n\n## Cách đo nhanh\n\n- **Chiều rộng thông thủy lối ra**: khe hở tịnh khi cửa mở hoàn toàn, trừ cánh cửa, tay nắm nhô ra ⚑.\n- **Khoảng cách thoát nạn**: đo **theo trục đường đi thực tế** (đi vòng đồ đạc cố định, vách) chứ không theo đường thẳng; điểm đầu là cửa phòng/căn hộ hoặc điểm xa nhất theo cách quy định của bảng Phụ lục G tương ứng.\n- **Chiều cao thông thủy**: từ sàn hoàn thiện tới mặt dưới của kết cấu/trần/ống/thiết bị thấp nhất.\n- **Khoảng cách giữa hai lối ra phân tán**: đo đường thẳng giữa hai mép cửa gần nhau nhất ⚑.\n- **Khoảng cách PCCC giữa nhà**: đo theo phương ngang giữa các tường ngoài; kết cấu nhô ra bằng vật liệu cháy > 1 m thì đo từ mép kết cấu nhô ⚑.\n"};
+
+const META = {
+  "tong-quan":  {n:"0", c:"", t:"Tổng quan & cách tra", d:"Trình tự 7 bước, ký hiệu, cấu trúc QCVN"},
+  "phan-loai":  {n:"1", c:"f", t:"Phân loại kỹ thuật về cháy", d:"Vật liệu, GHCL, bậc chịu lửa, cấp S, nhóm F, hạng A–E"},
+  "ngan-chay":  {n:"2", c:"f", t:"Ngăn cháy & khoang cháy", d:"Tường, vách, sàn, cửa ngăn cháy, khoang đệm, Phụ lục H"},
+  "thoat-nan":  {n:"3", c:"x", t:"Thoát nạn", d:"Lối ra, kích thước, khoảng cách, buồng thang L1–N3"},
+  "chay-lan":   {n:"4", c:"f", t:"Ngăn chặn cháy lan", d:"Khoảng cách giữa nhà, mặt ngoài, lỗ thông tầng"},
+  "chua-chay":  {n:"5", c:"", t:"Chữa cháy & cứu nạn", d:"Đường xe, bãi đỗ, lỗ cứu nạn, thang máy chữa cháy"},
+  "sua-doi":    {n:"✱", c:"a", t:"Sửa đổi 1:2023", d:"Các nội dung sửa đổi, cách trích dẫn"},
+  "checklist":  {n:"✓", c:"x", t:"Checklist hồ sơ", d:"Tự kiểm tra trước khi nộp thẩm duyệt"},
+  "thuat-ngu":  {n:"Aa", c:"", t:"Thuật ngữ & cách đo", d:"Chiều cao PCCC, tầng hầm, cách đo khoảng cách"}
+};
+const ORDER = Object.keys(META);
+const FILE2ID = {"README.md":"tong-quan","01-phan-loai.md":"phan-loai","02-ngan-chay.md":"ngan-chay","03-thoat-nan.md":"thoat-nan","04-chay-lan.md":"chay-lan","05-chua-chay-cuu-nan.md":"chua-chay","06-sua-doi-1-2023.md":"sua-doi","07-checklist.md":"checklist","08-thuat-ngu.md":"thuat-ngu"};
+
+/* ---------- storage (best effort) ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+let saved = store.get("pccc-saved", []);
+let checks = store.get("pccc-checks", {});
+
+/* ---------- markdown → blocks ---------- */
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function inline(s) {
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/\*([^*\s][^*]*)\*/g, "<em>$1</em>");
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, t, h) => { const id = FILE2ID[h]; return id ? `<a href="#${id}" data-go="${id}">${t}</a>` : t; });
+  s = s.replace(/⚑/g, '<span class="flag" title="Cần đối chiếu nguyên văn">⚑ đối chiếu</span>');
+  s = s.replace(/✱/g, '<span class="amend" title="Liên quan Sửa đổi 1:2023">✱ SĐ1</span>');
+  return s;
+}
+function mdToHtml(lines, secId) {
+  let out = "", i = 0, ci = 0;
+  while (i < lines.length) {
+    let l = lines[i];
+    if (!l.trim()) { i++; continue; }
+    if (/^### /.test(l)) { out += `<h3>${inline(l.slice(4))}</h3>`; i++; continue; }
+    if (/^\|/.test(l)) {
+      const rows = [];
+      while (i < lines.length && /^\|/.test(lines[i])) { rows.push(lines[i]); i++; }
+      const cells = r => r.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+      const head = cells(rows[0]); const body = rows.slice(2).map(cells);
+      const wide = head.length > 3;
+      out += `<div class="tbl${wide ? " wide" : ""}"><table><thead><tr>${head.map(h => `<th>${inline(h)}</th>`).join("")}</tr></thead><tbody>${body.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      if (wide) out += `<p class="hint">← Vuốt ngang để xem hết bảng →</p>`;
+      continue;
+    }
+    if (/^> /.test(l)) {
+      let b = [];
+      while (i < lines.length && /^>/.test(lines[i])) { b.push(lines[i].replace(/^>\s?/, "")); i++; }
+      out += `<blockquote><p>${inline(b.join(" "))}</p></blockquote>`; continue;
+    }
+    if (/^- \[[ x]\] /.test(l)) {
+      out += `<ul class="check">`;
+      while (i < lines.length && /^- \[[ x]\] /.test(lines[i])) {
+        const key = secId + ":" + (ci++);
+        out += `<li><label><input type="checkbox" data-ck="${key}"${checks[key] ? " checked" : ""}><span>${inline(lines[i].slice(6))}</span></label></li>`; i++;
+      }
+      out += `</ul>`; continue;
+    }
+    if (/^- /.test(l)) {
+      out += "<ul>";
+      while (i < lines.length && /^- /.test(lines[i])) { out += `<li>${inline(lines[i].slice(2))}</li>`; i++; }
+      out += "</ul>"; continue;
+    }
+    if (/^\d+(–\d+)?\. /.test(l)) {
+      out += "<ol>";
+      while (i < lines.length && /^\d+(–\d+)?\. /.test(lines[i])) { out += `<li>${inline(lines[i].replace(/^\d+(–\d+)?\. /, ""))}</li>`; i++; }
+      out += "</ol>"; continue;
+    }
+    let p = [];
+    while (i < lines.length && lines[i].trim() && !/^(#|\||> |- |\d+\. )/.test(lines[i])) { p.push(lines[i]); i++; }
+    if (p.length) out += `<p>${inline(p.join(" "))}</p>`; else i++;
+  }
+  return out;
+}
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+
+const SECTIONS = {};
+for (const [file, md] of Object.entries(DATA)) {
+  const id = FILE2ID[file]; const lines = md.split("\n");
+  let title = META[id].t, lead = [], blocks = [], cur = null;
+  for (const l of lines) {
+    if (/^# /.test(l)) { continue; }
+    if (/^## /.test(l)) { cur = { title: l.slice(3).trim(), lines: [] }; blocks.push(cur); continue; }
+    (cur ? cur.lines : lead).push(l);
+  }
+  blocks.forEach((b, k) => { b.id = id + "--" + k; b.text = norm(b.title + " " + b.lines.join(" ").replace(/[|*`>#]/g, " ")); b.raw = b.lines.join(" ").replace(/[|*`>#]/g, " ").replace(/\s+/g, " "); });
+  SECTIONS[id] = { id, title, lead, blocks, leadText: norm(lead.join(" ")) };
+}
+
+/* ---------- views ---------- */
+const view = document.getElementById("view");
+const hdr = document.getElementById("hdr");
+const backBtn = document.getElementById("backBtn");
+const q = document.getElementById("q");
+const clearQ = document.getElementById("clearQ");
+const HDR_HOME = hdr.innerHTML;
+
+function setNav(name) {
+  document.querySelectorAll("nav.bottom button").forEach(b => { if (b.dataset.nav === name) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+}
+function setHeader(title) {
+  if (title) { hdr.innerHTML = esc(title) + "<small>QCVN 06:2022/BXD · SĐ1:2023</small>"; backBtn.hidden = false; }
+  else { hdr.innerHTML = HDR_HOME; backBtn.hidden = true; }
+}
+const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
+
+function renderHome() {
+  setHeader(null); setNav("home");
+  view.innerHTML = `
+    <p class="intro">Tra cứu yêu cầu kiến trúc – kết cấu PCCC. Gõ từ khóa ở ô tìm, hoặc chọn mục bên dưới. Có thể tìm không dấu.</p>
+    <p class="label">Mục lục</p>
+    <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button></li>`; }).join("")}</ul>
+    <p class="disclaimer"><strong>⚑ đối chiếu</strong> đánh dấu giá trị tóm tắt cần kiểm tra nguyên văn QCVN 06:2022/BXD + SĐ1:2023 (bản hợp nhất) trước khi dùng trong hồ sơ. Sổ tay không thay thế văn bản quy chuẩn.</p>`;
+}
+
+function renderSection(id, openBlock) {
+  const s = SECTIONS[id]; if (!s) return renderHome();
+  setHeader(META[id].t); setNav(id === "checklist" ? "checklist" : "");
+  let html = `<article class="doc">`;
+  const leadHtml = mdToHtml(s.lead, id);
+  if (leadHtml) html += `<div class="lead">${leadHtml}</div>`;
+  if (id === "checklist") html += `<div class="progress"><div class="bar"><i id="pbar"></i></div><span id="ptext"></span><button class="reset" id="resetCk">Làm lại</button></div>`;
+  s.blocks.forEach((b, k) => {
+    const open = openBlock ? b.id === openBlock : (s.blocks.length <= 2 || id === "checklist" || k === 0);
+    const isSaved = saved.includes(b.id);
+    html += `<details id="${b.id}"${open ? " open" : ""}><summary>${inline(b.title)}<button class="star" data-star="${b.id}" aria-pressed="${isSaved}" aria-label="${isSaved ? "Bỏ lưu" : "Lưu mục này"}">${starSvg}</button></summary><div class="body">${mdToHtml(b.lines, b.id)}</div></details>`;
+  });
+  const idx = ORDER.indexOf(id), prev = ORDER[idx - 1], next = ORDER[idx + 1];
+  html += `<div class="pager">${prev ? `<button data-go="${prev}"><small>← Trước</small>${META[prev].t}</button>` : ""}${next ? `<button class="next" data-go="${next}"><small>Tiếp →</small>${META[next].t}</button>` : ""}</div></article>`;
+  view.innerHTML = html;
+  if (id === "checklist") updateProgress();
+  if (openBlock) { const el = document.getElementById(openBlock); if (el) setTimeout(() => el.scrollIntoView({ block: "start" }), 0); }
+  else window.scrollTo(0, 0);
+}
+
+function updateProgress() {
+  const boxes = view.querySelectorAll("input[data-ck]"); const done = [...boxes].filter(b => b.checked).length;
+  const bar = document.getElementById("pbar"), t = document.getElementById("ptext");
+  if (bar) { bar.style.width = (boxes.length ? done / boxes.length * 100 : 0) + "%"; t.textContent = `${done}/${boxes.length}`; }
+}
+
+function renderSaved() {
+  setHeader("Đã lưu"); setNav("da-luu");
+  const items = saved.map(bid => { const sid = bid.split("--")[0]; const s = SECTIONS[sid]; const b = s && s.blocks.find(x => x.id === bid); return b ? { s, b } : null; }).filter(Boolean);
+  if (!items.length) { view.innerHTML = `<div class="empty">Chưa lưu mục nào.<br>Bấm biểu tượng dấu trang trên tiêu đề một mục để lưu lại tra cứu nhanh.</div>`; return; }
+  view.innerHTML = `<ul class="results">${items.map(({ s, b }) => `<li><button data-open="${b.id}"><span class="sec">${META[s.id].t}</span><span class="ttl">${inline(b.title)}</span><span class="snip">${esc(b.raw.slice(0, 120))}…</span></button></li>`).join("")}</ul>`;
+}
+
+/* Quick lookup */
+const BAC = {
+  "I":   ["R 150","E 30","REI 60","RE 30","R 30","REI 150","R 60"],
+  "II":  ["R 120","E 15","REI 45","RE 15","R 15","REI 120","R 60"],
+  "III": ["R 90","E 15","REI 45","RE 15","R 15","REI 90","R 60"],
+  "IV":  ["R 30","E 15","REI 15","RE 15","R 15","REI 45","R 15"],
+  "V":   ["—","—","—","—","—","—","—"]
+};
+const BAC_LBL = ["Bộ phận chịu lực","Tường ngoài không chịu lực","Sàn giữa các tầng","Sàn mái","Dầm, giàn, vì kèo mái","Tường trong buồng thang bộ","Bản thang, chiếu nghỉ"];
+const NC = {
+  "Tường loại 1":"REI 150","Tường loại 2":"REI 45","Vách loại 1":"EI 45","Vách loại 2":"EI 15",
+  "Sàn loại 1":"REI 150","Sàn loại 2":"REI 60","Sàn loại 3":"REI 45","Sàn loại 4":"REI 15",
+  "Cửa loại 1":"EI 60","Cửa loại 2":"EI 30","Cửa loại 3":"EI 15",
+  "Cửa sổ loại 1":"E 60","Cửa sổ loại 2":"E 30","Cửa sổ loại 3":"E 15","Màn ngăn cháy loại 1":"EI 60"
+};
+const HEIGHT = [
+  { k: "≤ 12 m", road: "≤ 25 m", stair: "L1 / L2", lift: "Không bắt buộc" },
+  { k: "12–28 m", road: "5 – 8 m", stair: "L1 / L2", lift: "Không bắt buộc" },
+  { k: "> 28 m", road: "8 – 10 m", stair: "Không nhiễm khói N1 / N2 / N3", lift: "Bắt buộc, ≥ 1 / khoang cháy" }
+];
+let qBac = store.get("pccc-bac", "I"), qH = store.get("pccc-h", 2);
+function renderQuick() {
+  setHeader("Tra nhanh"); setNav("tra-nhanh");
+  const h = HEIGHT[qH];
+  view.innerHTML = `
+  <div style="display:grid;gap:14px">
+    <section class="quick">
+      <h2>GHCL tối thiểu theo bậc chịu lửa (Bảng 4)</h2>
+      <div class="seg" role="group" aria-label="Bậc chịu lửa">${Object.keys(BAC).map(b => `<button data-bac="${b}" aria-pressed="${b === qBac}">${b}</button>`).join("")}</div>
+      <dl class="kv">${BAC_LBL.map((l, i) => `<dt>${l}</dt><dd>${BAC[qBac][i]}</dd>`).join("")}</dl>
+      <p class="note">Bậc V: không quy định. Đọc kèm chú thích Bảng 4 và SĐ1:2023. <a href="#phan-loai" data-open="phan-loai--2" style="color:var(--fire);font-weight:600">Xem mục đầy đủ</a></p>
+    </section>
+    <section class="quick">
+      <h2>Theo chiều cao PCCC</h2>
+      <div class="seg" role="group" aria-label="Chiều cao PCCC">${HEIGHT.map((x, i) => `<button data-h="${i}" aria-pressed="${i === qH}" style="font-family:var(--sans)">${x.k}</button>`).join("")}</div>
+      <dl class="kv">
+        <dt>Mép đường xe chữa cháy → tường nhà</dt><dd>${h.road}</dd>
+        <dt>Loại buồng thang bộ</dt><dd style="white-space:normal">${h.stair}</dd>
+        <dt>Thang máy chữa cháy</dt><dd style="white-space:normal">${h.lift}</dd>
+        <dt>Đường xe: rộng × cao thông thủy</dt><dd>3,5 × 4,5 m</dd>
+      </dl>
+      <p class="note"><span class="flag">⚑ đối chiếu</span> Giá trị tóm tắt, kiểm tra điều kiện kèm theo trong quy chuẩn.</p>
+    </section>
+    <section class="quick">
+      <h2>Bộ phận ngăn cháy</h2>
+      <dl class="kv">${Object.entries(NC).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+    </section>
+    <section class="quick">
+      <h2>Kích thước thoát nạn hay dùng</h2>
+      <dl class="kv">
+        <dt>Cao thông thủy lối ra thoát nạn</dt><dd>≥ 1,9 m</dd>
+        <dt>Rộng lối ra (chung)</dt><dd>≥ 0,8 m</dd>
+        <dt>Cao thông thủy đường thoát nạn</dt><dd>≥ 2,0 m</dd>
+        <dt>Rộng hành lang (chung)</dt><dd>≥ 1,0 m</dd>
+        <dt>Vế thang nhà F1.1</dt><dd>≥ 1,35 m</dd>
+        <dt>Vế thang, tầng &gt; 200 người</dt><dd>≥ 1,2 m</dd>
+        <dt>Vế thang, trường hợp khác</dt><dd>≥ 0,9 m</dd>
+        <dt>Độ dốc thang</dt><dd>≤ 1:1</dd>
+        <dt>Mặt bậc / cao bậc</dt><dd>≥ 25 / ≤ 22 cm</dd>
+        <dt>Cửa sổ buồng thang L1</dt><dd>≥ 1,2 m²</dd>
+      </dl>
+    </section>
+  </div>`;
+  window.scrollTo(0, 0);
+}
+
+function renderSearch(term) {
+  setNav("");
+  const terms = norm(term).split(/\s+/).filter(Boolean);
+  const res = [];
+  for (const id of ORDER) for (const b of SECTIONS[id].blocks) {
+    if (terms.every(t => b.text.includes(t))) res.push({ id, b, score: terms.filter(t => norm(b.title).includes(t)).length });
+  }
+  res.sort((a, b) => b.score - a.score);
+  setHeader(null);
+  if (!res.length) {
+    view.innerHTML = `<div class="empty">Không thấy kết quả cho “${esc(term)}”.<br>Thử từ khóa ngắn hơn hoặc gợi ý:<div class="chips">${["buồng thang","REI","hành lang cụt","khoang cháy","F1.3","xe chữa cháy","khoang đệm"].map(c => `<button data-chip="${c}">${c}</button>`).join("")}</div></div>`;
+    return;
+  }
+  const mk = s => { let h = esc(s); for (const t of terms) { if (t.length < 2) continue; const re = buildRe(t); h = h.replace(re, m => `<mark>${m}</mark>`); } return h; };
+  view.innerHTML = `<p class="label">${res.length} kết quả</p><ul class="results">${res.slice(0, 60).map(({ id, b }) => {
+    const nraw = norm(b.raw); const pos = Math.max(0, nraw.indexOf(terms[0]) - 40);
+    const snip = (pos ? "…" : "") + b.raw.slice(pos, pos + 150) + "…";
+    return `<li><button data-open="${b.id}"><span class="sec">${META[id].t}</span><span class="ttl">${mk(b.title.replace(/[⚑✱]/g, ""))}</span><span class="snip">${mk(snip.replace(/[⚑✱]/g, ""))}</span></button></li>`;
+  }).join("")}</ul>`;
+}
+// accent-insensitive regex for highlighting
+const MAP = { a:"aàáảãạăằắẳẵặâầấẩẫậ", e:"eèéẻẽẹêềếểễệ", i:"iìíỉĩị", o:"oòóỏõọôồốổỗộơờớởỡợ", u:"uùúủũụưừứửữự", y:"yỳýỷỹỵ", d:"dđ" };
+function buildRe(t) {
+  const src = [...t].map(ch => { const k = ch.toLowerCase(); if (MAP[k]) return "[" + MAP[k] + MAP[k].toUpperCase() + "]"; return ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("");
+  return new RegExp(src, "gi");
+}
+
+/* ---------- routing ---------- */
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (q.value.trim()) return renderSearch(q.value.trim());
+  if (!h || h === "home") return renderHome();
+  if (h === "tra-nhanh") return renderQuick();
+  if (h === "da-luu") return renderSaved();
+  if (SECTIONS[h]) return renderSection(h);
+  renderHome();
+}
+function go(hash, block) {
+  q.value = ""; clearQ.hidden = true;
+  if (block) { const sid = block.split("--")[0]; if (location.hash.slice(1) !== sid) history.replaceState(null, "", "#" + sid); renderSection(sid, block); return; }
+  if (location.hash.slice(1) === hash) route(); else location.hash = hash;
+}
+window.addEventListener("hashchange", route);
+
+document.addEventListener("click", e => {
+  const star = e.target.closest("[data-star]");
+  if (star) { e.preventDefault(); e.stopPropagation(); const id = star.dataset.star;
+    saved = saved.includes(id) ? saved.filter(x => x !== id) : [...saved, id]; store.set("pccc-saved", saved);
+    const on = saved.includes(id); star.setAttribute("aria-pressed", on); star.setAttribute("aria-label", on ? "Bỏ lưu" : "Lưu mục này"); return; }
+  const op = e.target.closest("[data-open]"); if (op) { e.preventDefault(); go(null, op.dataset.open); return; }
+  const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); return; }
+  const n = e.target.closest("[data-nav]"); if (n) { go(n.dataset.nav === "home" ? "home" : n.dataset.nav); return; }
+  const bac = e.target.closest("[data-bac]"); if (bac) { qBac = bac.dataset.bac; store.set("pccc-bac", qBac); renderQuick(); return; }
+  const hh = e.target.closest("[data-h]"); if (hh) { qH = +hh.dataset.h; store.set("pccc-h", qH); renderQuick(); return; }
+  const chip = e.target.closest("[data-chip]"); if (chip) { q.value = chip.dataset.chip; clearQ.hidden = false; renderSearch(q.value); return; }
+  if (e.target.id === "resetCk") { view.querySelectorAll("input[data-ck]").forEach(b => { b.checked = false; delete checks[b.dataset.ck]; }); store.set("pccc-checks", checks); updateProgress(); }
+});
+document.addEventListener("change", e => {
+  const ck = e.target.closest("input[data-ck]"); if (!ck) return;
+  if (ck.checked) checks[ck.dataset.ck] = 1; else delete checks[ck.dataset.ck];
+  store.set("pccc-checks", checks); updateProgress();
+});
+backBtn.addEventListener("click", () => go("home"));
+let tmr;
+q.addEventListener("input", () => { clearQ.hidden = !q.value; clearTimeout(tmr); tmr = setTimeout(() => q.value.trim() ? renderSearch(q.value.trim()) : route(), 120); });
+clearQ.addEventListener("click", () => { q.value = ""; clearQ.hidden = true; route(); q.focus(); });
+
+route();
+</script>
+</body>
+</html>

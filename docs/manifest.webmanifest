@@ -1,0 +1,17 @@
+{
+  "name": "Sổ tay PCCC QCVN 06:2022",
+  "short_name": "Sổ tay PCCC",
+  "description": "Tra cứu yêu cầu kiến trúc – kết cấu PCCC theo QCVN 06:2022/BXD và Sửa đổi 1:2023.",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbf8f3",
+  "theme_color": "#b42318",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

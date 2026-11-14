@@ -1,0 +1,488 @@
+<title>Sổ tay PCCC QCVN 06</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#b42318">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: một cột kiểu ứng dụng điện thoại — thanh đầu dính có ô tìm, nội dung là các khối gập mở, thanh điều hướng dưới đáy. */
+:root {
+  --bg: #fbf8f3; --panel: #ffffff; --tint: #f1ebe1; --line: #ddd3c5;
+  --ink: #1f1a17; --muted: #5e554d;
+  --fire: #b42318; --fire-bg: #fde4e1; --on-fire: #ffffff;
+  --exit: #067647; --exit-bg: #dcf5e7;
+  --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
+  --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --nav-h: 60px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
+  --ink: #f3ece3; --muted: #b8ada1;
+  --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
+  --exit: #47cd89; --exit-bg: #0f3a26;
+  --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
+  --ink: #f3ece3; --muted: #b8ada1;
+  --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
+  --exit: #47cd89; --exit-bg: #0f3a26;
+  --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+input[type=search]::-webkit-search-cancel-button { -webkit-appearance: none; display: none; }
+html, body { background: var(--bg); color: var(--ink); }
+body { font-family: var(--sans); font-size: 15px; line-height: 1.6; -webkit-text-size-adjust: 100%; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--fire); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+
+.gutter { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: 760px; margin: 0 auto; }
+
+/* Header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--fire); color: var(--on-fire); padding-block: 10px 12px; }
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; min-height: 32px; }
+.brand h1 { font-size: 17px; line-height: 1.2; font-weight: 800; margin: 0; flex: 1; min-width: 0; letter-spacing: -0.01em; }
+.brand small { display: block; font-weight: 500; font-size: 12px; opacity: .85; }
+.back { border: 0; background: transparent; color: inherit; width: 36px; height: 36px; margin-left: -8px; border-radius: 8px; display: grid; place-items: center; cursor: pointer; }
+.back svg { width: 22px; height: 22px; }
+.search { position: relative; }
+.search input { width: 100%; height: 44px; border-radius: 10px; border: 0; padding: 0 40px 0 40px; font: inherit; font-size: 16px; background: var(--panel); color: var(--ink); }
+.search input::placeholder { color: var(--muted); }
+.search .ico { position: absolute; left: 12px; top: 12px; width: 20px; height: 20px; color: var(--muted); pointer-events: none; }
+.search .clear { position: absolute; right: 4px; top: 4px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; font-size: 20px; line-height: 1; }
+
+main { padding-block: 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom, 0px)); }
+
+/* Bottom nav */
+nav.bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--panel); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
+nav.bottom .row { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 760px; margin: 0 auto; height: var(--nav-h); }
+nav.bottom button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer; }
+nav.bottom button svg { width: 22px; height: 22px; }
+nav.bottom button[aria-current="page"] { color: var(--fire); }
+
+/* Home */
+.intro { font-size: 14px; color: var(--muted); margin: 0 0 16px; }
+.label { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 24px 0 8px; }
+.label:first-child { margin-top: 0; }
+.toc { list-style: none; margin: 0; padding: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+.toc li + li { border-top: 1px solid var(--line); }
+.toc button { width: 100%; text-align: left; border: 0; background: transparent; display: grid; grid-template-columns: 36px 1fr 16px; gap: 12px; align-items: center; padding: 12px 14px; cursor: pointer; min-height: 60px; }
+.toc .num { width: 36px; height: 36px; border-radius: 8px; display: grid; place-items: center; font-family: var(--mono); font-size: 13px; background: var(--tint); color: var(--ink); }
+.toc .num.f { background: var(--fire-bg); color: var(--fire); }
+.toc .num.x { background: var(--exit-bg); color: var(--exit); }
+.toc .num.a { background: var(--amber-bg); color: var(--amber-ink); }
+.toc b { display: block; font-size: 15px; line-height: 1.3; }
+.toc span.d { display: block; font-size: 13px; color: var(--muted); line-height: 1.35; margin-top: 2px; }
+.toc .chev { color: var(--muted); }
+
+/* Quick lookup */
+.quick { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.quick h2 { font-size: 15px; margin: 0 0 10px; }
+.seg { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.seg button { min-width: 44px; height: 40px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-weight: 700; font-family: var(--mono); }
+.seg button[aria-pressed="true"] { background: var(--fire); border-color: var(--fire); color: var(--on-fire); }
+.kv { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; margin: 0; }
+.kv dt, .kv dd { margin: 0; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.kv dt { color: var(--muted); padding-right: 12px; }
+.kv dd { font-family: var(--mono); font-weight: 500; text-align: right; color: var(--fire); }
+.kv dt:first-of-type, .kv dt:first-of-type + dd { border-top: 0; }
+.quick .note { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+
+/* Article */
+.doc h1.page { font-size: 24px; line-height: 1.25; margin: 0 0 12px; text-wrap: balance; letter-spacing: -0.01em; }
+.doc details { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 10px; }
+.doc summary { list-style: none; cursor: pointer; padding: 14px 44px 14px 14px; position: relative; font-weight: 700; font-size: 16px; line-height: 1.35; }
+.doc summary::-webkit-details-marker { display: none; }
+.doc summary::after { content: ""; position: absolute; right: 18px; top: 50%; width: 9px; height: 9px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: translateY(-70%) rotate(45deg); transition: transform .15s; }
+.doc details[open] > summary::after { transform: translateY(-30%) rotate(-135deg); }
+.doc .body { padding: 0 14px 14px; min-width: 0; }
+.doc .lead { margin-bottom: 12px; }
+.doc h3 { font-size: 15px; margin: 18px 0 6px; }
+.doc p { margin: 0 0 10px; }
+.doc ul, .doc ol { margin: 0 0 10px; padding-left: 20px; }
+.doc li { margin: 4px 0; }
+.doc blockquote { margin: 0 0 12px; padding: 10px 12px; background: var(--tint); border-radius: 8px; font-size: 14px; }
+.doc blockquote p:last-child { margin: 0; }
+.doc code { font-family: var(--mono); font-size: 12.5px; background: var(--tint); padding: 1px 5px; border-radius: 4px; }
+.doc a { color: var(--fire); font-weight: 600; text-underline-offset: 2px; }
+.tbl { overflow-x: auto; margin: 0 0 12px; border: 1px solid var(--line); border-radius: 8px; -webkit-overflow-scrolling: touch; }
+.tbl table { border-collapse: collapse; font-size: 13.5px; line-height: 1.4; min-width: 100%; }
+.tbl th, .tbl td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.tbl th { background: var(--tint); font-size: 12.5px; font-weight: 700; white-space: normal; min-width: 88px; }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td:first-child, .tbl th:first-child { position: sticky; left: 0; background: var(--panel); box-shadow: 1px 0 0 var(--line); }
+.tbl th:first-child { background: var(--tint); }
+.tbl td { font-variant-numeric: tabular-nums; min-width: 80px; }
+.tbl.wide td { min-width: 96px; }
+.hint { font-size: 12px; color: var(--muted); margin: -6px 0 12px; }
+.flag { display: inline-block; font-size: 11px; font-weight: 700; color: var(--amber-ink); background: var(--amber-bg); border-radius: 4px; padding: 0 5px; line-height: 18px; vertical-align: 1px; white-space: nowrap; }
+.amend { display: inline-block; font-size: 11px; font-weight: 700; color: var(--fire); background: var(--fire-bg); border-radius: 4px; padding: 0 5px; line-height: 18px; vertical-align: 1px; white-space: nowrap; }
+mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding: 0 1px; box-shadow: 0 0 0 1px var(--amber); }
+
+/* Checklist */
+.check { list-style: none; padding: 0 !important; }
+.check li { margin: 0; border-top: 1px solid var(--line); }
+.check li:first-child { border-top: 0; }
+.check label { display: grid; grid-template-columns: 24px 1fr; gap: 10px; padding: 10px 0; cursor: pointer; align-items: start; }
+.check input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--exit); }
+.check input:checked + span { color: var(--muted); text-decoration: line-through; }
+.progress { display: flex; align-items: center; gap: 10px; margin: 0 0 14px; font-size: 13px; color: var(--muted); }
+.bar { flex: 1; height: 8px; background: var(--tint); border-radius: 4px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--exit); width: 0; transition: width .2s; }
+.reset { border: 1px solid var(--line); background: var(--panel); border-radius: 8px; height: 36px; padding: 0 12px; cursor: pointer; font-size: 13px; }
+
+/* Save star */
+.star { position: absolute; right: 40px; top: 8px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; display: grid; place-items: center; }
+.star svg { width: 20px; height: 20px; }
+.star[aria-pressed="true"] { color: var(--amber); }
+.star[aria-pressed="true"] svg { fill: currentColor; }
+.doc summary { padding-right: 84px; }
+
+/* Search results */
+.results { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.results button { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 12px 14px; cursor: pointer; }
+.results .sec { font-size: 12px; color: var(--muted); font-weight: 600; }
+.results .ttl { font-weight: 700; display: block; margin: 2px 0 4px; }
+.results .snip { font-size: 13.5px; color: var(--ink); display: block; line-height: 1.45; }
+.empty { text-align: center; color: var(--muted); padding: 40px 12px; font-size: 14px; }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; justify-content: center; }
+.chips button { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
+
+.disclaimer { font-size: 12.5px; color: var(--amber-ink); background: var(--amber-bg); border-radius: 10px; padding: 10px 12px; margin: 16px 0 0; }
+.pager { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.pager button { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 10px 12px; text-align: left; cursor: pointer; font-size: 13px; min-height: 56px; }
+.pager button.next { text-align: right; grid-column: 2; }
+.pager small { display: block; color: var(--muted); font-size: 11.5px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="top gutter">
+  <div class="wrap">
+    <div class="brand">
+      <button class="back" id="backBtn" aria-label="Quay lại" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h1 id="hdr">Sổ tay PCCC<small>QCVN 06:2022/BXD · Sửa đổi 1:2023</small></h1>
+    </div>
+    <div class="search">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Tìm: buồng thang N1, REI 120, F1.3…" aria-label="Tìm trong sổ tay">
+      <button class="clear" id="clearQ" aria-label="Xóa tìm kiếm" hidden>×</button>
+    </div>
+  </div>
+</header>
+
+<main class="gutter"><div class="wrap" id="view"></div></main>
+
+<nav class="bottom" aria-label="Điều hướng chính">
+  <div class="row">
+    <button data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>Mục lục</button>
+    <button data-nav="tra-nhanh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="3"/></svg>Tra nhanh</button>
+    <button data-nav="da-luu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Đã lưu</button>
+    <button data-nav="checklist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9l2 2 4-4M8 16h8"/></svg>Checklist</button>
+  </div>
+</nav>
+
+<script>
+const DATA = __DATA__;
+
+const META = {
+  "tong-quan":  {n:"0", c:"", t:"Tổng quan & cách tra", d:"Trình tự 7 bước, ký hiệu, cấu trúc QCVN"},
+  "phan-loai":  {n:"1", c:"f", t:"Phân loại kỹ thuật về cháy", d:"Vật liệu, GHCL, bậc chịu lửa, cấp S, nhóm F, hạng A–E"},
+  "ngan-chay":  {n:"2", c:"f", t:"Ngăn cháy & khoang cháy", d:"Tường, vách, sàn, cửa ngăn cháy, khoang đệm, Phụ lục H"},
+  "thoat-nan":  {n:"3", c:"x", t:"Thoát nạn", d:"Lối ra, kích thước, khoảng cách, buồng thang L1–N3"},
+  "chay-lan":   {n:"4", c:"f", t:"Ngăn chặn cháy lan", d:"Khoảng cách giữa nhà, mặt ngoài, lỗ thông tầng"},
+  "chua-chay":  {n:"5", c:"", t:"Chữa cháy & cứu nạn", d:"Đường xe, bãi đỗ, lỗ cứu nạn, thang máy chữa cháy"},
+  "sua-doi":    {n:"✱", c:"a", t:"Sửa đổi 1:2023", d:"Các nội dung sửa đổi, cách trích dẫn"},
+  "checklist":  {n:"✓", c:"x", t:"Checklist hồ sơ", d:"Tự kiểm tra trước khi nộp thẩm duyệt"},
+  "thuat-ngu":  {n:"Aa", c:"", t:"Thuật ngữ & cách đo", d:"Chiều cao PCCC, tầng hầm, cách đo khoảng cách"}
+};
+const ORDER = Object.keys(META);
+const FILE2ID = {"README.md":"tong-quan","01-phan-loai.md":"phan-loai","02-ngan-chay.md":"ngan-chay","03-thoat-nan.md":"thoat-nan","04-chay-lan.md":"chay-lan","05-chua-chay-cuu-nan.md":"chua-chay","06-sua-doi-1-2023.md":"sua-doi","07-checklist.md":"checklist","08-thuat-ngu.md":"thuat-ngu"};
+
+/* ---------- storage (best effort) ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+let saved = store.get("pccc-saved", []);
+let checks = store.get("pccc-checks", {});
+
+/* ---------- markdown → blocks ---------- */
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+function inline(s) {
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/\*([^*\s][^*]*)\*/g, "<em>$1</em>");
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, t, h) => { const id = FILE2ID[h]; return id ? `<a href="#${id}" data-go="${id}">${t}</a>` : t; });
+  s = s.replace(/⚑/g, '<span class="flag" title="Cần đối chiếu nguyên văn">⚑ đối chiếu</span>');
+  s = s.replace(/✱/g, '<span class="amend" title="Liên quan Sửa đổi 1:2023">✱ SĐ1</span>');
+  return s;
+}
+function mdToHtml(lines, secId) {
+  let out = "", i = 0, ci = 0;
+  while (i < lines.length) {
+    let l = lines[i];
+    if (!l.trim()) { i++; continue; }
+    if (/^### /.test(l)) { out += `<h3>${inline(l.slice(4))}</h3>`; i++; continue; }
+    if (/^\|/.test(l)) {
+      const rows = [];
+      while (i < lines.length && /^\|/.test(lines[i])) { rows.push(lines[i]); i++; }
+      const cells = r => r.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+      const head = cells(rows[0]); const body = rows.slice(2).map(cells);
+      const wide = head.length > 3;
+      out += `<div class="tbl${wide ? " wide" : ""}"><table><thead><tr>${head.map(h => `<th>${inline(h)}</th>`).join("")}</tr></thead><tbody>${body.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      if (wide) out += `<p class="hint">← Vuốt ngang để xem hết bảng →</p>`;
+      continue;
+    }
+    if (/^> /.test(l)) {
+      let b = [];
+      while (i < lines.length && /^>/.test(lines[i])) { b.push(lines[i].replace(/^>\s?/, "")); i++; }
+      out += `<blockquote><p>${inline(b.join(" "))}</p></blockquote>`; continue;
+    }
+    if (/^- \[[ x]\] /.test(l)) {
+      out += `<ul class="check">`;
+      while (i < lines.length && /^- \[[ x]\] /.test(lines[i])) {
+        const key = secId + ":" + (ci++);
+        out += `<li><label><input type="checkbox" data-ck="${key}"${checks[key] ? " checked" : ""}><span>${inline(lines[i].slice(6))}</span></label></li>`; i++;
+      }
+      out += `</ul>`; continue;
+    }
+    if (/^- /.test(l)) {
+      out += "<ul>";
+      while (i < lines.length && /^- /.test(lines[i])) { out += `<li>${inline(lines[i].slice(2))}</li>`; i++; }
+      out += "</ul>"; continue;
+    }
+    if (/^\d+(–\d+)?\. /.test(l)) {
+      out += "<ol>";
+      while (i < lines.length && /^\d+(–\d+)?\. /.test(lines[i])) { out += `<li>${inline(lines[i].replace(/^\d+(–\d+)?\. /, ""))}</li>`; i++; }
+      out += "</ol>"; continue;
+    }
+    let p = [];
+    while (i < lines.length && lines[i].trim() && !/^(#|\||> |- |\d+\. )/.test(lines[i])) { p.push(lines[i]); i++; }
+    if (p.length) out += `<p>${inline(p.join(" "))}</p>`; else i++;
+  }
+  return out;
+}
+const norm = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+
+const SECTIONS = {};
+for (const [file, md] of Object.entries(DATA)) {
+  const id = FILE2ID[file]; const lines = md.split("\n");
+  let title = META[id].t, lead = [], blocks = [], cur = null;
+  for (const l of lines) {
+    if (/^# /.test(l)) { continue; }
+    if (/^## /.test(l)) { cur = { title: l.slice(3).trim(), lines: [] }; blocks.push(cur); continue; }
+    (cur ? cur.lines : lead).push(l);
+  }
+  blocks.forEach((b, k) => { b.id = id + "--" + k; b.text = norm(b.title + " " + b.lines.join(" ").replace(/[|*`>#]/g, " ")); b.raw = b.lines.join(" ").replace(/[|*`>#]/g, " ").replace(/\s+/g, " "); });
+  SECTIONS[id] = { id, title, lead, blocks, leadText: norm(lead.join(" ")) };
+}
+
+/* ---------- views ---------- */
+const view = document.getElementById("view");
+const hdr = document.getElementById("hdr");
+const backBtn = document.getElementById("backBtn");
+const q = document.getElementById("q");
+const clearQ = document.getElementById("clearQ");
+const HDR_HOME = hdr.innerHTML;
+
+function setNav(name) {
+  document.querySelectorAll("nav.bottom button").forEach(b => { if (b.dataset.nav === name) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); });
+}
+function setHeader(title) {
+  if (title) { hdr.innerHTML = esc(title) + "<small>QCVN 06:2022/BXD · SĐ1:2023</small>"; backBtn.hidden = false; }
+  else { hdr.innerHTML = HDR_HOME; backBtn.hidden = true; }
+}
+const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
+
+function renderHome() {
+  setHeader(null); setNav("home");
+  view.innerHTML = `
+    <p class="intro">Tra cứu yêu cầu kiến trúc – kết cấu PCCC. Gõ từ khóa ở ô tìm, hoặc chọn mục bên dưới. Có thể tìm không dấu.</p>
+    <p class="label">Mục lục</p>
+    <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button></li>`; }).join("")}</ul>
+    <p class="disclaimer">Đã đối chiếu với bản hợp nhất QCVN 06:2022/BXD + Sửa đổi 1:2023. <strong>✱ SĐ1</strong> đánh dấu nội dung sửa đổi. Mỗi giá trị kèm số điều để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>`;
+}
+
+function renderSection(id, openBlock) {
+  const s = SECTIONS[id]; if (!s) return renderHome();
+  setHeader(META[id].t); setNav(id === "checklist" ? "checklist" : "");
+  let html = `<article class="doc">`;
+  const leadHtml = mdToHtml(s.lead, id);
+  if (leadHtml) html += `<div class="lead">${leadHtml}</div>`;
+  if (id === "checklist") html += `<div class="progress"><div class="bar"><i id="pbar"></i></div><span id="ptext"></span><button class="reset" id="resetCk">Làm lại</button></div>`;
+  s.blocks.forEach((b, k) => {
+    const open = openBlock ? b.id === openBlock : (s.blocks.length <= 2 || id === "checklist" || k === 0);
+    const isSaved = saved.includes(b.id);
+    html += `<details id="${b.id}"${open ? " open" : ""}><summary>${inline(b.title)}<button class="star" data-star="${b.id}" aria-pressed="${isSaved}" aria-label="${isSaved ? "Bỏ lưu" : "Lưu mục này"}">${starSvg}</button></summary><div class="body">${mdToHtml(b.lines, b.id)}</div></details>`;
+  });
+  const idx = ORDER.indexOf(id), prev = ORDER[idx - 1], next = ORDER[idx + 1];
+  html += `<div class="pager">${prev ? `<button data-go="${prev}"><small>← Trước</small>${META[prev].t}</button>` : ""}${next ? `<button class="next" data-go="${next}"><small>Tiếp →</small>${META[next].t}</button>` : ""}</div></article>`;
+  view.innerHTML = html;
+  if (id === "checklist") updateProgress();
+  if (openBlock) { const el = document.getElementById(openBlock); if (el) setTimeout(() => el.scrollIntoView({ block: "start" }), 0); }
+  else window.scrollTo(0, 0);
+}
+
+function updateProgress() {
+  const boxes = view.querySelectorAll("input[data-ck]"); const done = [...boxes].filter(b => b.checked).length;
+  const bar = document.getElementById("pbar"), t = document.getElementById("ptext");
+  if (bar) { bar.style.width = (boxes.length ? done / boxes.length * 100 : 0) + "%"; t.textContent = `${done}/${boxes.length}`; }
+}
+
+function renderSaved() {
+  setHeader("Đã lưu"); setNav("da-luu");
+  const items = saved.map(bid => { const sid = bid.split("--")[0]; const s = SECTIONS[sid]; const b = s && s.blocks.find(x => x.id === bid); return b ? { s, b } : null; }).filter(Boolean);
+  if (!items.length) { view.innerHTML = `<div class="empty">Chưa lưu mục nào.<br>Bấm biểu tượng dấu trang trên tiêu đề một mục để lưu lại tra cứu nhanh.</div>`; return; }
+  view.innerHTML = `<ul class="results">${items.map(({ s, b }) => `<li><button data-open="${b.id}"><span class="sec">${META[s.id].t}</span><span class="ttl">${inline(b.title)}</span><span class="snip">${esc(b.raw.slice(0, 120))}…</span></button></li>`).join("")}</ul>`;
+}
+
+/* Quick lookup */
+const BAC = {
+  "I":   ["R 120","E 30","REI 60","RE 30","R 30","REI 120","R 60"],
+  "II":  ["R 90","E 15","REI 45","RE 15","R 15","REI 90","R 60"],
+  "III": ["R 45","E 15","REI 45","RE 15","R 15","REI 60","R 45"],
+  "IV":  ["R 15","E 15","REI 15","RE 15","R 15","REI 45","R 15"],
+  "V":   ["—","—","—","—","—","—","—"]
+};
+const BAC_LBL = ["Tường, cột và bộ phận chịu lực","Tường ngoài không chịu lực","Sàn tầng (kể cả sàn trên hầm)","Mái: tấm lợp","Mái: giàn, dầm, xà gồ","Buồng thang: tường trong","Bản thang, chiếu thang"];
+const NC = {
+  "Tường ngăn cháy loại 1":"REI 150","Tường ngăn cháy loại 2":"REI 45","Vách ngăn cháy loại 1":"EI 45","Vách ngăn cháy loại 2":"EI 15",
+  "Vách kính > 25 % loại 1 / 2":"EIW 45 / 15",
+  "Sàn ngăn cháy loại 1":"REI 150","Sàn ngăn cháy loại 2":"REI 60","Sàn ngăn cháy loại 3":"REI 45","Sàn ngăn cháy loại 4":"REI 15",
+  "Cửa, van, màn loại 1":"EI 60","Cửa, van, màn loại 2":"EI 30","Cửa, van, màn loại 3":"EI 15",
+  "Cửa kính > 25 % loại 1/2/3":"EIW 60/30/15","Cửa giếng thang máy":"E 30",
+  "Cửa sổ loại 1":"E 60","Cửa sổ loại 2":"E 30","Cửa sổ loại 3":"E 15",
+  "Khoang đệm loại 1":"vách 1 · sàn 3 · cửa 2","Khoang đệm loại 2":"vách 2 · sàn 4 · cửa 3"
+};
+const HEIGHT = [
+  { k: "< 12 m", road: "≤ 5 m", stair: "L1, thang loại 3 (L2 khi ≤ 9 m)", lift: "Không (trừ hầm sâu > 9 m)", park: "Không yêu cầu khi ≤ 15 m" },
+  { k: "12–28 m", road: "≤ 8 m", stair: "L1, thang loại 3", lift: "Không (trừ hầm sâu > 9 m)", park: "> 15 m: rộng ≥ 6 m" },
+  { k: "> 28 m", road: "≤ 10 m", stair: "Không nhiễm khói, phải có N1", lift: "≥ 1 / khoang cháy (F1.3: khi > 50 m)", park: "Rộng ≥ 6 m, dài theo Bảng 14–16" }
+];
+let qBac = store.get("pccc-bac", "I"), qH = store.get("pccc-h", 2);
+function renderQuick() {
+  setHeader("Tra nhanh"); setNav("tra-nhanh");
+  const h = HEIGHT[qH];
+  view.innerHTML = `
+  <div style="display:grid;gap:14px">
+    <section class="quick">
+      <h2>GHCL tối thiểu theo bậc chịu lửa (Bảng 4)</h2>
+      <div class="seg" role="group" aria-label="Bậc chịu lửa">${Object.keys(BAC).map(b => `<button data-bac="${b}" aria-pressed="${b === qBac}">${b}</button>`).join("")}</div>
+      <dl class="kv">${BAC_LBL.map((l, i) => `<dt>${l}</dt><dd>${BAC[qBac][i]}</dd>`).join("")}</dl>
+      <p class="note">Bậc V: không quy định. Nhà &gt; 50 m dùng Bảng A.1 (chịu lực R 150 / R 180). Đọc kèm chú thích Bảng 4. <a href="#phan-loai" data-open="phan-loai--2" style="color:var(--fire);font-weight:600">Xem mục đầy đủ</a></p>
+    </section>
+    <section class="quick">
+      <h2>Theo chiều cao PCCC</h2>
+      <div class="seg" role="group" aria-label="Chiều cao PCCC">${HEIGHT.map((x, i) => `<button data-h="${i}" aria-pressed="${i === qH}" style="font-family:var(--sans)">${x.k}</button>`).join("")}</div>
+      <dl class="kv">
+        <dt>Mép đường xe chữa cháy → tường nhà</dt><dd>${h.road}</dd>
+        <dt>Loại buồng thang bộ</dt><dd style="white-space:normal">${h.stair}</dd>
+        <dt>Thang máy chữa cháy</dt><dd style="white-space:normal">${h.lift}</dd>
+        <dt>Bãi đỗ xe chữa cháy</dt><dd style="white-space:normal">${h.park}</dd>
+        <dt>Đường xe: rộng × cao thông thủy</dt><dd>3,5 × 4,5 m</dd>
+        <dt>Đường cụt phải có bãi quay xe</dt><dd>&gt; 46 m</dd>
+      </dl>
+      <p class="note">Điều 3.4.11 – 3.4.13, 6.2, 6.13. Xem đủ điều kiện trong mục Chữa cháy &amp; cứu nạn.</p>
+    </section>
+    <section class="quick">
+      <h2>Bộ phận ngăn cháy</h2>
+      <dl class="kv">${Object.entries(NC).map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>
+    </section>
+    <section class="quick">
+      <h2>Kích thước thoát nạn hay dùng</h2>
+      <dl class="kv">
+        <dt>Cao thông thủy lối ra thoát nạn</dt><dd>≥ 1,9 m</dd>
+        <dt>Rộng lối ra (chung / &gt; 50 người, F1.1 &gt; 15)</dt><dd>0,8 / 1,2 m</dd>
+        <dt>Cao thông thủy đường thoát nạn</dt><dd>≥ 2,0 m</dd>
+        <dt>Rộng hành lang (chung / đông người)</dt><dd>1,0 / 1,2 m</dd>
+        <dt>Bản thang F1.1 (&gt; 15 / ≤ 15 người)</dt><dd>1,2 / 1,0 m</dd>
+        <dt>Bản thang, tầng &gt; 200 người</dt><dd>≥ 1,2 m</dd>
+        <dt>Bản thang, nhà ≤ 15 m, ≤ 15 người</dt><dd>≥ 0,7 m</dd>
+        <dt>Bản thang, trường hợp khác</dt><dd>≥ 0,9 m</dd>
+        <dt>Độ dốc thang</dt><dd>≤ 1:1</dd>
+        <dt>Mặt bậc / cao bậc</dt><dd>≥ 25 / 5–22 cm</dd>
+        <dt>Lỗ lấy sáng buồng thang</dt><dd>≥ 1,2 m²/tầng</dd>
+        <dt>Khoang đệm N3 (+ sảnh TMCC)</dt><dd>3 / 6 m²</dd>
+        <dt>Hành lang cụt F1.3, bậc I–II S0</dt><dd>25 m</dd>
+        <dt>Giữa 2 lối ra F1.3, bậc I–II S0</dt><dd>40 m</dd>
+      </dl>
+    </section>
+  </div>`;
+  window.scrollTo(0, 0);
+}
+
+function renderSearch(term) {
+  setNav("");
+  const terms = norm(term).split(/\s+/).filter(Boolean);
+  const res = [];
+  for (const id of ORDER) for (const b of SECTIONS[id].blocks) {
+    if (terms.every(t => b.text.includes(t))) res.push({ id, b, score: terms.filter(t => norm(b.title).includes(t)).length });
+  }
+  res.sort((a, b) => b.score - a.score);
+  setHeader(null);
+  if (!res.length) {
+    view.innerHTML = `<div class="empty">Không thấy kết quả cho “${esc(term)}”.<br>Thử từ khóa ngắn hơn hoặc gợi ý:<div class="chips">${["buồng thang","REI","hành lang cụt","khoang cháy","F1.3","xe chữa cháy","khoang đệm"].map(c => `<button data-chip="${c}">${c}</button>`).join("")}</div></div>`;
+    return;
+  }
+  const mk = s => { let h = esc(s); for (const t of terms) { if (t.length < 2) continue; const re = buildRe(t); h = h.replace(re, m => `<mark>${m}</mark>`); } return h; };
+  view.innerHTML = `<p class="label">${res.length} kết quả</p><ul class="results">${res.slice(0, 60).map(({ id, b }) => {
+    const nraw = norm(b.raw); const pos = Math.max(0, nraw.indexOf(terms[0]) - 40);
+    const snip = (pos ? "…" : "") + b.raw.slice(pos, pos + 150) + "…";
+    return `<li><button data-open="${b.id}"><span class="sec">${META[id].t}</span><span class="ttl">${mk(b.title.replace(/[⚑✱]/g, ""))}</span><span class="snip">${mk(snip.replace(/[⚑✱]/g, ""))}</span></button></li>`;
+  }).join("")}</ul>`;
+}
+// accent-insensitive regex for highlighting
+const MAP = { a:"aàáảãạăằắẳẵặâầấẩẫậ", e:"eèéẻẽẹêềếểễệ", i:"iìíỉĩị", o:"oòóỏõọôồốổỗộơờớởỡợ", u:"uùúủũụưừứửữự", y:"yỳýỷỹỵ", d:"dđ" };
+function buildRe(t) {
+  const src = [...t].map(ch => { const k = ch.toLowerCase(); if (MAP[k]) return "[" + MAP[k] + MAP[k].toUpperCase() + "]"; return ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("");
+  return new RegExp(src, "gi");
+}
+
+/* ---------- routing ---------- */
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (q.value.trim()) return renderSearch(q.value.trim());
+  if (!h || h === "home") return renderHome();
+  if (h === "tra-nhanh") return renderQuick();
+  if (h === "da-luu") return renderSaved();
+  if (SECTIONS[h]) return renderSection(h);
+  renderHome();
+}
+function go(hash, block) {
+  q.value = ""; clearQ.hidden = true;
+  if (block) { const sid = block.split("--")[0]; if (location.hash.slice(1) !== sid) history.replaceState(null, "", "#" + sid); renderSection(sid, block); return; }
+  if (location.hash.slice(1) === hash) route(); else location.hash = hash;
+}
+window.addEventListener("hashchange", route);
+
+document.addEventListener("click", e => {
+  const star = e.target.closest("[data-star]");
+  if (star) { e.preventDefault(); e.stopPropagation(); const id = star.dataset.star;
+    saved = saved.includes(id) ? saved.filter(x => x !== id) : [...saved, id]; store.set("pccc-saved", saved);
+    const on = saved.includes(id); star.setAttribute("aria-pressed", on); star.setAttribute("aria-label", on ? "Bỏ lưu" : "Lưu mục này"); return; }
+  const op = e.target.closest("[data-open]"); if (op) { e.preventDefault(); go(null, op.dataset.open); return; }
+  const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); return; }
+  const n = e.target.closest("[data-nav]"); if (n) { go(n.dataset.nav === "home" ? "home" : n.dataset.nav); return; }
+  const bac = e.target.closest("[data-bac]"); if (bac) { qBac = bac.dataset.bac; store.set("pccc-bac", qBac); renderQuick(); return; }
+  const hh = e.target.closest("[data-h]"); if (hh) { qH = +hh.dataset.h; store.set("pccc-h", qH); renderQuick(); return; }
+  const chip = e.target.closest("[data-chip]"); if (chip) { q.value = chip.dataset.chip; clearQ.hidden = false; renderSearch(q.value); return; }
+  if (e.target.id === "resetCk") { view.querySelectorAll("input[data-ck]").forEach(b => { b.checked = false; delete checks[b.dataset.ck]; }); store.set("pccc-checks", checks); updateProgress(); }
+});
+document.addEventListener("change", e => {
+  const ck = e.target.closest("input[data-ck]"); if (!ck) return;
+  if (ck.checked) checks[ck.dataset.ck] = 1; else delete checks[ck.dataset.ck];
+  store.set("pccc-checks", checks); updateProgress();
+});
+backBtn.addEventListener("click", () => go("home"));
+let tmr;
+q.addEventListener("input", () => { clearQ.hidden = !q.value; clearTimeout(tmr); tmr = setTimeout(() => q.value.trim() ? renderSearch(q.value.trim()) : route(), 120); });
+clearQ.addEventListener("click", () => { q.value = ""; clearQ.hidden = true; route(); q.focus(); });
+
+route();
+</script>

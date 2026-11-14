@@ -100,30 +100,91 @@ Bộ phận ngăn cháy loại 1 phải **K0**; loại 2–4 được K1 trong t
 
 ## 1.5 Nhóm nguy hiểm cháy theo công năng — Bảng 6 ✱
 
-| Nhóm | Công trình điển hình |
+Trích **nguyên văn** cột "Mục đích sử dụng" của Bảng 6 (bản hợp nhất SĐ1:2023). Mỗi nhóm đều kết thúc bằng "và các nhà có đặc điểm sử dụng tương tự". Bảng áp dụng cho **nhà, công trình, khoang cháy, gian phòng hoặc nhóm các phòng có công năng liên quan với nhau** (chú thích 1 của Bảng 6).
+
+**F1 — Nhà để ở thường xuyên hoặc tạm thời (kể cả ở suốt ngày đêm).** Đặc điểm: các gian phòng sử dụng cả ngày và đêm; người ở gồm nhiều lứa tuổi, trạng thái thể chất khác nhau; đặc trưng là **có phòng ngủ**.
+
+| Nhóm | Công trình theo Bảng 6 |
 | --- | --- |
-| **F1.1** | Nhà trẻ, mẫu giáo, mầm non; **bệnh viện** (trừ dã chiến), khối điều trị nội trú; phòng khám đa khoa, chuyên khoa, nhà hộ sinh; nhà cho người cao tuổi, khuyết tật (không phải căn hộ), dưỡng lão; khối nhà ngủ trường nội trú |
-| **F1.2** | Khách sạn, nhà khách, nhà nghỉ, nhà trọ; ký túc xá, nhà ở tập thể; khối ngủ cơ sở điều dưỡng, phục hồi chức năng |
+| **F1.1** | Nhà trẻ, trường mẫu giáo, mầm non; **bệnh viện** (không bao gồm bệnh viện dã chiến), khối nhà điều trị nội trú của cơ sở phòng chống dịch bệnh, phòng khám đa khoa, chuyên khoa, nhà hộ sinh; nhà chuyên dùng cho người cao tuổi và người khuyết tật (không phải nhà căn hộ), nhà dưỡng lão; khối nhà ngủ của các trường nội trú và của các cơ sở cho trẻ em |
+| **F1.2** | Khách sạn, nhà khách, nhà nghỉ, nhà trọ; ký túc xá, nhà ở tập thể; khối nhà ngủ của các cơ sở điều dưỡng, nghỉ dưỡng, phục hồi chức năng, chỉnh hình; các cơ sở lưu trú khác có đặc điểm sử dụng tương tự |
 | **F1.3** | Nhà chung cư |
 | **F1.4** | Nhà ở riêng lẻ |
-| **F2.1** | Nhà hát, rạp chiếu phim, rạp xiếc, hòa nhạc; câu lạc bộ, hộp đêm, **vũ trường, quán bar, phòng hát, karaoke**; công trình thể thao có khán đài, nhà thi đấu trong nhà; **thư viện**; trung tâm hội nghị, sự kiện **không** có dịch vụ ăn uống |
-| **F2.2** | Bảo tàng, triển lãm; phòng nhảy; khối công trình vui chơi giải trí, thủy cung |
-| **F2.3 / F2.4** | Như F2.1 / F2.2 nhưng hở ra ngoài trời; công viên giải trí |
-| **F3.1** | Cửa hàng, siêu thị, TTTM, điện máy, bách hóa, cửa hàng tiện ích; nhà sách; cửa hàng mô-tô, xe máy; hội chợ, trưng bày hàng hóa |
-| **F3.2** | Nhà hàng, ăn uống, giải khát, trạm dừng nghỉ; trung tâm hội nghị, sự kiện **có** dịch vụ ăn uống |
-| **F3.3** | Ga đường sắt, ga hàng không, nhà chờ cáp treo, bến phà, bến xe khách |
-| **F3.4** | Phòng khám **ngoại trú**, cấp cứu; trạm y tế, thẩm mỹ viện, phục hồi chức năng; **xoa bóp** |
-| **F3.5** | Bưu điện, quỹ tiết kiệm, phòng vé, văn phòng luật, công chứng, giặt là, may, cắt tóc; cơ sở phục vụ lễ tang |
-| **F3.6** | Khu tập luyện, thi đấu thể thao không có khán đài; sân vận động, trường đua, trường bắn |
-| **F4.1** | Trường tiểu học, THCS, THPT, trung học chuyên nghiệp, trường dạy nghề (không gồm mầm non) |
-| **F4.2** | Đại học, cao đẳng, học viện, trường bồi dưỡng nghiệp vụ |
-| **F4.3** | Trụ sở cơ quan, **văn phòng**, ngân hàng; tổ chức nghiên cứu, thiết kế; cơ sở phát thanh, truyền hình, viễn thông; nhà xuất bản |
-| **F4.4** | Trạm (đội) chữa cháy và cứu nạn, cứu hộ |
-| **F5.1** | Nhà sản xuất, phòng thí nghiệm, xưởng; **sửa chữa, bảo dưỡng ô-tô, mô-tô** |
-| **F5.2** | Kho; **gara không có dịch vụ kỹ thuật, sửa chữa**; kho sách, lưu trữ; **trung tâm dữ liệu chuyên ngành**; kho hàng cảng cạn |
-| **F5.3** | Nhà phục vụ nông nghiệp, phát triển nông thôn |
 
-Gian sản xuất, kho, phòng thí nghiệm, xưởng **> 50 m²** và bếp có thiết bị đun nấu **> 10 kW** trong nhà F1–F4 được xếp vào **F5** (2.5.5.2).
+**F2 — Nhà của các cơ sở văn hóa, thể thao.** Đặc điểm: gian phòng chính có **số lượng lớn khách lưu lại** trong một khoảng thời gian nhất định.
+
+| Nhóm | Công trình theo Bảng 6 |
+| --- | --- |
+| **F2.1** | Nhà hát, rạp chiếu phim, rạp xiếc, phòng hòa nhạc; câu lạc bộ, hộp đêm, vũ trường, quán bar, phòng hát, nhà kinh doanh karaoke và các cơ sở tương tự khác **trong các gian phòng kín**; các công trình thể thao **có khán đài**, nhà thi đấu, cung thể thao trong nhà; **thư viện**; trung tâm hội nghị, tổ chức sự kiện **không bao gồm dịch vụ ăn uống**; các nhà khác có số lượng chỗ ngồi tính toán cho người trong các gian phòng kín |
+| **F2.2** | Nhà bảo tàng, triển lãm; phòng nhảy; khối nhà của các công trình vui chơi giải trí, thủy cung |
+| **F2.3** | Nhà của các cơ sở nêu ở F2.1 nhưng **hở ra ngoài trời**; công viên giải trí |
+| **F2.4** | Nhà của các cơ sở nêu ở F2.2 nhưng **hở ra ngoài trời** |
+
+**F3 — Nhà của các cơ sở thương mại, kinh doanh và dịch vụ dân cư.** Đặc điểm: **số lượng khách lớn hơn** so với nhân viên phục vụ.
+
+| Nhóm | Công trình theo Bảng 6 |
+| --- | --- |
+| **F3.1** | Nhà của cơ sở bán hàng, phòng trưng bày các sản phẩm hàng hóa, nhà hội chợ, trung tâm thương mại, điện máy, siêu thị, cửa hàng bách hóa, cửa hàng tiện ích; nhà sách; cửa hàng kinh doanh mô-tô, xe gắn máy |
+| **F3.2** | Nhà hàng, cửa hàng ăn uống, giải khát, trạm dừng nghỉ; trung tâm hội nghị, tổ chức sự kiện **có bao gồm dịch vụ ăn uống** |
+| **F3.3** | Nhà ga đường sắt, nhà ga hàng không; nhà chờ cáp treo vận chuyển người, bến phà, bến xe khách |
+| **F3.4** | Phòng khám chữa bệnh (**ngoại trú**) đa khoa, chuyên khoa và cấp cứu; khối nhà điều trị ngoại trú của cơ sở y tế khác như trạm y tế, chỉnh hình, thẩm mỹ viện, phục hồi chức năng; nhà có kinh doanh dịch vụ xoa bóp |
+| **F3.5** | Các gian phòng cho khách của doanh nghiệp, cơ sở dịch vụ đời sống và công cộng có số chỗ ngồi cho khách **không được tính toán** (bưu điện, bưu cục, quỹ tiết kiệm, phòng vé, văn phòng tư vấn luật, văn phòng công chứng, cửa hàng giặt là, nhà may, sửa chữa giày và quần áo, cửa hàng cắt tóc); cơ sở phục vụ lễ tang |
+| **F3.6** | Các khu liên hợp thể dục thể thao và các khu tập luyện, thi đấu thể thao **không có khán đài**; các gian phòng dịch vụ; sân vận động, trường đua, trường bắn |
+
+**F4 — Công trình giáo dục, đào tạo, trụ sở làm việc, tổ chức khoa học, nghiên cứu và thiết kế, cơ quan quản lý.** Đặc điểm: gian phòng sử dụng một số thời gian nhất định trong ngày; nhóm người cố định, quen điều kiện tại chỗ, độ tuổi và thể chất xác định.
+
+| Nhóm | Công trình theo Bảng 6 |
+| --- | --- |
+| **F4.1** | Các trường tiểu học, trung học cơ sở, cơ sở đào tạo phổ thông có nhiều cấp học (không bao gồm mầm non, mẫu giáo), trường trung học phổ thông, **trung học chuyên nghiệp, trường dạy nghề**; trường đào tạo người chuyên hoạt động tôn giáo ở lứa tuổi thiếu niên |
+| **F4.2** | Các trường đại học, cao đẳng, học viện, **trung cấp chuyên nghiệp**, trường bồi dưỡng nâng cao nghiệp vụ, trường công nhân kỹ thuật; trường đào tạo người chuyên hoạt động tôn giáo không thuộc nhóm F4.1 |
+| **F4.3** | Trụ sở cơ quan quản lý, cơ quan Nhà nước các cấp; nhà làm việc của nhân viên văn phòng trong doanh nghiệp; trụ sở tổ chức chính trị, chính trị – xã hội; văn phòng của tổ chức xã hội – nghề nghiệp, đơn vị sự nghiệp, doanh nghiệp, tổ chức, cá nhân khác; trụ sở tôn giáo; tổ chức thiết kế, nghiên cứu khoa học, trạm nghiên cứu địa chấn, trạm khí tượng thủy văn, cơ sở nghiên cứu vũ trụ; tổ chức thông tin và nhà xuất bản; cơ sở truyền thanh, truyền hình, viễn thông, nhà lắp đặt thiết bị thông tin; **ngân hàng**, cơ quan, văn phòng |
+| **F4.4** | Các trạm (đội) chữa cháy và cứu nạn, cứu hộ |
+
+**F5 — Nhà, công trình, gian phòng có công năng sản xuất và kho.** Đặc điểm: có nhóm người làm việc cố định, kể cả làm việc suốt ngày đêm.
+
+| Nhóm | Công trình theo Bảng 6 |
+| --- | --- |
+| **F5.1** | Các nhà sản xuất, các gian phòng sản xuất và thí nghiệm, nhà xưởng, cửa hàng **sửa chữa, bảo dưỡng** ô-tô, mô-tô, xe gắn máy |
+| **F5.2** | Các nhà và công trình kho; **ga ra để xe không có dịch vụ kỹ thuật và sửa chữa**; kho chứa sách, kho lưu trữ, trung tâm lưu trữ, trung tâm cơ sở dữ liệu chuyên ngành, các gian phòng kho; khu vực lưu giữ hàng hóa của cảng cạn; kho hàng hóa, vật tư cháy được hoặc hàng hóa vật tư không cháy đựng trong bao bì cháy được |
+| **F5.3** | Các nhà phục vụ nông nghiệp và phát triển nông thôn |
+
+**Các trường hợp dễ xếp nhầm** (đối chiếu từng câu chữ của Bảng 6):
+
+| Công trình | Nhóm | Căn cứ |
+| --- | --- | --- |
+| Khối điều trị **nội trú** của bệnh viện, cơ sở phòng chống dịch | F1.1 | F1.1 |
+| Phòng khám **ngoại trú**, cấp cứu; khối điều trị ngoại trú; thẩm mỹ viện; xoa bóp | F3.4 | F3.4 |
+| Phòng khám đa khoa, chuyên khoa | Được liệt kê ở **F1.1**; phòng khám chữa bệnh **ngoại trú** thuộc **F3.4**. Phân biệt theo việc có lưu bệnh nhân (nội trú) hay không — nên thống nhất với cơ quan thẩm duyệt | F1.1, F3.4 |
+| Bệnh viện dã chiến | Không thuộc F1.1 — xác định theo đặc điểm sử dụng thực tế | F1.1 (loại trừ) |
+| Hội trường, trung tâm hội nghị, sự kiện **không** có ăn uống | F2.1 | F2.1 |
+| Trung tâm hội nghị, sự kiện **có** dịch vụ ăn uống | F3.2 | F3.2 |
+| Karaoke, vũ trường, bar, hộp đêm trong phòng kín | F2.1 | F2.1 |
+| Thư viện | F2.1 (không phải F4) | F2.1 |
+| Nhà sách | F3.1 | F3.1 |
+| Kho sách, kho lưu trữ | F5.2 | F5.2 |
+| Ngân hàng | F4.3 | F4.3 |
+| Quỹ tiết kiệm, phòng giao dịch bưu điện, phòng vé | F3.5 | F3.5 |
+| Nhà thi đấu, công trình thể thao **có** khán đài | F2.1 (ngoài trời: F2.3) | F2.1, F2.3 |
+| Khu tập luyện, thi đấu **không** khán đài; sân vận động, trường đua, trường bắn | F3.6 | F3.6 |
+| Trung học chuyên nghiệp, trường dạy nghề | F4.1 | F4.1 |
+| Trung cấp chuyên nghiệp, cao đẳng, trường công nhân kỹ thuật | F4.2 | F4.2 |
+| Mầm non, mẫu giáo, nhà trẻ | F1.1 (không phải F4.1) | F1.1, F4.1 |
+| Khối nhà ngủ trường nội trú, cơ sở cho trẻ em | F1.1 | F1.1 |
+| Khối nhà ngủ cơ sở điều dưỡng, nghỉ dưỡng, phục hồi chức năng | F1.2 | F1.2 |
+| Nhà dưỡng lão, nhà cho người cao tuổi, khuyết tật (không phải căn hộ) | F1.1 | F1.1 |
+| Gara **không** có dịch vụ kỹ thuật, sửa chữa | F5.2 | F5.2 |
+| Gara, cửa hàng **có** sửa chữa, bảo dưỡng ô-tô, xe máy | F5.1 | F5.1 |
+| Cửa hàng **kinh doanh** mô-tô, xe gắn máy | F3.1 | F3.1 |
+| Trung tâm cơ sở dữ liệu chuyên ngành | F5.2 | F5.2 |
+
+**Quy tắc xếp nhóm đi kèm:**
+
+- Gian sản xuất, kho, phòng thí nghiệm, nhà xưởng **> 50 m²** và gian chuẩn bị đồ ăn có thiết bị đun nấu **> 10 kW** trong nhà F1, F2, F3, F4 được xếp vào **F5** (2.5.5.2).
+- Nhóm F áp dụng cho từng nhà, khoang cháy, gian phòng hoặc nhóm phòng liên quan (chú thích 1 Bảng 6). Các phần khác nhóm ngăn cách theo **4.5**; tầng có công năng chính **≥ 90 %** diện tích, phần còn lại là phụ trợ, được xếp theo công năng chính.
+- Khi các phần đã được ngăn bằng bộ phận ngăn cháy, mỗi phần đáp ứng yêu cầu của nhóm F tương ứng (4.6).
+- Nhà có nhóm F nhất định được bố trí gian phòng nhóm khác thì đáp ứng thêm tiêu chuẩn thiết kế riêng của loại nhà đó (2.5.5.3).
+- Công trình không có trong danh sách: chọn nhóm theo **"Đặc điểm sử dụng"** của nhóm lớn (F1 – F5) và cụm "các nhà có đặc điểm sử dụng tương tự".
+
 
 **Phạm vi áp dụng (1.1.2) ✱:**
 

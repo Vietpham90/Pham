@@ -365,12 +365,45 @@ const HEIGHT = [
   { k: "12–28 m", road: "≤ 8 m", stair: "L1, thang loại 3", lift: "Không (trừ hầm sâu > 9 m)", park: "> 15 m: rộng ≥ 6 m" },
   { k: "> 28 m", road: "≤ 10 m", stair: "Không nhiễm khói, phải có N1", lift: "≥ 1 / khoang cháy (F1.3: khi > 50 m)", park: "Rộng ≥ 6 m, dài theo Bảng 14–16" }
 ];
-let qBac = store.get("pccc-bac", "I"), qH = store.get("pccc-h", 2);
+const FMAP = [
+["Nhà trẻ, mẫu giáo, mầm non","F1.1"],["Bệnh viện (trừ bệnh viện dã chiến)","F1.1"],["Khối điều trị nội trú (bệnh viện, cơ sở phòng chống dịch)","F1.1"],["Nhà hộ sinh","F1.1"],["Phòng khám đa khoa, chuyên khoa có lưu bệnh nhân (được liệt kê ở F1.1)","F1.1"],["Nhà dưỡng lão; nhà cho người cao tuổi, khuyết tật (không phải căn hộ)","F1.1"],["Khối nhà ngủ trường nội trú, cơ sở cho trẻ em","F1.1"],
+["Khách sạn, nhà khách, nhà nghỉ, nhà trọ","F1.2"],["Ký túc xá, nhà ở tập thể","F1.2"],["Khối nhà ngủ cơ sở điều dưỡng, nghỉ dưỡng, phục hồi chức năng, chỉnh hình","F1.2"],["Cơ sở lưu trú khác","F1.2"],
+["Nhà chung cư","F1.3"],["Nhà ở riêng lẻ","F1.4"],
+["Nhà hát, rạp chiếu phim, rạp xiếc, phòng hòa nhạc","F2.1"],["Câu lạc bộ, hộp đêm, vũ trường, quán bar, phòng hát, karaoke (phòng kín)","F2.1"],["Công trình thể thao có khán đài, nhà thi đấu, cung thể thao trong nhà","F2.1"],["Thư viện","F2.1"],["Trung tâm hội nghị, sự kiện KHÔNG có ăn uống; hội trường","F2.1"],
+["Bảo tàng, triển lãm","F2.2"],["Phòng nhảy","F2.2"],["Khu vui chơi giải trí (khối nhà), thủy cung","F2.2"],
+["Cơ sở F2.1 hở ra ngoài trời (sân khấu, khán đài ngoài trời)","F2.3"],["Công viên giải trí","F2.3"],["Cơ sở F2.2 hở ra ngoài trời (triển lãm ngoài trời)","F2.4"],
+["Cửa hàng, siêu thị, trung tâm thương mại, điện máy, bách hóa, cửa hàng tiện ích","F3.1"],["Phòng trưng bày hàng hóa, nhà hội chợ","F3.1"],["Nhà sách","F3.1"],["Cửa hàng kinh doanh mô-tô, xe gắn máy","F3.1"],
+["Nhà hàng, ăn uống, giải khát, trạm dừng nghỉ","F3.2"],["Trung tâm hội nghị, sự kiện CÓ dịch vụ ăn uống","F3.2"],
+["Nhà ga đường sắt, ga hàng không (sân bay)","F3.3"],["Bến xe khách, bến phà, nhà chờ cáp treo","F3.3"],
+["Phòng khám ngoại trú đa khoa, chuyên khoa, cấp cứu","F3.4"],["Trạm y tế, thẩm mỹ viện, chỉnh hình, phục hồi chức năng (ngoại trú)","F3.4"],["Dịch vụ xoa bóp, massage","F3.4"],
+["Bưu điện, bưu cục, quỹ tiết kiệm, phòng vé","F3.5"],["Văn phòng tư vấn luật, công chứng","F3.5"],["Giặt là, nhà may, sửa giày, cắt tóc","F3.5"],["Cơ sở phục vụ lễ tang, nhà tang lễ","F3.5"],
+["Khu liên hợp thể dục thể thao; phòng tập, thi đấu không có khán đài; gym, bể bơi tập","F3.6"],["Sân vận động, trường đua, trường bắn","F3.6"],
+["Trường tiểu học, THCS, THPT, trường phổ thông nhiều cấp","F4.1"],["Trung học chuyên nghiệp, trường dạy nghề","F4.1"],
+["Đại học, cao đẳng, học viện","F4.2"],["Trung cấp chuyên nghiệp, trường công nhân kỹ thuật, bồi dưỡng nghiệp vụ","F4.2"],
+["Văn phòng, trụ sở cơ quan, nhà làm việc doanh nghiệp","F4.3"],["Ngân hàng","F4.3"],["Viện nghiên cứu, tổ chức thiết kế, trạm khí tượng, địa chấn","F4.3"],["Nhà xuất bản, truyền thanh, truyền hình, viễn thông","F4.3"],["Trụ sở tôn giáo","F4.3"],
+["Trạm (đội) chữa cháy và cứu nạn, cứu hộ","F4.4"],
+["Nhà sản xuất, nhà xưởng, phòng thí nghiệm","F5.1"],["Gara, cửa hàng sửa chữa, bảo dưỡng ô-tô, xe máy","F5.1"],
+["Kho hàng, kho vật tư","F5.2"],["Gara để xe KHÔNG có sửa chữa, dịch vụ kỹ thuật (hầm xe)","F5.2"],["Kho sách, kho lưu trữ, trung tâm lưu trữ","F5.2"],["Trung tâm cơ sở dữ liệu chuyên ngành","F5.2"],["Khu lưu giữ hàng hóa cảng cạn","F5.2"],
+["Nhà phục vụ nông nghiệp, phát triển nông thôn","F5.3"],
+["Gian kho, xưởng, phòng thí nghiệm > 50 m² trong nhà F1–F4","F5"],["Bếp có thiết bị đun nấu > 10 kW trong nhà F1–F4","F5"]
+];
+let qBac = store.get("pccc-bac", "I"), qH = store.get("pccc-h", 2), qF = "";
+function fRows(term) {
+  const t = norm(term).split(/\s+/).filter(Boolean);
+  const rows = FMAP.filter(([n, g]) => t.every(x => norm(n + " " + g).includes(x)));
+  return rows.length ? rows.map(([n, g]) => `<dt>${esc(n)}</dt><dd>${g}</dd>`).join("") : `<dt>Không thấy. Xem mục Phân loại → 1.5</dt><dd>—</dd>`;
+}
 function renderQuick() {
   setHeader("Tra nhanh"); setNav("tra-nhanh");
   const h = HEIGHT[qH];
   view.innerHTML = `
   <div style="display:grid;gap:14px">
+    <section class="quick">
+      <h2>Tra nhóm F theo công trình (Bảng 6)</h2>
+      <input id="fq" type="search" autocomplete="off" placeholder="Gõ: karaoke, phòng khám, gara, thư viện…" aria-label="Tên công trình" style="width:100%;height:42px;border:1px solid var(--line);border-radius:8px;padding:0 12px;font:inherit;font-size:16px;background:var(--bg);color:var(--ink);margin-bottom:8px" value="${esc(qF)}">
+      <dl class="kv" id="fres">${fRows(qF)}</dl>
+      <p class="note">Theo nguyên văn Bảng 6 (bản hợp nhất SĐ1:2023). <a href="#phan-loai" data-open="phan-loai--4" style="color:var(--fire);font-weight:600">Xem bảng đầy đủ</a></p>
+    </section>
     <section class="quick">
       <h2>GHCL tối thiểu theo bậc chịu lửa (Bảng 4)</h2>
       <div class="seg" role="group" aria-label="Bậc chịu lửa">${Object.keys(BAC).map(b => `<button data-bac="${b}" aria-pressed="${b === qBac}">${b}</button>`).join("")}</div>
@@ -481,6 +514,7 @@ document.addEventListener("change", e => {
 });
 backBtn.addEventListener("click", () => go("home"));
 let tmr;
+document.addEventListener("input", e => { if (e.target.id === "fq") { qF = e.target.value; document.getElementById("fres").innerHTML = fRows(qF); } });
 q.addEventListener("input", () => { clearQ.hidden = !q.value; clearTimeout(tmr); tmr = setTimeout(() => q.value.trim() ? renderSearch(q.value.trim()) : route(), 120); });
 clearQ.addEventListener("click", () => { q.value = ""; clearQ.hidden = true; route(); q.focus(); });
 

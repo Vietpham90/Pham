@@ -67,6 +67,18 @@ cases.push(
   MX("Chung cư ở tầng hầm: không cho phép", {h:20,n:6,nb:1,parts:[{i:0,from:-1,to:6,a:800}]}, [/không cho phép/]),
   MX("Hỗn hợp không có F1.3: Bảng 15 vs 16", {h:20,n:5,nb:0,parts:[{i:25,from:3,to:5,a:1200},{i:29,from:1,to:2,a:1500,hang:"C"}]}, [/giá trị lớn hơn/, /≤ 50 m, ≤ 1 tầng hầm/])
 );
+
+cases.push(
+  GP("G.3/G.7 C2 S0 12 000 m³", {g:"F5.1",k:12,a:2000,ch:6,bac:"II",f5h:"C2",f5s:"S0",den:1}, [/≤ 100 m\*\*/, /110 người\/m/]),
+  GP("G.3/G.7 C1 S0 35 000 m³ cao 7 m: nội suy + tăng", {g:"F5.1",k:12,a:5000,ch:7,bac:"I",f5h:"C1",f5s:"S0",den:1}, [/≤ 184 m\*\*/, /đã tăng 20 %/, /171 người\/m/]),
+  GP("G.3/G.7/G.8 hạng A S0 mật độ 2", {g:"F5.1",k:12,a:3000,ch:5,bac:"I",f5h:"A",f5s:"S0",den:2,p:20}, [/≤ 25 m\*\*/, /45 người\/m/, /≤ \*\*85 người\/m/], [/Bảng G\.4\)/]),
+  GP("Hạng A cấp S1: không có trong bảng", {g:"F5.1",k:12,a:3000,ch:5,bac:"III",f5h:"A",f5s:"S1",den:1,p:20}, [/chỉ có dòng hạng A, B với bậc I – IV, cấp S0/, /Bảng G\.7 chỉ có dòng hạng A, B với cấp S0/]),
+  GP("Hạng D S0 800 m²: G.3 không hạn chế, G.4 180 m", {g:"F5.2",k:12,a:800,ch:5,bac:"II",f5h:"D",f5s:"S0",den:1,pos:"mid"}, [/\*\*không hạn chế\*\*/, /260 người\/m/, /ở giữa hai lối ra\*\*.*≤ 180 m\*\*/]),
+  GP("Hạng E S1 hành lang cụt mật độ 3,5: 15 m", {g:"F5.2",k:12,a:600,ch:4,bac:"III",f5h:"E",f5s:"S1",den:3.5,pos:"dead"}, [/hành lang cụt\*\*.*≤ 15 m\*\*/, /không hạn chế/]),
+  GP("C3 bậc V 20 000 m³: ngoài bảng", {g:"F5.1",k:12,a:4000,ch:5,bac:"V",f5h:"C3",f5s:"S2",den:1}, [/chỉ áp dụng cho gian ≤ 15 000 m³/, /chỉ có dòng khối tích ≤ 15 000 m³/]),
+  GP("C2 S0 90 000 m³ cao 9 m: giới hạn 240 m", {g:"F5.2",k:12,a:10000,ch:9,bac:"I",f5h:"C2",f5s:"S0",den:1}, [/≤ 240 m\*\*/, /giới hạn 240 m/, /286 người\/m/]),
+  GP("Mật độ 6 người/m²: ngoài bảng", {g:"F5.1",k:12,a:800,ch:5,bac:"I",f5h:"C2",f5s:"S0",den:6}, [/> 5: ngoài Bảng G\.3, G\.4/, /mật độ > 5 người\/m² nằm ngoài bảng/])
+);
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage();
   const errs=[]; p.on('pageerror',e=>errs.push(e.message));

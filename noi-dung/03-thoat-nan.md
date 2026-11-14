@@ -85,7 +85,55 @@ Cửa mở ra hành lang làm hẹp chiều rộng: trừ **1/2** phần nhô (c
 **Chiều rộng tính toán theo số người:**
 
 - Nhà công cộng — định mức người/1 m chiều rộng cửa vào buồng thang và bản thang: bậc I, II **165**; bậc III, IV **115**; bậc V **80** (G.2.1.1).
-- Gian không có ghế khán giả: theo **Bảng G.5**; nhà sản xuất: **Bảng G.7, G.8** (lối ra ≥ 0,9 m).
+- Gian không có ghế khán giả (nhà công cộng): theo **Bảng G.5**, lối ra ≥ 1,2 m khi gian > 50 người (G.2.1.4).
+- Nhà sản xuất, kho: **Bảng G.7** (lối ra từ gian) và **Bảng G.8** (lối ra từ hành lang), lối ra ≥ 0,9 m (G.2.2).
+
+**Bảng G.5 — Người tối đa / 1 m chiều rộng lối ra, gian không có ghế khán giả (nhà công cộng)**
+
+| Gian phòng | Bậc | ≤ 5 000 m³ | 5 000 – 10 000 m³ | > 10 000 m³ |
+| --- | --- | --- | --- | --- |
+| Thương mại có lối đi chính ≥ 25 % diện tích; phòng ăn, phòng đọc (mật độ lối đi chính ≤ 5 người/m²) | I, II | 165 | 220 | 275 |
+|  | III, IV | 115 | 155 | luận chứng riêng |
+|  | V | 80 | luận chứng riêng | luận chứng riêng |
+| Thương mại có lối đi chính < 25 % diện tích; các gian khác | I, II | 75 | 100 | 125 |
+|  | III, IV | 50 | 70 | luận chứng riêng |
+|  | V | 40 | luận chứng riêng | luận chứng riêng |
+
+**Bảng G.7 — Người tối đa / 1 m chiều rộng lối ra từ một gian phòng của nhà sản xuất**
+
+| Khối tích gian | Hạng | Bậc | Cấp S | Người / m |
+| --- | --- | --- | --- | --- |
+| ≤ 15 000 m³ | A, B | I – IV | S0 | 45 |
+|  | C1 – C3 | I – IV | S0 | 110 |
+|  | C1 – C3 | III, IV | S1 | 75 |
+|  | C1 – C3 | Không quy định | S2, S3 | 55 |
+| 30 000 m³ | A, B | I – IV | S0 | 65 |
+|  | C1 – C3 | I – IV / III, IV | S0 / S1 | 155 / 110 |
+| 40 000 m³ | A, B | I – IV | S0 | 85 |
+|  | C1 – C3 | I – IV / III, IV | S0 / S1 | 175 / 120 |
+| 50 000 m³ | A, B | I – IV | S0 | 130 |
+|  | C1 – C3 | I – IV / III, IV | S0 / S1 | 195 / 135 |
+| ≥ 60 000 m³ | A, B | I – IV | S0 | 150 |
+|  | C1 – C3 | I – IV / III, IV | S0 / S1 | 220 / 155 |
+| ≥ 80 000 m³ | C1 – C3 | I – IV / III, IV | S0 / S1 | 260 / 220 |
+| Không phụ thuộc | C4, D | I – IV | S0 | 260 |
+|  | C4, D | III, IV | S1 | 180 |
+|  | C4, D | Không quy định | S2, S3 | 130 |
+| Không phụ thuộc | E | — | — | Không quy định |
+
+Khối tích trung gian: nội suy tuyến tính. Gian cao > 6 m: định mức tăng 20 % (chiều cao PCCC nhà 12 m), 30 % (18 m), 40 % (24 m), nội suy giá trị trung gian (G.2.2.1).
+
+**Bảng G.8 — Người tối đa / 1 m chiều rộng lối ra từ hành lang của nhà sản xuất** (ra ngoài hoặc vào buồng thang; theo hạng cao nhất của gian có lối ra vào hành lang)
+
+| Hạng | Bậc | Cấp S | Người / m |
+| --- | --- | --- | --- |
+| A, B | I – IV | S0 | 85 |
+| C1 – C3 | I – IV | S0 | 173 |
+| C1 – C3 | IV | S1 | 120 |
+| C1 – C3 | Không quy định | S2, S3 | 85 |
+| C4, D, E | I – IV | S0 | 260 |
+| C4, D, E | IV | S1 | 180 |
+| C4, D, E | Không quy định | S2, S3 | 130 |
 - Lối đi chính trong gian thương mại: **1,4 m** (≤ 100 m²); **1,6 m** (≤ 150 m²); **2,0 m** (≤ 400 m²); **2,5 m** (> 400 m²) (G.2.1.5).
 
 **Số người tính toán — Bảng G.9 (m²/người):**
@@ -144,7 +192,52 @@ Cột áp dụng: **mầm non** cột > 5; **trường phổ thông, cao đẳng
 
 **Bảng G.2b** — từ điểm bất kỳ trong gian không có ghế khán giả (phòng chờ, triển lãm, phòng ăn, thương mại…) theo khối tích gian. Ví dụ gian thương mại có lối đi chính ≥ 25 % diện tích, bậc I, II: 50 / 65 / 80 m (≤ 5 000 / ≤ 10 000 / > 10 000 m³).
 
-**Nhà sản xuất, kho:** Bảng G.3 (chỗ làm việc xa nhất, theo khối tích và hạng), Bảng G.4 (từ cửa gian ≤ 1 000 m²). Gian cao > 6 m: tăng 20 % (≤ 12 m), 30 % (≤ 18 m), 40 % (≤ 24 m), nhưng ≤ 140 m (hạng A, B) và ≤ 240 m (hạng C).
+**Bảng G.3 — Nhà sản xuất: từ chỗ làm việc xa nhất tới lối ra thoát nạn gần nhất** (m; theo mật độ dòng người trên lối đi chung, người/m²)
+
+| Khối tích gian | Hạng | Bậc | Cấp S | ≤ 1 | > 1 – 3 | > 3 – 5 |
+| --- | --- | --- | --- | --- | --- | --- |
+| ≤ 15 000 m³ | A, B | I – IV | S0 | 40 | 25 | 15 |
+|  | C1 – C3 | I – IV | S0 | 100 | 60 | 40 |
+|  | C1 – C3 | III, IV | S1 | 70 | 40 | 30 |
+|  | C1 – C3 | V | S2, S3 | 50 | 30 | 20 |
+| 30 000 m³ | A, B | I – IV | S0 | 60 | 35 | 25 |
+|  | C1 – C3 | I – IV | S0 | 145 | 85 | 60 |
+|  | C1 – C3 | III, IV | S1 | 100 | 60 | 40 |
+| 40 000 m³ | A, B | I – IV | S0 | 80 | 50 | 35 |
+|  | C1 – C3 | I – IV | S0 | 160 | 95 | 65 |
+|  | C1 – C3 | III, IV | S1 | 110 | 65 | 45 |
+| 50 000 m³ | A, B | I – IV | S0 | 120 | 70 | 50 |
+|  | C1 – C3 | I – IV | S0 | 180 | 105 | 75 |
+|  | C1 – C3 | III, IV | S1 | 160 | 95 | 65 |
+| ≥ 60 000 m³ | A, B | I – IV | S0 | 140 | 85 | 60 |
+|  | C1 – C3 | I – IV | S0 | 200 | 110 | 85 |
+|  | C1 – C3 | III, IV | S1 | 180 | 105 | 75 |
+| ≥ 80 000 m³ | C1 – C3 | I – IV | S0 | 240 | 140 | 100 |
+|  | C1 – C3 | III, IV | S1 | 200 | 110 | 85 |
+| Không phụ thuộc | C4, D | I – IV | S0 | Không hạn chế | Không hạn chế | Không hạn chế |
+|  | C4, D | III, IV | S1 | 160 | 95 | 65 |
+|  | C4, D | V | Không quy định | 120 | 70 | 50 |
+| Không phụ thuộc | E | I – IV | S0, S1 | Không hạn chế | Không hạn chế | Không hạn chế |
+|  | E | IV, V | S2, S3 | 160 | 95 | 65 |
+
+- Khối tích trung gian: **nội suy tuyến tính** (G.1.3.2). Gian > 1 000 m²: khoảng cách gồm cả đường đi theo hành lang tới lối ra (G.1.3.1).
+- Bảng áp dụng cho gian cao **đến 6 m**. Gian cao hơn: tăng **20 %** (đến 12 m), **30 %** (đến 18 m), **40 %** (đến 24 m), nhưng **≤ 140 m** (hạng A, B) và **≤ 240 m** (hạng C) (G.1.3.3).
+- Mật độ dòng người = tổng số người thoát nạn theo đường thoát nạn ÷ diện tích đường thoát nạn đó.
+
+**Bảng G.4 — Nhà sản xuất: từ cửa gian ≤ 1 000 m² theo hành lang tới lối ra gần nhất** (m; theo mật độ dòng người trên lối đi chung, người/m²)
+
+| Vị trí cửa gian | Hạng | Bậc | Cấp S | ≤ 2 | > 2 – 3 | > 3 – 4 | > 4 – 5 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Ở giữa hai lối ra thoát nạn | A, B | I – IV | S0 | 60 | 50 | 40 | 35 |
+|  | C1 – C3 | I – IV | S0 | 120 | 95 | 80 | 65 |
+|  | C1 – C3 | III, IV | S1 | 85 | 65 | 55 | 45 |
+|  | C1 – C3 | Không quy định | S2, S3 | 60 | 50 | 40 | 35 |
+|  | C4, D, E | I – IV | S0 | 180 | 140 | 120 | 100 |
+|  | C4, D, E | III, IV | S1 | 125 | 100 | 85 | 70 |
+|  | C4, D, E | Không quy định | S2, S3 | 90 | 70 | 60 | 50 |
+| Đi vào hành lang cụt | Mọi hạng | I – IV | S0 | 30 | 25 | 20 | 15 |
+|  | Mọi hạng | III, IV | S1 | 20 | 15 | 15 | 10 |
+|  | Mọi hạng | Không quy định | S2, S3 | 15 | 10 | 10 | 8 |
 
 ## 3.7 Đường thoát nạn — bao che và hạn chế (3.3)
 

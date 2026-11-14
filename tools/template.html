@@ -1065,8 +1065,32 @@ const G9 = [
   ["Phòng trưng bày nghệ thuật, bảo tàng", 5.0, "g1"], ["Văn phòng", 6.0, "khac"], ["Cửa hàng nội thất lớn", 7.0, "tm"],
   ["Nhà bếp, thư viện", 7.0, "khac"], ["Phòng ngủ", 8.0, "khac"], ["Phòng khách, phòng giải trí", 10.0, "khac"], ["Kho", 30.0, "khac"]
 ];
-let gpV = Object.assign({ g: "F3.1", k: 3, a: 600, ch: 4.5, p: "", bac: "I", ham: false, lm: 0, L: 40, W: 15, d: "", f5h: "C", lane: true }, store.get("pccc-gp", {}));
+let gpV = Object.assign({ g: "F3.1", k: 3, a: 600, ch: 4.5, p: "", bac: "I", ham: false, lm: 0, L: 40, W: 15, d: "", f5h: "C2", f5s: "S0", den: 1, pos: "mid", lane: true }, store.get("pccc-gp", {}));
 function interp(x, xs, ys) { if (x <= xs[0]) return ys[0]; for (let j = 1; j < xs.length; j++) if (x <= xs[j]) return ys[j - 1] + (ys[j] - ys[j - 1]) * (x - xs[j - 1]) / (xs[j] - xs[j - 1]); return ys[ys.length - 1]; }
+/* Bảng G.3, G.4, G.7, G.8 (nhà sản xuất, kho) */
+const G3T = {
+  AB_S0: [[15, 40, 25, 15], [30, 60, 35, 25], [40, 80, 50, 35], [50, 120, 70, 50], [60, 140, 85, 60]],
+  C_S0: [[15, 100, 60, 40], [30, 145, 85, 60], [40, 160, 95, 65], [50, 180, 105, 75], [60, 200, 110, 85], [80, 240, 140, 100]],
+  C_S1: [[15, 70, 40, 30], [30, 100, 60, 40], [40, 110, 65, 45], [50, 160, 95, 65], [60, 180, 105, 75], [80, 200, 110, 85]],
+  C_V: [[15, 50, 30, 20]],
+  D_S0: "INF", D_S1: [160, 95, 65], D_V: [120, 70, 50],
+  E_S01: "INF", E_S23: [160, 95, 65]
+};
+const G7T = { AB_S0: [[15, 45], [30, 65], [40, 85], [50, 130], [60, 150]], C_S0: [[15, 110], [30, 155], [40, 175], [50, 195], [60, 220], [80, 260]], C_S1: [[15, 75], [30, 110], [40, 120], [50, 135], [60, 155], [80, 220]], C_S23: [[15, 55]], D_S0: 260, D_S1: 180, D_S23: 130 };
+const G8T = { AB_S0: 85, C_S0: 173, C_S1: 120, C_S23: 85, D_S0: 260, D_S1: 180, D_S23: 130 };
+const G4T = { mid: { AB_S0: [60, 50, 40, 35], C_S0: [120, 95, 80, 65], C_S1: [85, 65, 55, 45], C_S23: [60, 50, 40, 35], D_S0: [180, 140, 120, 100], D_S1: [125, 100, 85, 70], D_S23: [90, 70, 60, 50] },
+  dead: { S0: [30, 25, 20, 15], S1: [20, 15, 15, 10], S23: [15, 10, 10, 8] } };
+function hangCls(h) { return ["A", "B"].includes(h) ? "AB" : ["C1", "C2", "C3", "C"].includes(h) ? "C" : ["C4", "D"].includes(h) ? "D" : "E"; }
+function sKey(S) { return S === "S0" ? "S0" : S === "S1" ? "S1" : "S23"; }
+// trả về { pts | val | inf, label, note } cho Bảng G.3
+function g3Row(cls, bac, S) {
+  const b4 = bac !== "V", b34 = bac === "III" || bac === "IV";
+  if (cls === "AB") return S === "S0" && b4 ? { pts: G3T.AB_S0, label: "A, B – bậc I–IV – S0" } : { none: "Bảng G.3 chỉ có dòng hạng A, B với bậc I – IV, cấp S0." };
+  if (cls === "C") { if (bac === "V") return { pts: G3T.C_V, label: "C1–C3 – bậc V – S2, S3", only15: true }; if (S === "S0" && b4) return { pts: G3T.C_S0, label: "C1–C3 – bậc I–IV – S0" }; if (S === "S1") return { pts: G3T.C_S1, label: "C1–C3 – bậc III, IV – S1" + (b34 ? "" : " (dòng gần nhất)") }; return { none: "Bảng G.3 không có dòng hạng C1 – C3 với cấp " + S + " ở bậc " + bac + "." }; }
+  if (cls === "D") { if (bac === "V") return { val: G3T.D_V, label: "C4, D – bậc V" }; if (S === "S0") return { inf: true, label: "C4, D – bậc I–IV – S0" }; if (S === "S1") return { val: G3T.D_S1, label: "C4, D – bậc III, IV – S1" }; return { val: G3T.D_V, label: "C4, D – cấp " + S + " (lấy như bậc V)" }; }
+  if (S === "S0" || S === "S1") return bac === "V" ? { val: G3T.E_S23, label: "E – bậc V" } : { inf: true, label: "E – bậc I–IV – S0, S1" };
+  return { val: G3T.E_S23, label: "E – bậc IV, V – S2, S3" };
+}
 function gpEvaluate(v) {
   const out = []; const sec = t => { const s = { t, items: [] }; out.push(s); return s; };
   const add = (s, txt, ref, lv) => s.items.push({ txt, ref, lv: lv || "" });
@@ -1085,7 +1109,7 @@ function gpEvaluate(v) {
   if (P >= 50) reasons.push("≥ 50 người (3.2.5 c)");
   if (!isF5 && P < 50 && +v.d > 25) reasons.push(`< 50 người nhưng đường đi tới lối ra ${v.d} m > 25 m (3.2.5 d)`);
   if (isF5 && ["A", "B"].includes(v.f5h) && P > 5) reasons.push("F5 hạng A, B > 5 người (3.2.5 f)");
-  if (isF5 && v.f5h === "C" && (P > 25 || A > 1000)) reasons.push("F5 hạng C > 25 người hoặc > 1 000 m² (3.2.5 f)");
+  if (isF5 && /^C[123]?$/.test(v.f5h) && (P > 25 || A > 1000)) reasons.push("F5 hạng C > 25 người hoặc > 1 000 m² (3.2.5 f)");
   if (reasons.length) add(s1, "Gian phải có **≥ 2 lối ra thoát nạn**: " + reasons.join("; ") + ". Được cho ≤ 50 % số lối ra đi qua gian liền kề có lối ra đạt quy chuẩn.", "3.2.5", "warn");
   else add(s1, "Gian được có **1 lối ra thoát nạn**" + (!isF5 && P < 50 && !v.d ? " (kiểm tra thêm: đường đi từ chỗ xa nhất tới lối ra ≤ 25 m, nhập ô khoảng cách để xét)" : "") + ".", "3.2.5", "ok");
   if (reasons.length && +v.L && +v.W) {
@@ -1101,13 +1125,16 @@ function gpEvaluate(v) {
   if (G === "F4" && P > 15 && sp[2] === "g2") { wmin = Math.max(wmin, 0.9); wref += ", G.2.1.3"; }
   let rate = null, rref = "";
   const bi = bac === "I" || bac === "II" ? 0 : bac === "V" ? 2 : 1;
+  let g7note = "";
   if (isF5) {
-    const cls = ["A", "B"].includes(v.f5h) ? "AB" : ["C4", "D"].includes(v.f5h) || v.f5h === "D" ? "D" : v.f5h === "E" ? "E" : "C";
-    const xs = [15, 30, 40, 50, 60, 80];
-    if (cls === "AB") rate = Math.round(interp(Vol, xs.slice(0, 5), [45, 65, 85, 130, 150]));
-    else if (cls === "C") rate = Math.round(interp(Vol, xs, [110, 155, 175, 195, 220, 260]));
-    else if (cls === "D") rate = 260;
-    rref = "Bảng G.7 (S0, bậc I – IV)";
+    const cls = hangCls(v.f5h), S = v.f5s || "S0", sk = sKey(S);
+    const key = cls + "_" + sk, t = G7T[key];
+    if (cls === "E") { rate = null; }
+    else if (cls === "AB" && sk !== "S0") { g7note = "Bảng G.7 chỉ có dòng hạng A, B với cấp S0."; }
+    else if (Array.isArray(t)) { if (t.length === 1 && Vol > 15) g7note = `Bảng G.7 với hạng ${v.f5h}, cấp ${S} chỉ có dòng khối tích ≤ 15 000 m³.`; else rate = Math.round(interp(Vol, t.map(x => x[0]), t.map(x => x[1]))); }
+    else if (t) rate = t;
+    if (rate && ch > 6) { const inc = interp(Math.min(ch, 24), [6, 12, 18, 24], [0, 20, 30, 40]); rate = Math.round(rate * (1 + inc / 100)); g7note = `Đã tăng ${Math.round(inc)} % do gian cao ${String(ch).replace(".", ",")} m > 6 m (G.2.2.1 quy định theo chiều cao PCCC của nhà 12 / 18 / 24 m; ở đây lấy chiều cao gian — kiểm tra lại với nhà nhiều tầng).`; }
+    rref = `Bảng G.7 (hạng ${v.f5h}, cấp ${S}${Vol ? `, khối tích ${(A * ch).toLocaleString("vi-VN")} m³` : ""})`;
     wmin = Math.max(wmin, 0.9);
   } else if (["tm", "g2"].includes(sp[2]) || sp[2] === "g1" || sp[2] === "khac") {
     const row1 = (sp[2] === "tm" && v.lane) || (sp[2] === "g2" && /ăn|đọc/.test(sp[0]));
@@ -1122,14 +1149,40 @@ function gpEvaluate(v) {
     add(s2, `Định mức ${rate} người/m → tổng chiều rộng cần **${total.toFixed(2).replace(".", ",")} m**. ${exits > 1 ? `Với 2 lối ra, giả thiết đám cháy chặn một lối (3.2.8): **mỗi lối ≥ ${Math.max(each, wmin).toFixed(2).replace(".", ",")} m**.` : `Lối ra ≥ ${Math.max(total, wmin).toFixed(2).replace(".", ",")} m.`}`, rref + ", 3.2.8", "warn");
   } else if (!isF5) add(s2, "Khối tích, bậc chịu lửa này nằm ngoài Bảng G.5 — xác định theo luận chứng kỹ thuật.", "Bảng G.5 CHÚ THÍCH", "warn");
   else if (v.f5h === "E") add(s2, "Hạng E: Bảng G.7 không quy định định mức; lối ra ≥ 0,9 m.", "Bảng G.7", "");
+  else if (g7note) add(s2, g7note + " Xác định theo tài liệu chuẩn hoặc luận chứng kỹ thuật.", "Bảng G.7", "bad");
+  if (isF5 && rate && g7note) add(s2, g7note, "G.2.2.1", "");
+  if (isF5) { const cls = hangCls(v.f5h), r8 = G8T[cls + "_" + sKey(v.f5s || "S0")]; add(s2, r8 ? `Lối ra từ hành lang ra ngoài hoặc vào buồng thang: ≤ **${r8} người/m** (hạng cao nhất có lối ra vào hành lang ${v.f5h}, cấp ${v.f5s || "S0"}), rộng ≥ 0,9 m.` : "Bảng G.8 không có dòng hạng A, B với cấp này.", "Bảng G.8, G.2.2.2", r8 ? "" : "bad"); }
   if (!isF5 && G !== "F1") add(s2, `Lối ra từ hành lang vào buồng thang, bản thang: ≤ ${[165, 115, 80][bi]} người/m (bậc ${bac}).`, "G.2.1.1", "");
   // Khoảng cách
   const s3 = sec("Khoảng cách thoát nạn");
   if (["F1.2", "F1.3"].includes(g)) add(s3, "Từ cửa căn hộ / phòng ở tới lối ra gần nhất theo Bảng G.1 (bậc I, II – S0: 40 m giữa hai lối ra, 25 m hành lang cụt).", "Bảng G.1", "");
   else if (isF5) {
-    if (["A", "B", "C"].includes(v.f5h)) { const xs = [15, 30, 40, 50, 60]; const ab = ["A", "B"].includes(v.f5h); const d = Math.round(interp(Vol, ab ? xs : [...xs, 80], ab ? [40, 60, 80, 120, 140] : [100, 145, 160, 180, 200, 240])); add(s3, `Từ chỗ làm việc xa nhất tới lối ra (S0, bậc I – IV, mật độ ≤ 1 người/m²): **≤ ${d} m** (nội suy theo khối tích ${(A * ch).toLocaleString("vi-VN")} m³). Mật độ cao hơn: giảm theo Bảng G.3.`, "Bảng G.3", "warn"); }
-    else add(s3, `Hạng ${v.f5h}, S0 bậc I – IV: không hạn chế khoảng cách.`, "Bảng G.3", "ok");
-    if (ch > 6) add(s3, `Gian cao ${String(ch).replace(".", ",")} m > 6 m: khoảng cách được tăng ${ch <= 12 ? 20 : ch <= 18 ? 30 : 40} % (tối đa 140 m với hạng A, B; 240 m với hạng C).`, "G.1.3.3", "ok");
+    const cls = hangCls(v.f5h), S = v.f5s || "S0", den = +v.den || 1;
+    const di = den <= 1 ? 1 : den <= 3 ? 2 : den <= 5 ? 3 : 0;
+    const row = g3Row(cls, bac, S);
+    const denTxt = ["> 5", "≤ 1", "> 1 – 3", "> 3 – 5"][di];
+    if (!di) add(s3, `Mật độ dòng người ${String(den).replace(".", ",")} người/m² > 5: ngoài Bảng G.3, G.4 — phải tính toán thoát nạn.`, "Bảng G.3", "bad");
+    else if (row.none) add(s3, row.none + " Xác định theo tài liệu chuẩn hoặc luận chứng kỹ thuật.", "Bảng G.3", "bad");
+    else if (row.inf) add(s3, `Từ chỗ làm việc xa nhất tới lối ra: **không hạn chế** (dòng ${row.label}).`, "Bảng G.3", "ok");
+    else {
+      let d;
+      if (row.val) d = row.val[di - 1];
+      else if (row.only15 && Vol > 15) d = null;
+      else d = Math.round(interp(Vol, row.pts.map(x => x[0]), row.pts.map(x => x[di])));
+      if (d == null) add(s3, `Dòng ${row.label} chỉ áp dụng cho gian ≤ 15 000 m³.`, "Bảng G.3", "bad");
+      else {
+        let inc = 0; if (ch > 6) inc = ch <= 12 ? 20 : ch <= 18 ? 30 : 40;
+        let d2 = Math.round(d * (1 + inc / 100)); const cap = cls === "AB" ? 140 : cls === "C" ? 240 : Infinity; if (inc && d2 > cap) d2 = cap;
+        add(s3, `Từ chỗ làm việc xa nhất tới lối ra thoát nạn gần nhất: **≤ ${d2} m** (dòng ${row.label}; khối tích ${(A * ch).toLocaleString("vi-VN")} m³${row.pts && row.pts.length > 1 ? ", nội suy" : ""}; mật độ ${denTxt} người/m²)` + (inc ? `, đã tăng ${inc} % do gian cao ${String(ch).replace(".", ",")} m${d2 === cap ? `, giới hạn ${cap} m` : ""}.` : ".") + (A > 1000 ? " Gian > 1 000 m²: khoảng cách gồm cả đường đi theo hành lang tới lối ra." : ""), inc ? "Bảng G.3, G.1.3.3" : "Bảng G.3, G.1.3.1", "warn");
+      }
+    }
+    if (A <= 1000) {
+      const g4i = den <= 2 ? 0 : den <= 3 ? 1 : den <= 4 ? 2 : den <= 5 ? 3 : -1;
+      const sk = sKey(S);
+      if (g4i < 0) add(s3, "Bảng G.4: mật độ > 5 người/m² nằm ngoài bảng.", "Bảng G.4", "bad");
+      else if (v.pos === "dead") { const t = G4T.dead[sk]; add(s3, `Gian ≤ 1 000 m², cửa ra **hành lang cụt**: từ cửa gian tới lối ra gần nhất **≤ ${t[g4i]} m** (cấp ${S}, mật độ ${["≤ 2", "> 2 – 3", "> 3 – 4", "> 4 – 5"][g4i]} người/m²).`, "Bảng G.4", "warn"); }
+      else { const t = G4T.mid[cls === "E" ? "D_" + sk : cls + "_" + sk]; add(s3, t ? `Gian ≤ 1 000 m², cửa **ở giữa hai lối ra**: từ cửa gian theo hành lang tới lối ra gần nhất **≤ ${t[g4i]} m** (hạng ${v.f5h}, cấp ${S}, mật độ ${["≤ 2", "> 2 – 3", "> 3 – 4", "> 4 – 5"][g4i]} người/m²).` : "Bảng G.4 không có dòng hạng A, B với cấp này.", "Bảng G.4", t ? "warn" : "bad"); }
+    }
   } else {
     if (sp[2] === "khac") { add(s3, "Gian thuộc loại này (văn phòng, phòng ngủ, kho…) không thuộc Bảng G.2b: khoảng cách tính từ cửa gian tới lối ra của tầng theo Bảng G.2a (bậc I – III: giữa hai lối ra 60 / 50 / 40 / 35 / 20 m theo mật độ; hành lang cụt 30 / 25 / 20 / 15 / 10 m).", "Bảng G.2a", ""); }
     else {
@@ -1164,7 +1217,10 @@ function renderGP() {
       ${numF("gpd", "Đường đi xa nhất", gpV.d, "m", "tùy chọn")}
       ${numF("gpL", "Chiều dài mặt bằng", gpV.L, "m")}
       ${numF("gpW", "Chiều rộng mặt bằng", gpV.W, "m")}
-      ${isF5 ? `<label class="fld"><span>Hạng</span><select id="gpf5">${["A", "B", "C", "D", "E"].map(x => `<option${gpV.f5h === x ? " selected" : ""}>${x}</option>`).join("")}</select></label>` : ""}
+      ${isF5 ? `<label class="fld"><span>Hạng gian</span><select id="gpf5">${["A", "B", "C1", "C2", "C3", "C4", "D", "E"].map(x => `<option${gpV.f5h === x ? " selected" : ""}>${x}</option>`).join("")}</select></label>
+      <label class="fld"><span>Cấp nguy hiểm cháy kết cấu</span><select id="gpf5s">${["S0", "S1", "S2", "S3"].map(x => `<option${(gpV.f5s || "S0") === x ? " selected" : ""}>${x}</option>`).join("")}</select></label>
+      ${numF("gpden", "Mật độ dòng người lối đi chung", gpV.den || 1, "ng/m²")}
+      <label class="fld"><span>Cửa gian (Bảng G.4)</span><select id="gppos"><option value="mid"${gpV.pos !== "dead" ? " selected" : ""}>Ở giữa hai lối ra</option><option value="dead"${gpV.pos === "dead" ? " selected" : ""}>Vào hành lang cụt</option></select></label>` : ""}
     </div>
     <div class="checks">
       <label><input type="checkbox" id="gpham"${gpV.ham ? " checked" : ""}> Gian nằm trong tầng hầm, nửa hầm</label>
@@ -1183,7 +1239,7 @@ function gpSync(full) {
   const g = id => document.getElementById(id); if (!g("gpg")) return;
   const oldG = gpV.g;
   gpV.g = g("gpg").value; gpV.bac = g("gpbac").value; gpV.k = g("gpk").value; gpV.a = g("gpa").value; gpV.ch = g("gpch").value; gpV.p = g("gpp").value; gpV.d = g("gpd").value; gpV.L = g("gpL").value; gpV.W = g("gpW").value;
-  gpV.ham = g("gpham").checked; gpV.lane = g("gplane").checked; if (g("gpf5")) gpV.f5h = g("gpf5").value;
+  gpV.ham = g("gpham").checked; gpV.lane = g("gplane").checked; if (g("gpf5")) { gpV.f5h = g("gpf5").value; gpV.f5s = g("gpf5s").value; gpV.den = g("gpden").value; gpV.pos = g("gppos").value; }
   store.set("pccc-gp", gpV);
   if (full || (oldG !== gpV.g && (oldG.startsWith("F5") !== gpV.g.startsWith("F5") || oldG === "F3.1" || gpV.g === "F3.1"))) renderGP(); else g("gpres").innerHTML = gpResult();
 }

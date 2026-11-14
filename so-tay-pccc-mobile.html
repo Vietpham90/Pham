@@ -633,22 +633,26 @@ function floorIdxH2(n) { return n <= 1 ? 0 : n === 2 ? 1 : n === 3 ? 2 : n <= 5 
 
 function ctEvaluate(v) {
   const it = CT[v.i] || CT[0];
-  const g = it.g, G = g.slice(0, 2), h = +v.h || 0, n = Math.max(1, +v.n || 1), nb = +v.nb || 0, A = +v.a || 0, P = +v.p || 0, sp = !!v.sp, hang = v.hang || "C";
+  const g = it.g, G = g.slice(0, 2), h = +v.h || 0, n = Math.max(1, +v.n || 1), nb = +v.nb || 0, A = +v.a || 0, P = +v.p || 0, sp = !!v.sp, hang = v.hang || "C", V = +v.v || 0;
+  const fmtN = x => Math.round(x).toLocaleString("vi-VN");
   const out = []; const sec = (t) => { const s = { t, items: [] }; out.push(s); return s; };
   const add = (s, txt, ref, lv) => s.items.push({ txt, ref, lv: lv || "" });
   const isF5 = G === "F5", isF13 = g === "F1.3", pub = ["F1.1", "F1.2", "F2", "F3", "F4"].some(x => g.startsWith(x)) && !isF13;
 
   // 1. Phạm vi
   const s1 = sec("Phạm vi áp dụng");
+  const inF14 = n >= 7 || h >= 25 || nb >= 2 || V >= 5000;
   if (g === "F1.4") {
-    if (n >= 7 || h >= 25 || nb >= 2) add(s1, "Nhà ở riêng lẻ thuộc phạm vi QCVN 06 (từ 7 tầng, hoặc cao PCCC ≥ 25 m, hoặc 2 – 3 tầng hầm; hoặc khối tích ≥ 5 000 m³).", "1.1.2 a) 2)", "warn");
-    else add(s1, "Nhà ở riêng lẻ dưới 7 tầng, dưới 25 m, ≤ 1 tầng hầm: chỉ thuộc phạm vi khi khối tích ≥ 5 000 m³; nếu không, được áp dụng tiêu chuẩn nhà ở riêng lẻ.", "1.1.2 a) 2) CHÚ THÍCH", "");
+    if (inF14) add(s1, "Nhà ở riêng lẻ **thuộc phạm vi** QCVN 06 vì " + [n >= 7 ? "từ 7 tầng" : "", h >= 25 ? "cao PCCC ≥ 25 m" : "", V >= 5000 ? `khối tích ${fmtN(V)} m³ ≥ 5 000 m³` : "", nb >= 2 ? "có 2 – 3 tầng hầm" : ""].filter(Boolean).join(", ") + ".", "1.1.2 a) 2)", "warn");
+    else if (V) add(s1, `Nhà ở riêng lẻ dưới 7 tầng, dưới 25 m, khối tích ${fmtN(V)} m³ < 5 000 m³, ≤ 1 tầng hầm: **không thuộc** phạm vi bắt buộc; có thể áp dụng tiêu chuẩn về nhà ở riêng lẻ, tài liệu chuẩn khác.`, "1.1.2 a) 2) CHÚ THÍCH", "ok");
+    else add(s1, "Nhà ở riêng lẻ dưới 7 tầng, dưới 25 m, ≤ 1 tầng hầm: **nhập khối tích** để xác định — thuộc phạm vi khi khối tích ≥ 5 000 m³; nếu nhỏ hơn được áp dụng tiêu chuẩn nhà ở riêng lẻ.", "1.1.2 a) 2)", "warn");
   }
   const lim = isF5 ? [50, 1] : g === "F3.3" ? [50, 3] : [150, 3];
-  const belowF14 = g === "F1.4" && !(n >= 7 || h >= 25 || nb >= 2);
+  const belowF14 = g === "F1.4" && !inF14;
   if (belowF14) {}
   else if (h > lim[0] || nb > lim[1]) add(s1, `Vượt phạm vi điều chỉnh (≤ ${lim[0]} m, ≤ ${lim[1]} tầng hầm). Phải bổ sung yêu cầu theo tài liệu chuẩn, luận chứng kỹ thuật.`, "1.1.2, 1.1.3, 1.1.10", "bad");
   else add(s1, `Trong phạm vi áp dụng (giới hạn ${lim[0]} m, ${lim[1]} tầng hầm cho loại nhà này).`, "1.1.2", "ok");
+  if (!isF5 && g !== "F1.4" && n < 7 && h < 25 && V && V < 5000) add(s1, `Nhà đứng độc lập dưới 7 tầng, dưới 25 m, khối tích ${fmtN(V)} m³ < 5 000 m³: nếu không tuân thủ được quy chuẩn, được áp dụng tài liệu chuẩn theo công năng cụ thể.`, "1.1.2 (đoạn cuối)", "");
   if (nb >= 4) add(s1, "Tầng hầm 4, 5 để xe: áp dụng thêm quy chuẩn gara ngầm.", "1.1.3 CHÚ THÍCH", "warn");
   if (!isF5) add(s1, `Nhóm ${g}. Gian sản xuất, kho, xưởng > 50 m² và bếp > 10 kW trong nhà F1 – F4 xếp nhóm F5; các phần khác nhóm ngăn cách ≥ EI 45 (bậc I – III) / EI 15 (bậc IV), trừ khi công năng chính chiếm ≥ 90 % diện tích tầng.`, "2.5.5.2, 4.5", "");
 
@@ -691,7 +695,7 @@ function ctEvaluate(v) {
         const best = ok.slice().sort((x, y) => rk(y) - rk(x))[0];
         minBac = best.b.split(",").pop().trim();
         let forced = null;
-        if ((it.tag === "benh-vien" || it.tag === "phong-kham") && h > 28) forced = ["I", "S0", it.tag === "benh-vien" ? "H.2.9.1" : "H.2.10.1"];
+        if ((it.tag === "benh-vien" || it.tag === "phong-kham") && (h > 28 || n > 9)) forced = ["I", "S0", it.tag === "benh-vien" ? "H.2.9.1" : "H.2.10.1"];
         else if (it.tag === "phong-kham" && n >= 2 && ["III", "IV", "V"].includes(minBac)) forced = ["II", "S0", "H.2.10.1"];
         else if (it.tag === "benh-vien" && n <= 1 && ["IV", "V"].includes(minBac)) forced = ["III", "S1", "H.2.9.2"];
         add(s2, `Theo ${name}, với chiều cao ${h} m${n ? `, ${n} tầng` : ""}${A ? `, ${A.toLocaleString("vi-VN")} m²/tầng` : ""}: các phương án đạt — ` + ok.map(r => `**${r.b} – ${r.s}**${r.area === INF ? " (không hạn chế diện tích)" : r.area ? ` (≤ ${fmtA(r.area)})` : r.c ? ` (${r.c})` : ""}`).join("; ") + ".", name, "ok");
@@ -709,12 +713,14 @@ function ctEvaluate(v) {
   if (nb >= 1) add(s2, "Sàn, trần tầng hầm bằng vật liệu không cháy, ≥ REI 90 (nhà bậc I – III).", "Bảng 4 CT1", "");
   if (nb >= 2 && (isF13 || v.hh)) add(s2, "Nhà F1.3 / nhà hỗn hợp có 2 – 3 tầng hầm: kết cấu chịu lực tầng hầm ≥ R 120.", "Bảng 4 CT3", "warn");
   // đặc thù
-  if (it.tag === "benh-vien") add(s2, h > 28 ? "Bệnh viện cao trên 28 m (tối đa 50 m): bậc I, báo cháy + chữa cháy tự động toàn nhà, bản thang ≥ 1,35 m, cửa thoát nạn ≥ 1,2 m (≤ 72 người/cửa), ≥ 2 thang máy chở được giường, vùng an toàn 2,8 m²/bệnh nhân mỗi tầng." : "Bệnh viện: nhà độc lập hoặc khoang cháy riêng, cao ≤ 28 m (9 tầng). Nhà nội trú ≤ 3 tầng chia phân khoang ≤ 1 000 m², cao hơn hoặc cấp S1: ≤ 800 m² (vách ngăn cháy loại 1).", "H.2.9", h > 50 ? "bad" : h > 28 ? "warn" : "");
-  if (it.tag === "phong-kham") add(s2, h > 28 ? "Phòng khám ngoại trú cao trên 28 m: bậc I, báo cháy + chữa cháy tự động, ≥ 2 thang máy (1 thang chở giường), vùng an toàn theo loại bệnh nhân." : "Phòng khám ngoại trú: cao ≤ 28 m (9 tầng); từ 2 tầng: bậc ≥ II, S0.", "H.2.10.1", h > 28 ? "warn" : "");
+  const tall = h > 28 || n > 9;
+  if (it.tag === "benh-vien") add(s2, tall ? "Bệnh viện cao trên 28 m (tối đa 50 m): bậc I, báo cháy + chữa cháy tự động toàn nhà, bản thang ≥ 1,35 m, cửa thoát nạn ≥ 1,2 m (≤ 72 người/cửa), ≥ 2 thang máy chở được giường, vùng an toàn 2,8 m²/bệnh nhân mỗi tầng." : "Bệnh viện: nhà độc lập hoặc khoang cháy riêng, cao ≤ 28 m (9 tầng). Nhà nội trú ≤ 3 tầng chia phân khoang ≤ 1 000 m², cao hơn hoặc cấp S1: ≤ 800 m² (vách ngăn cháy loại 1).", "H.2.9", h > 50 ? "bad" : tall ? "warn" : "");
+  if (it.tag === "phong-kham") add(s2, tall ? "Phòng khám ngoại trú cao trên 28 m: bậc I, báo cháy + chữa cháy tự động, ≥ 2 thang máy (1 thang chở giường), vùng an toàn theo loại bệnh nhân." : "Phòng khám ngoại trú: cao ≤ 28 m (9 tầng); từ 2 tầng: bậc ≥ II, S0.", "H.2.10.1", tall ? "warn" : "");
   if (it.tag === "mam-non") add(s2, "Mầm non: trẻ khuyết tật tối đa 2 tầng, trẻ khiếm thị 1 tầng; nhà 3 tầng: lớp bé ở tầng 1; tầng 3 chỉ cho lớp lớn, phòng nhạc, thể chất, chơi.", "H.2.4.3, H.2.4.4", "");
   if (it.tag === "truong" || it.tag === "noi-tru") add(s2, "Được tính theo số tầng (giá trị trong ngoặc) thay cho mét khi có báo cháy hoặc chữa cháy tự động và nhà ≤ 28 m. Trẻ khuyết tật: nhà ≤ 9 m.", "H.2.12.10, H.2.5.2", "");
   if (it.tag === "thu-vien" || it.tag === "luu-tru") add(s2, (it.tag === "thu-vien" ? "Thư viện" : "Nhà lưu trữ") + " không cao quá 28 m.", it.tag === "thu-vien" ? "H.2.12.8" : "H.5.5", h > 28 ? "bad" : "");
   if (it.tag === "the-thao") add(s2, "Khán đài trong nhà: > 600 người R 60 – K0 (sàn dưới loại 2); 300 – 600 R 45 – K0 (loại 3); < 300 R 15 (loại 4). Mái trên gian thi đấu bậc I – III ≥ R 45.", "H.2.7.5, H.2.6.4", "");
+  if (g === "F3.1" && (h > 28 || n > 5)) add(s2, "Bảng H.4 chỉ cho nhà thương mại đến 28 m và 5 tầng (bậc I, II – S0; được thêm 1 tầng nếu tầng trên cùng chỉ là kho, phục vụ, kỹ thuật). Vượt mức này phải bố trí thương mại trong khoang cháy của nhà hỗn hợp hoặc có luận chứng kỹ thuật.", "Bảng H.4, CT3; 1.1.10", "warn");
   if (it.tag === "nha-ga") add(s2, "Ga bậc I, S0 có chữa cháy tự động: không hạn chế diện tích giữa các tường ngăn cháy; được chia phân khoang bằng drencher hoặc màn E 60.", "H.2.8", "");
   if (/^F2\.1|^F2\.2|^F4/.test(g) || it.tag === "karaoke") add(s2, "Gian hội trường, khán phòng, hội nghị: chiều cao đặt theo Bảng H.8 (bậc I, II: ≤ 300 chỗ đến 50 m; ≤ 600 chỗ đến 12 m; > 600 chỗ đến 9 m).", "H.2.12.9, Bảng H.8", "");
   if (isF5) {
@@ -732,6 +738,8 @@ function ctEvaluate(v) {
     const lim1 = h <= 15 ? [300, 20] : h <= 21 ? [200, 20] : [150, 15];
     if (one && (!P || P <= lim1[1]) && (!A || A <= lim1[0])) add(s3, `Trường hợp được phép 1 lối ra (nhà không phải bậc V): ${one}; không để xe, không kho A, B, C ở tầng có lối ra ngoài.`, "3.2.6.2 a)", "");
   }
+  if (isF13 && A > 500 && A <= 550) add(s3, `Tổng diện tích căn hộ ${fmtN(A)} m² (500 – 550 m²): được 1 lối ra — ${h <= 28 ? "vào buồng thang thông thường, mỗi căn hộ có đầu báo cháy địa chỉ" : "vào một buồng thang N1, mọi phòng (trừ vệ sinh, phụ) có báo cháy địa chỉ hoặc chữa cháy tự động"}.`, "3.2.6.2 c)", "");
+  if (g === "F4.1") { if (h <= 15 && (!A || A <= 500)) add(s3, "Trường F4.1 được 1 lối ra từ tầng khi: tiểu học cao ≤ 9 m, tầng ≤ 300 m²; trường khác cao ≤ 15 m, tầng ≤ 500 m²; không để xe, không kho A, B, C ở tầng có lối ra ngoài.", "3.2.6.2 d)", ""); }
   if (isF13 && h > 28 && h <= 50 && (!A || A <= 500)) add(s3, "F1.3 cao 28 – 50 m, ≤ 500 m² căn hộ/tầng: được thay N1 bằng N2 khi lối vào qua khoang đệm ngăn cháy áp suất dương, có thang máy cho chữa cháy, báo cháy địa chỉ hoặc sprinkler mọi phòng, có âm thanh cảnh báo.", "3.2.6.2 c)", "");
   // buồng thang
   if (h > 28 || (isF5 && ["A", "B"].includes(hang))) add(s3, "**Buồng thang bộ không nhiễm khói, trong đó phải có N1** (N1 được thay bằng lối vào qua khoang đệm, cả hai có áp suất dương, cấp điện 2 nguồn).", "3.4.13, 2.4.3.3", "warn");
@@ -751,22 +759,23 @@ function ctEvaluate(v) {
   if (g === "F1.1") w = P > 15 || !P ? "1,2 m (≤ 15 người/tầng: 1,0 m)" : "1,0 m";
   if (P > 200) w = "1,2 m";
   if (h <= 15 && P && P <= 15) w = "0,7 m";
-  if (it.tag === "benh-vien" && h > 28) { w = "1,35 m"; wref = "H.2.9.1"; }
+  if (it.tag === "benh-vien" && (h > 28 || n > 9)) { w = "1,35 m"; wref = "H.2.9.1"; }
   if (isF13 && h > 75) { w = "N1, N3: 1,20 m; N2: 1,05 m"; wref = "A.3.1.8"; }
   add(s3, `Bản thang tối thiểu **${w}** và không nhỏ hơn chiều rộng tính toán, chiều rộng cửa trên nó. Độ dốc ≤ 1:1, mặt bậc ≥ 25 cm, cao bậc 5 – 22 cm.`, wref + ", 3.4.2", "");
-  add(s3, `Lối ra thoát nạn cao ≥ 1,9 m, rộng ≥ ${(g === "F1.1" && P > 15) || (!isF13 && P > 50) || (it.tag === "benh-vien" && h > 28) ? "1,2" : "0,8"} m; hành lang cao ≥ 2,0 m, rộng ≥ ${(G === "F1" && P > 15) || P > 50 ? "1,2" : "1,0"} m.`, "3.2.9, 3.3.6", "");
+  add(s3, `Lối ra thoát nạn cao ≥ 1,9 m, rộng ≥ ${(g === "F1.1" && P > 15) || (!isF13 && P > 50) || (it.tag === "benh-vien" && (h > 28 || n > 9)) ? "1,2" : "0,8"} m; hành lang cao ≥ 2,0 m, rộng ≥ ${(G === "F1" && P > 15) || P > 50 ? "1,2" : "1,0"} m.`, "3.2.9, 3.3.6", "");
   // khoảng cách
   if (h > 50 && !isF5 && !(isF13 && h <= 75)) add(s3, "Khoảng cách từ cửa căn hộ, gian phòng tới lối ra: hành lang cụt **≤ 15 m**, giữa hai buồng thang không nhiễm khói **≤ 20 m**. Hành lang chia đoạn ≤ 30 m (căn hộ) / ≤ 60 m. Số người tính toán × 1,25.", "A.2.14, A.2.16, A.2.19", "warn");
+  else if (g === "F1.4") add(s3, "Nhà ở riêng lẻ: Phụ lục G không có bảng khoảng cách riêng; tham khảo Bảng G.1 (nhà ở) và tiêu chuẩn nhà ở riêng lẻ.", "Phụ lục G", "");
   else if (["F1.2", "F1.3"].includes(g)) add(s3, `Bảng G.1 (từ cửa ${isF13 ? "căn hộ" : "phòng ở"}): bậc ${minBac || "I"}${minBac === "I" || minBac === "II" || !minBac ? ", S0: giữa 2 lối ra ≤ 40 m, hành lang cụt ≤ 25 m" : minBac === "III" ? ", S0: 30 / 20 m; S1: 25 / 15 m" : ", S0: 25 / 15 m"}.`, "Bảng G.1", "");
   else if (isF5) add(s3, "Khoảng cách thoát nạn theo Bảng G.3 (chỗ làm việc xa nhất, theo khối tích và hạng) và Bảng G.4 (từ cửa gian ≤ 1 000 m²).", "Bảng G.3, G.4", "");
   else add(s3, `Bảng G.2a (từ cửa gian phòng): bậc I – III, giữa hai lối ra 60 / 50 / 40 / 35 / 20 m theo mật độ ≤ 2 / 3 / 4 / 5 / > 5 người/m²; hành lang cụt 30 / 25 / 20 / 15 / 10 m.${g === "F1.1" && it.tag === "mam-non" ? " Mầm non: cột > 5 người/m²." : it.tag === "truong" || g === "F4.2" ? " Trường học: cột 2 – 3 người/m²." : it.tag === "benh-vien" ? " Cơ sở nội trú: cột 4 – 5 người/m²." : ""}`, "Bảng G.2a", "");
-  if (pub || isF13) add(s3, h > 50 ? "" : "Bao che hành lang, sảnh trên đường thoát nạn: bậc I ≥ EI 30 (không cháy), bậc II – IV ≥ EI 15; hành lang > 60 m chia đoạn ≤ 60 m.", "3.3.5", "");
+  if (pub && g !== "F1.4") add(s3, h > 50 ? "" : "Bao che hành lang, sảnh trên đường thoát nạn: bậc I ≥ EI 30 (không cháy), bậc II – IV ≥ EI 15; hành lang > 60 m chia đoạn ≤ 60 m.", "3.3.5", "");
   if (it.tag === "karaoke") add(s3, "Karaoke, vũ trường: **bắt buộc** bao che hành lang, gian phòng trên đường thoát nạn bằng bộ phận ngăn cháy.", "3.3.5", "warn");
   // vật liệu
   const grpB8a = ["F1.1", "F2.1", "F2.2", "F3.3", "F3.4", "F3.5", "F4.1"].includes(g);
   const band = grpB8a ? 2 : (n > 17 || h > 50) ? 2 : (n > 9 || h > 28) ? 1 : 0;
   const B8 = [["CV2", "CV3", "CV3", "CV4"], ["CV1", "CV2", "CV2", "CV3"], ["CV0", "CV1", "CV1", "CV2"]][band];
-  add(s3, `Vật liệu hoàn thiện đường thoát nạn (Bảng B.8): tường, trần tiền sảnh / buồng thang / sảnh thang máy **${B8[0]}**, hành lang chung **${B8[1]}**; sàn **${B8[2]}** / **${B8[3]}**.` + (isF13 && h > 75 ? " Nhà trên 75 m: vật liệu không cháy." : ""), isF13 && h > 75 ? "Bảng B.8, A.3.1.13" : "Bảng B.8, 3.3.4", "");
+  if (g !== "F1.4") add(s3, `Vật liệu hoàn thiện đường thoát nạn (Bảng B.8): tường, trần tiền sảnh / buồng thang / sảnh thang máy **${B8[0]}**, hành lang chung **${B8[1]}**; sàn **${B8[2]}** / **${B8[3]}**.` + (isF13 && h > 75 ? " Nhà trên 75 m: vật liệu không cháy." : ""), isF13 && h > 75 ? "Bảng B.8, A.3.1.13" : "Bảng B.8, 3.3.4", "");
 
   // 4. Cháy lan
   const s4 = sec("Ngăn cháy lan");
@@ -784,13 +793,20 @@ function ctEvaluate(v) {
   const s5 = sec("Tiếp cận chữa cháy và cứu nạn");
   add(s5, `Đường xe chữa cháy rộng ≥ 3,5 m, cao thông thủy ≥ 4,5 m, dốc ≤ 1:8,3; đường cụt > 46 m có bãi quay xe. Mép đường cách tường nhà **≤ ${h < 12 ? 5 : h <= 28 ? 8 : 10} m**.`, "6.2.1, 6.2.2.3, 6.2.4, 6.2.5", "");
   if (!isF5 && h <= 15) add(s5, "Nhà ≤ 15 m (F1 – F4): không yêu cầu bãi đỗ; đường xe tiếp cận mọi điểm trên hình chiếu nhà ≤ 60 m.", "6.2.2.1", "ok");
+  else if (g === "F1.4") add(s5, "Nhà ở riêng lẻ cao trên 15 m: mục 6.2.2 không quy định riêng; nên bố trí đường xe và bãi đỗ tương tự nhà F1.3 (6.2.2.2) và thống nhất với cơ quan PCCC.", "6.2.2", "warn");
   else if (isF13) add(s5, "F1.3 > 15 m: đường xe cách lối vào khoang đệm thang máy chữa cháy / buồng thang có họng DN 65 ≤ 18 m; bãi đỗ rộng ≥ 6 m, dài ≥ 15 m, tiếp cận toàn bộ một mặt ngoài, cách tường 2 – 10 m.", "6.2.2.2, Bảng 14", "warn");
-  else if (isF5) add(s5, "Nhà F5: một bãi đỗ xe chữa cháy rộng ≥ 6 m, chiều dài theo Bảng 16 (theo khối tích, " + (sp ? "có" : "không có") + " sprinkler).", "6.2.2.3 c), Bảng 16", "");
+  else if (isF5) {
+    const B16 = [[28400, "1/6 chu vi, ≥ 15 m", "1/6 chu vi, ≥ 15 m"], [56800, "1/4 chu vi", "1/6 chu vi, ≥ 15 m"], [85200, "1/2 chu vi", "1/4 chu vi"], [113600, "3/4 chu vi", "1/4 chu vi"], [170400, "bao quanh nhà", "1/2 chu vi"], [227200, "bao quanh nhà", "3/4 chu vi"], [INF, "bao quanh nhà", "bao quanh nhà"]];
+    const smallF5 = (["A", "B"].includes(hang) && A && A * n <= 300);
+    if (smallF5) add(s5, "Nhà F5 hạng A, B tổng diện tích sàn ≤ 300 m²: chỉ cần đường xe tiếp cận như 6.2.2.1 hoặc phương án chữa cháy phù hợp.", "6.2.2.3 c)", "ok");
+    else if (V) { const r = B16.find(x => V <= x[0]); add(s5, `Nhà F5: một bãi đỗ xe chữa cháy rộng ≥ 6 m; khối tích ${fmtN(V)} m³ → chiều dài **${sp ? r[2] : r[1]}** (${sp ? "có" : "không có"} sprinkler).`, "6.2.2.3 c), Bảng 16", "warn"); }
+    else add(s5, "Nhà F5: một bãi đỗ xe chữa cháy rộng ≥ 6 m, chiều dài theo Bảng 16 — **nhập khối tích** (không kể tầng hầm) để tính.", "6.2.2.3 c), Bảng 16", "warn");
+  }
   else add(s5, `Mỗi lối vào từ trên cao có bãi đỗ rộng ≥ 6 m, dài theo Bảng 15 (${A ? (() => { const r = [[2000, "1/6 chu vi", "1/6 chu vi"], [4000, "1/4 chu vi", "1/6 chu vi"], [8000, "1/2 chu vi", "1/4 chu vi"], [16000, "3/4 chu vi", "1/2 chu vi"], [32000, "bao quanh nhà", "3/4 chu vi"], [INF, "bao quanh nhà", "bao quanh nhà"]].find(x => A <= x[0]); return `${A.toLocaleString("vi-VN")} m² → ${sp ? r[2] : r[1]}`; })() : "theo diện tích sàn tiếp cận"}). Bãi đỗ cách điểm giữa lối vào 2 – 10 m, dốc ≤ 1:15.`, "6.2.2.3, Bảng 15, 6.2.3", "warn");
-  if (!isF13 && h > 15) add(s5, (isF5 ? "Lối vào từ trên cao phía trên bãi đỗ, tới độ cao 50 m" : h <= 50 ? "Lối vào từ trên cao ở **mọi tầng trừ tầng 1**, đối diện bãi đỗ" : "Lối vào từ trên cao đối diện bãi đỗ (quy định mọi tầng áp dụng cho nhà 15 – 50 m)") + ": rộng ≥ 850 mm, cao ≥ 1 000 mm, mép dưới ≤ 1 100 mm, mép trên ≥ 1 800 mm; mỗi 20 m bãi đỗ ít nhất một lối; đánh dấu tam giác đỏ/vàng ≥ 150 mm.", "6.3", "warn");
+  if (!isF13 && g !== "F1.4" && h > 15) add(s5, (isF5 ? "Lối vào từ trên cao phía trên bãi đỗ, tới độ cao 50 m" : h <= 50 ? "Lối vào từ trên cao ở **mọi tầng trừ tầng 1**, đối diện bãi đỗ" : "Lối vào từ trên cao đối diện bãi đỗ (quy định mọi tầng áp dụng cho nhà 15 – 50 m)") + ": rộng ≥ 850 mm, cao ≥ 1 000 mm, mép dưới ≤ 1 100 mm, mép trên ≥ 1 800 mm; mỗi 20 m bãi đỗ ít nhất một lối; đánh dấu tam giác đỏ/vàng ≥ 150 mm.", "6.3", "warn");
   if (!isF13 && !isF5 && h > 15 && h <= 28) add(s5, "Không yêu cầu bãi đỗ khi số người mỗi tầng (Bảng G.9) ≤ 50 và đường xe cách họng tiếp nước vào nhà ≤ 18 m.", "Bảng 14, chú thích 1", "");
   if (isF13) add(s5, "Không áp dụng yêu cầu lối vào từ trên cao cho nhà F1.3.", "6.3.5", "ok");
-  if (h >= 10 || n >= 4) add(s5, isF5 ? "Lối lên mái: 1 lối / 40 000 m² mái (ít nhất 1); nhà 1 tầng: thang thép hở bên ngoài." : "Lối ra mái (nhà ≥ 10 m tới diềm mái): ≥ 1 lối / 9 300 m² mái; cửa từ buồng thang loại 2, ≥ 0,75 × 1,5 m. Chênh mái > 1 m: thang P1 (≤ 20 m) / P2 (> 20 m).", isF5 ? "A.1.3.1" : "6.6, 6.7, 6.10, 6.11", "");
+  if (isF5 || (n >= 2 && h + 3 >= 10)) add(s5, (isF5 ? "Lối lên mái (khi cao từ mặt đất tới gờ mái, tường chắn mái ≥ 10 m): 1 lối / 40 000 m² mái (ít nhất 1); nhà 1 tầng: thang thép hở bên ngoài." : "Lối ra mái (khi cao tới diềm mái, tường chắn mái ≥ 10 m): ≥ 1 lối / 9 300 m² mái; cửa từ buồng thang loại 2, ≥ 0,75 × 1,5 m. Chênh mái > 1 m: thang P1 (≤ 20 m) / P2 (> 20 m).") + "", isF5 ? "A.1.3.1" : "6.6, 6.7, 6.10, 6.11", "");
   const fl = (isF13 ? h > 50 : h > 28) || v.deep;
   if (fl) add(s5, `**Thang máy chữa cháy** mỗi khoang cháy; bán kính phục vụ ≤ ${h > 50 && !isF5 && !isF13 ? 45 : 60} m; giếng riêng ≥ REI 120 (≤ 3 thang/giếng); sảnh ≥ 4 m² (chung sảnh buồng thang ≥ 6 m²), vách ngăn cháy loại 1, họng DN 65; tải ≥ ${isF13 ? "630" : "1 000"} kg; tốc độ ≥ H/60 m/s.`, h > 50 && !isF5 && !isF13 ? "6.13, A.2.12" : "6.13", "warn");
   else add(s5, `Chưa bắt buộc thang máy chữa cháy (yêu cầu khi cao > ${isF13 ? 50 : 28} m hoặc sàn hầm dưới cùng sâu > 9 m).`, "6.13", "ok");
@@ -806,7 +822,7 @@ function ctEvaluate(v) {
   return { it, out };
 }
 
-let ctV = Object.assign({ i: 0, h: 60, n: 20, nb: 2, a: 1200, p: "", sp: true, deep: false, hh: false, hang: "C", c1: false }, store.get("pccc-ct", {}));
+let ctV = Object.assign({ i: 0, h: 60, n: 20, nb: 2, a: 1200, p: "", v: "", sp: true, deep: false, hh: false, hang: "C", c1: false }, store.get("pccc-ct", {}));
 let ctQ = "";
 function md(s) { return esc(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>"); }
 function ctList() {
@@ -817,7 +833,7 @@ function ctList() {
 function ctResult() {
   const { it, out } = ctEvaluate(ctV);
   const lab = { ok: "Đạt", warn: "Lưu ý", bad: "Vượt / không đạt" };
-  return `<div class="ct-sum"><span class="chip">${it.g}</span><span class="chip">${ctV.h || 0} m</span><span class="chip">${ctV.n || 1} tầng nổi</span><span class="chip">${ctV.nb || 0} tầng hầm</span>${ctV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
+  return `<div class="ct-sum"><span class="chip">${it.g}</span><span class="chip">${ctV.h || 0} m</span><span class="chip">${ctV.n || 1} tầng nổi</span><span class="chip">${ctV.nb || 0} tầng hầm</span>${+ctV.v ? `<span class="chip">${(+ctV.v).toLocaleString("vi-VN")} m³</span>` : ""}${ctV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
     out.filter(s => s.items.length).map(s => `<section class="ct-sec"><h2>${s.t}</h2><ul>${s.items.map(x => `<li class="lv-${x.lv || "n"}">${x.lv ? `<span class="lv">${lab[x.lv]}</span>` : ""}<span class="tx">${md(x.txt)}</span><code>${esc(x.ref)}</code></li>`).join("")}</ul></section>`).join("") +
     `<p class="disclaimer">Kết quả là danh sách nội dung cần lưu ý, suy ra từ các điều đã dẫn của QCVN 06:2022/BXD (SĐ1:2023). Kiểm tra lại nguyên văn và các chú thích trước khi dùng trong hồ sơ.</p>`;
 }
@@ -838,8 +854,10 @@ function renderCT() {
       <label class="fld"><span>Số tầng hầm</span><select id="ctnb">${[0, 1, 2, 3, 4].map(k => `<option value="${k}"${+ctV.nb === k ? " selected" : ""}>${k}${k === 4 ? "+" : ""}</option>`).join("")}</select></label>
       ${num("cta", "Diện tích 1 tầng", ctV.a, "m²", "tùy chọn")}
       ${num("ctp", "Số người / tầng", ctV.p, "người", "tùy chọn")}
+      ${num("ctv", "Khối tích", ctV.v, "m³", "tùy chọn")}
       ${f5 ? `<label class="fld"><span>Hạng nguy hiểm cháy nổ</span><select id="cthang">${["A", "B", "C", "D", "E"].map(k => `<option${ctV.hang === k ? " selected" : ""}>${k}</option>`).join("")}</select></label>` : ""}
     </div>
+    <p class="note" style="margin:-4px 0 0">Khối tích: tính từ mặt ngoài kết cấu bao che, phần trên mặt đất từ cốt ± 0,00 (A.1.2.2). Bảng 16 (nhà F5) không tính tầng hầm.</p>
     <div class="checks">
       <label><input type="checkbox" id="ctsp"${ctV.sp ? " checked" : ""}> Chữa cháy tự động (sprinkler) toàn nhà</label>
       <label><input type="checkbox" id="ctdeep"${ctV.deep ? " checked" : ""}> Sàn hầm dưới cùng sâu > 9 m</label>
@@ -851,7 +869,7 @@ function renderCT() {
 }
 function ctSync(rerenderForm) {
   const gv = id => document.getElementById(id);
-  if (gv("cth")) { ctV.h = gv("cth").value; ctV.n = gv("ctn").value; ctV.nb = gv("ctnb").value; ctV.a = gv("cta").value; ctV.p = gv("ctp").value;
+  if (gv("cth")) { ctV.h = gv("cth").value; ctV.n = gv("ctn").value; ctV.nb = gv("ctnb").value; ctV.a = gv("cta").value; ctV.p = gv("ctp").value; ctV.v = gv("ctv").value;
     ctV.sp = gv("ctsp").checked; ctV.deep = gv("ctdeep").checked; ctV.hh = gv("cthh").checked;
     if (gv("cthang")) ctV.hang = gv("cthang").value; ctV.c1 = gv("ctc1") ? gv("ctc1").checked : false; }
   store.set("pccc-ct", ctV);

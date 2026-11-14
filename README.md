@@ -37,3 +37,15 @@ python3 tools/standalone.py /tmp/so-tay.html ios so-tay-pccc-mobile.html
 Sau đó tăng `VERSION` trong `docs/sw.js` để máy đã cài nhận bản mới.
 
 > Sổ tay là tài liệu tóm tắt để tra cứu, không thay thế văn bản quy chuẩn. Mỗi giá trị kèm số điều, số bảng để đối chiếu nguyên văn.
+
+## Kiểm thử công cụ "Tra theo công trình"
+
+Bộ kiểm thử có đáp án (45 trường hợp) nằm ở `tools/test-cong-trinh.js`. Cần Node.js và Playwright:
+
+```bash
+python3 tools/build.py noi-dung tools/template.html /tmp/so-tay.html
+```
+
+```bash
+node tools/test-cong-trinh.js /tmp/so-tay.html
+```

@@ -170,7 +170,8 @@ Nhà F1.1: không đặt các gian này cao hơn **tầng 2**; trường F4.1: k
 | III | S0 | 6 m | 2 500 | 1 000 |
 | III | S1 | 5 m | 1 000 | — |
 | IV | S0, S1 | 5 m | 1 000 | — |
-| IV, V | S2, S3 / S1–S3 | 5 m | 500 | — |
+| IV | S2, S3 | 5 m | 500 | — |
+| V | S1, S2, S3 | 5 m | 500 | — |
 
 **Bảng H.5 — Nhà trẻ, mẫu giáo, mầm non (F1.1)**
 

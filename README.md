@@ -49,3 +49,17 @@ python3 tools/build.py noi-dung tools/template.html /tmp/so-tay.html
 ```bash
 node tools/test-cong-trinh.js /tmp/so-tay.html
 ```
+
+Ba bộ kiểm tra bổ sung (chạy sau khi tạo `/tmp/so-tay.html`):
+
+```bash
+node tools/test-ngau-nhien.js /tmp/so-tay.html 3000
+```
+
+```bash
+node tools/test-doi-chieu-bang.js /tmp/so-tay.html noi-dung
+```
+
+```bash
+node tools/test-tinh-chat.js /tmp/so-tay.html
+```

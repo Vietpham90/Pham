@@ -265,6 +265,24 @@ THCS, THPT: được tới **25 m (7 tầng)** nếu có ≥ 2 thang thoát nạ
 - Nhà hạng C có gian **C1 > 1/2** diện tích tầng: **giảm 25 %** diện tích.
 - Lỗ mở công nghệ trên sàn: tổng diện tích các tầng thông nhau ≤ diện tích tầng của bảng.
 
+**Bảng H.10 — Nhà chăn nuôi gia súc, gia cầm, động vật F5.3** (diện tích 1 tầng / khoang cháy, m²; hạng D lấy theo Bảng H.9)
+
+| Hạng | Cao tối đa | Bậc | Cấp S | 1 tầng | 2 tầng | ≥ 3 tầng |
+| --- | --- | --- | --- | --- | --- | --- |
+| C | 36 m | I, II | S0 | Không hạn chế | 25 000 | 10 400 |
+|  | 18 m | III | S0 | 25 000 | 10 400 | 5 200 |
+|  | 12 m | IV | S0, S1 | 25 000 | 10 400 | 1 400 ⁽²⁾ |
+|  | 12 m | IV | S2, S3 | 2 600 | 2 000 | 1 100 ⁽²⁾ |
+|  | 8 m | V | — | 1 200 | — | — |
+| E | 36 m | I, II | S0 | Không hạn chế | Không hạn chế | Không hạn chế |
+|  | 18 m | III | S0 | Không hạn chế | 50 000 | 15 000 |
+|  | 18 m | III | S1 | Không hạn chế | 25 000 | 10 400 |
+|  | 12 m | IV | S0, S1 | Không hạn chế | 25 000 | 7 800 |
+|  | 12 m | IV | S2, S3 | 10 400 | 7 800 | — |
+|  | 8 m | V | — | 2 600 | 1 500 | — |
+
+⁽²⁾ Tối đa 3 tầng (≤ 22 m), phải có chữa cháy tự động. Hạng D bậc V lấy như hạng E bậc V (H.4.2).
+
 **Bảng H.11 — Nhà kho F5.2** (diện tích 1 tầng / khoang cháy, m²)
 
 | Hạng | Cao tối đa | Bậc | Cấp S | 1 tầng | 2 tầng | ≥ 3 tầng |

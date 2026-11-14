@@ -48,13 +48,32 @@ const cases = [
   T("Đường xe: 12 m → 8 m", {i:25,h:12,n:4,a:800}, [/≤ 8 m\*\*/]),
   T("Đường xe: 29 m → 10 m", {i:25,h:29,n:9,a:800,sp:true}, [/≤ 10 m\*\*/]),
 ];
+
+const GP = (name, v, must, mustNot) => ({ name, kind: "gp", v, must: must || [], mustNot: mustNot || [] });
+const MX = (name, v, must, mustNot) => ({ name, kind: "mx", v, must: must || [], mustNot: mustNot || [] });
+// G9 index: 0 hội trường(1,0) 1 sảnh(3) 2 phòng họp/ăn/học(1,5) 3 TTTM(3) 7 văn phòng(6) 10 phòng ngủ(8) 12 kho(30)
+cases.push(
+  GP("Gian TTTM 600 m²: 200 người, 2 lối ra, 165 người/m", {g:"F3.1",k:3,a:600,ch:4.5,bac:"I",lane:true,L:40,W:15}, [/= \*\*200 người\*\*/, /≥ 2 lối ra/, /165 người\/m/, /1,21 m/, /≤ 50 m\*\*/]),
+  GP("Phòng ngủ F1.1 30 m²: 1 lối ra", {g:"F1.1",k:10,a:30,ch:3,bac:"I"}, [/= \*\*4 người\*\*/, /1 lối ra thoát nạn\*\*/], [/≥ 2 lối ra/]),
+  GP("Hội trường F1.1 150 m²: > 15 người", {g:"F1.1",k:0,a:150,ch:4,bac:"I"}, [/gian F1\.1 > 15 người/, /≥ 1,2 m\*\*/]),
+  GP("Gian trong hầm 20 người", {g:"F3.2",k:2,a:30,ch:3,bac:"I",ham:true}, [/tầng hầm > 15 người/]),
+  GP("Văn phòng 200 m², đường đi 30 m", {g:"F4.3",k:7,a:200,ch:3.3,bac:"I",d:30}, [/34 người/, /30 m > 25 m/], [/Bảng G\.2b\)/]),
+  GP("Kho F5.2 hạng C 1 200 m²", {g:"F5.2",k:12,a:1200,ch:6,bac:"II",f5h:"C"}, [/F5 hạng C > 25 người hoặc > 1 000 m²/, /Bảng G\.7/, /Bảng G\.3/]),
+  GP("Xưởng F5.1 hạng A 6 người", {g:"F5.1",k:12,a:100,ch:5,bac:"I",f5h:"A",p:6}, [/F5 hạng A, B > 5 người/, /45 người\/m/]),
+  GP("Phòng chờ bậc I 3 000 m³: 30 m", {g:"F3.3",k:1,a:600,ch:5,bac:"I"}, [/≤ 30 m\*\*/]),
+  GP("Phòng học F4.1 > 15 học sinh: cửa ≥ 0,9", {g:"F4.1",k:2,a:60,ch:3.3,bac:"II"}, [/G\.2\.1\.3/]),
+  MX("Hỗn hợp 90 m: A.3.1.10, bậc I", {h:90,n:30,nb:3,sp:true,deep:true,parts:[{i:30,from:-3,to:-1,a:3000},{i:17,from:1,to:4,a:2800},{i:0,from:5,to:30,a:1100}]}, [/REI 150 \+ sàn ngăn cháy loại 1/, /\*\*bậc I\*\*/, /≤ 3\.000 m² \(khối đế\)/, /Phần nằm hoàn toàn trong tầng hầm/, /6\.2\.2\.4 a\)|chiều cao PCCC của phần không để ở/]),
+  MX("Hỗn hợp 30 m: vách loại 1 + sàn loại 3", {h:30,n:10,nb:1,sp:true,parts:[{i:17,from:1,to:2,a:1500},{i:0,from:3,to:10,a:900}]}, [/vách ngăn cháy loại 1 \+ sàn ngăn cháy loại 3/, /ước tính \*\*6 m\*\*/], [/A\.3\.1\.10/]),
+  MX("Chung cư ở tầng hầm: không cho phép", {h:20,n:6,nb:1,parts:[{i:0,from:-1,to:6,a:800}]}, [/không cho phép/]),
+  MX("Hỗn hợp không có F1.3: Bảng 15 vs 16", {h:20,n:5,nb:0,parts:[{i:25,from:3,to:5,a:1200},{i:29,from:1,to:2,a:1500,hang:"C"}]}, [/giá trị lớn hơn/, /≤ 50 m, ≤ 1 tầng hầm/])
+);
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage();
   const errs=[]; p.on('pageerror',e=>errs.push(e.message));
   await p.goto('file://' + process.argv[2] + '#cong-trinh'); await p.waitForTimeout(300);
   let fail = 0;
   for (const c of cases) {
-    const txt = await p.evaluate(v => { const o = ctEvaluate(v); return o.out.map(s => s.items.map(x => x.txt + ' (' + x.ref + ')').join('\n')).join('\n'); }, c.v);
+    const txt = await p.evaluate(([v, kind]) => { const fl = secs => secs.map(s => s.items.map(x => x.txt + ' (' + x.ref + ')').join('\n')).join('\n'); if (kind === 'gp') return fl(gpEvaluate(Object.assign({}, gpV, { p: '', d: '', ham: false, lane: false }, v)).out); if (kind === 'mx') { const r = mxEvaluate(v); return fl([...r.out, ...r.partSecs.flatMap(x => x.secs), ...r.common]); } const o = ctEvaluate(v); return fl(o.out); }, [c.v, c.kind]);
     const miss = c.must.filter(r => !r.test(txt)).map(String);
     const bad = c.mustNot.filter(r => r.test(txt)).map(String);
     if (miss.length || bad.length) { fail++; console.log('FAIL ' + c.name + (miss.length ? '\n  thiếu: ' + miss.join(' | ') : '') + (bad.length ? '\n  thừa: ' + bad.join(' | ') : '')); }

@@ -15,6 +15,40 @@ Phần 2 của QCVN 06:2022/BXD (bản hợp nhất SĐ1:2023). Đây là đầu
 
 **Vật liệu hoàn thiện** (3.3.4, 3.5):
 
+**Bảng B.6 — Cấp nguy hiểm cháy của vật liệu** (vật liệu phải đạt đồng thời các chỉ tiêu của cột):
+
+| Chỉ tiêu | CV0 | CV1 | CV2 | CV3 | CV4 | CV5 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Tính cháy | Không cháy | Ch1 | Ch1 | Ch2 | Ch3 | Ch4 |
+| Tính bắt cháy | — | BC1 | BC2 | BC2 | BC2 | BC3 |
+| Sinh khói | — | SK2 | SK2 | SK3 | SK3 | SK3 |
+| Độc tính | — | ĐT2 | ĐT2 | ĐT2 | ĐT3 | ĐT4 |
+| Lan truyền lửa trên bề mặt | — | LT1 | LT1 | LT2 | LT2 | LT4 |
+
+Chỉ tiêu cần xét theo công dụng (Bảng B.7): hoàn thiện tường, trần (kể cả sơn, véc ni) — tính cháy, bắt cháy, sinh khói, độc tính; phủ sàn — thêm lan truyền lửa, không xét tính cháy; vật liệu lợp — cháy, lan truyền, bắt cháy; cách nhiệt — cháy, bắt cháy, sinh khói, độc tính. Lớp phủ **≤ 0,3 mm** trên nền không cháy không cần đánh giá.
+
+**Bảng B.8 — Vật liệu trên đường thoát nạn** (cấp tối đa cho phép):
+
+| Nhóm nhà | Số tầng / chiều cao | Tường, trần: tiền sảnh, buồng thang, sảnh thang máy | Tường, trần: hành lang chung, sảnh chờ | Sàn: tiền sảnh, buồng thang, sảnh thang máy | Sàn: hành lang chung, sảnh chờ |
+| --- | --- | --- | --- | --- | --- |
+| F1.2, F1.3, F2.3, F2.4, F3.1, F3.2, F3.6, F4.2, F4.3, F4.4, F5.1, F5.2, F5.3 | ≤ 9 tầng hoặc ≤ 28 m | CV2 | CV3 | CV3 | CV4 |
+|  | 10 – 17 tầng hoặc 28 – 50 m | CV1 | CV2 | CV2 | CV3 |
+|  | > 17 tầng hoặc > 50 m | CV0 | CV1 | CV1 | CV2 |
+| F1.1, F2.1, F2.2, F3.3, F3.4, F3.5, F4.1 | Mọi chiều cao | CV0 | CV1 | CV1 | CV2 |
+
+**Bảng B.9 — Vật liệu trong gian phòng chung** (trừ sân thi đấu và sàn phòng nhảy):
+
+| Nhóm nhà | Sức chứa gian | Tường, trần | Sàn |
+| --- | --- | --- | --- |
+| F1.2, F2.3, F2.4, F3.1, F3.2, F3.6, F4.2, F4.3, F4.4, F5.1 | > 800 người | CV0 | CV2 |
+|  | 300 – 800 | CV1 | CV2 |
+|  | 50 – 300 | CV2 | CV3 |
+|  | ≤ 50 | CV3 | CV4 |
+| F1.1, F2.1, F2.2, F3.3, F3.4, F3.5, F4.1 | > 300 người | CV0 | CV2 |
+|  | 15 – 300 | CV1 | CV2 |
+|  | ≤ 15 | CV3 | CV4 |
+
+
 - Trên **đường thoát nạn**: theo **Bảng B.8**; trong **phòng sử dụng chung**: theo **Bảng B.9**.
 - Gian phòng chung có **chữa cháy tự động** (trừ phòng > 20 m² điều trị nội trú, dưỡng lão, chăm sóc người khuyết tật): **không yêu cầu** cấp nguy hiểm cháy của vật liệu; các trường hợp khác có chữa cháy tự động được **giảm một cấp** (3.5.10).
 - Không yêu cầu với lớp mặt dày **≤ 1 mm** trên nền không cháy; hoặc lớp trang trí chiếm **≤ 20 %** diện tích tường/trần (cao su, nhựa: ≤ 10 %) và phân bố rời rạc (3.5.10).

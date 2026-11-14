@@ -196,12 +196,13 @@ const META = {
   "thoat-nan":  {n:"3", c:"x", t:"Thoát nạn", d:"Lối ra, kích thước, khoảng cách, buồng thang L1–N3"},
   "chay-lan":   {n:"4", c:"f", t:"Ngăn chặn cháy lan", d:"Khoảng cách giữa nhà, mặt ngoài, lỗ thông tầng"},
   "chua-chay":  {n:"5", c:"", t:"Chữa cháy & cứu nạn", d:"Đường xe, bãi đỗ, lỗ cứu nạn, thang máy chữa cháy"},
+  "cao-tang":   {n:"6", c:"f", t:"Nhà cao trên 50 m", d:"Phụ lục A: khoang cháy, thoát nạn, tầng lánh nạn, vùng an toàn"},
   "sua-doi":    {n:"✱", c:"a", t:"Sửa đổi 1:2023", d:"Các nội dung sửa đổi, cách trích dẫn"},
   "checklist":  {n:"✓", c:"x", t:"Checklist hồ sơ", d:"Tự kiểm tra trước khi nộp thẩm duyệt"},
   "thuat-ngu":  {n:"Aa", c:"", t:"Thuật ngữ & cách đo", d:"Chiều cao PCCC, tầng hầm, cách đo khoảng cách"}
 };
 const ORDER = Object.keys(META);
-const FILE2ID = {"README.md":"tong-quan","01-phan-loai.md":"phan-loai","02-ngan-chay.md":"ngan-chay","03-thoat-nan.md":"thoat-nan","04-chay-lan.md":"chay-lan","05-chua-chay-cuu-nan.md":"chua-chay","06-sua-doi-1-2023.md":"sua-doi","07-checklist.md":"checklist","08-thuat-ngu.md":"thuat-ngu"};
+const FILE2ID = {"README.md":"tong-quan","01-phan-loai.md":"phan-loai","02-ngan-chay.md":"ngan-chay","03-thoat-nan.md":"thoat-nan","04-chay-lan.md":"chay-lan","05-chua-chay-cuu-nan.md":"chua-chay","06-sua-doi-1-2023.md":"sua-doi","07-checklist.md":"checklist","08-thuat-ngu.md":"thuat-ngu","09-nha-cao-tang.md":"cao-tang"};
 
 /* ---------- storage (best effort) ---------- */
 const store = {
@@ -363,7 +364,7 @@ const NC = {
 const HEIGHT = [
   { k: "< 12 m", road: "≤ 5 m", stair: "L1, thang loại 3 (L2 khi ≤ 9 m)", lift: "Không (trừ hầm sâu > 9 m)", park: "Không yêu cầu khi ≤ 15 m" },
   { k: "12–28 m", road: "≤ 8 m", stair: "L1, thang loại 3", lift: "Không (trừ hầm sâu > 9 m)", park: "> 15 m: rộng ≥ 6 m" },
-  { k: "> 28 m", road: "≤ 10 m", stair: "Không nhiễm khói, phải có N1", lift: "≥ 1 / khoang cháy (F1.3: khi > 50 m)", park: "Rộng ≥ 6 m, dài theo Bảng 14–16" }
+  { k: "> 28 m", road: "≤ 10 m", stair: "Không nhiễm khói, phải có N1", lift: "≥ 1 / khoang cháy, bán kính ≤ 60 m (F1.3: khi > 50 m; nhà > 50 m: ≤ 45 m)", park: "Rộng ≥ 6 m, dài theo Bảng 14–16" }
 ];
 const FMAP = [
 ["Nhà trẻ, mẫu giáo, mầm non","F1.1"],["Bệnh viện (trừ bệnh viện dã chiến)","F1.1"],["Khối điều trị nội trú (bệnh viện, cơ sở phòng chống dịch)","F1.1"],["Nhà hộ sinh","F1.1"],["Phòng khám đa khoa, chuyên khoa có lưu bệnh nhân (được liệt kê ở F1.1)","F1.1"],["Nhà dưỡng lão; nhà cho người cao tuổi, khuyết tật (không phải căn hộ)","F1.1"],["Khối nhà ngủ trường nội trú, cơ sở cho trẻ em","F1.1"],

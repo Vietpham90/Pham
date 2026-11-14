@@ -16,7 +16,8 @@ Mọi hồ sơ thiết kế PCCC phần kiến trúc đi theo cùng một chuỗ
 | 4 | **Diện tích khoang cháy** cho phép (Phụ lục H)? Cần tường, sàn ngăn cháy ở đâu? | [Ngăn cháy](02-ngan-chay.md) |
 | 5 | **Thoát nạn**: số lối ra, khoảng cách (Phụ lục G), chiều rộng, loại buồng thang | [Thoát nạn](03-thoat-nan.md) |
 | 6 | **Ngăn cháy lan** mặt ngoài và giữa các nhà (4.32 – 4.35, Phụ lục E) | [Cháy lan](04-chay-lan.md) |
-| 7 | **Tiếp cận chữa cháy**: đường xe, bãi đỗ, lối vào từ trên cao, lối ra mái, thang máy chữa cháy (Phần 6) | [Chữa cháy & cứu nạn](05-chua-chay-cuu-nan.md) |
+| 7 | **Tiếp cận chữa cháy**: đường xe, bãi đỗ, lối vào từ trên cao, lối ra mái, thang máy chữa cháy, phòng trực điều khiển (Phần 6) | [Chữa cháy & cứu nạn](05-chua-chay-cuu-nan.md) |
+| + | Nhà cao **trên 50 m**, chung cư trên 75 m, nhà trên 100 m: yêu cầu bổ sung của Phụ lục A | [Nhà cao tầng](09-nha-cao-tang.md) |
 
 Sau đó rà các điểm [Sửa đổi 1:2023](06-sua-doi-1-2023.md) và chạy [Checklist hồ sơ](07-checklist.md).
 

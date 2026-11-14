@@ -4,7 +4,7 @@ Sổ tay tra cứu các yêu cầu **kiến trúc – kết cấu** về an toà
 
 | Thư mục / tệp | Nội dung |
 | --- | --- |
-| `noi-dung/` | Nội dung gốc dạng Markdown (9 mục). **Sửa nội dung ở đây.** |
+| `noi-dung/` | Nội dung gốc dạng Markdown (10 mục). **Sửa nội dung ở đây.** |
 | `docs/` | Bản web cài được lên màn hình chính (PWA), chạy offline. Dùng cho GitHub Pages |
 | `ios/` | Dự án Xcode ứng dụng iOS — xem `ios/README.md` |
 | `so-tay-pccc-mobile.html` | Một tệp HTML duy nhất, mở trực tiếp bằng trình duyệt điện thoại |

@@ -98,6 +98,7 @@ Sàn thông tầng (kể cả hầm thông lên): cộng dồn diện tích các
 | --- | --- | --- |
 | Nhà từ 2 tầng, mái bằng hoặc dốc < 25 %, cao **≥ 10 m** tới diềm mái/tường chắn mái | Lối ra mái từ buồng thang, qua tầng áp mái, theo thang loại 3 hoặc thang chữa cháy ngoài nhà | 6.6 |
 | Số lối ra mái F1 – F4 | **≥ 1** cho mỗi **9 300 m²** mái (đủ hoặc không đủ); F5 theo A.1.3.1 | 6.6 |
+| Số lối lên mái F5 (nhà ≥ 10 m) | **1 lối / 40 000 m²** mái (ít nhất 1); nhà 1 tầng: thang thép hở bên ngoài | A.1.3.1 |
 | Tầng áp mái (trừ F1.4) | Lối ra mái qua thang cố định, cửa **≥ 0,6 × 0,8 m** | 6.7 |
 | Lối ra mái từ buồng thang | Cửa ngăn cháy **loại 2**, **≥ 0,75 × 1,5 m**; bản thang thép được dốc ≤ 2:1, rộng ≥ 0,7 m. F1–F4 cao ≤ 15 m: được qua cửa nắp loại 2, 0,6 × 0,8 m, thang leo thép | 6.7 |
 | Chênh cao mái **> 1,0 m** | Thang chữa cháy (không cần khi chênh > 10 m mà mỗi phần mái > 100 m² có lối ra riêng, hoặc phần thấp ≤ 10 m) | 6.10 |
@@ -115,7 +116,7 @@ Sàn thông tầng (kể cả hầm thông lên): cộng dồn diện tích các
 | Hạng mục | Yêu cầu |
 | --- | --- |
 | Khi nào phải có | Mỗi khoang cháy của nhà cao PCCC **> 28 m** (F1.3: **> 50 m**), hoặc nhà có sàn tầng hầm dưới cùng sâu **> 9 m** (tính tới cao độ lối ra thoát nạn) |
-| Số lượng | Bán kính phục vụ từ cửa thang máy tới mọi điểm của tầng **≤ 60 m**. Có từ 2 thang: lính chữa cháy di chuyển **≤ 2 tầng** để tới tầng cháy |
+| Số lượng | Bán kính phục vụ từ cửa thang máy tới mọi điểm của tầng **≤ 60 m** (nhà cao trên 50 m theo Phụ lục A: **≤ 45 m**, A.2.12). Có từ 2 thang: lính chữa cháy di chuyển **≤ 2 tầng** để tới tầng cháy |
 | Sử dụng | Bình thường vẫn chở người; **không** dùng thang chở hàng làm thang chữa cháy |
 | Giếng thang | Riêng, không chung với thang máy khác; **≤ 3** thang chữa cháy trong một giếng; bao che **≥ REI 120** (nhà > 50 m theo Bảng A.1: REI 150 / REI 180) |
 | Sảnh thang máy chữa cháy | Khoang đệm **≥ 4 m²**; kết hợp với sảnh buồng thang không nhiễm khói **≥ 6 m²**; bao che **vách ngăn cháy loại 1**; có **họng chờ DN 65** |
@@ -132,7 +133,24 @@ Bệnh viện F1.1 và phòng khám F3.4 cao > 28 m: tối thiểu **2 thang má
 - **Bệnh viện F1.1 cao > 28 m** (tối đa 50 m, bậc I, báo cháy + chữa cháy tự động): mỗi tầng có vùng an toàn **2,8 m²/bệnh nhân**, hoặc chia tầng thành ≥ 2 khoang cháy để lánh nạn tạm thời; cửa thoát nạn **≥ 1,2 m**, **≤ 72 người/cửa**; vật liệu hoàn thiện đường thoát nạn ≤ CV1 (H.2.9.1).
 - **Phòng khám F3.4 cao > 28 m**: vùng an toàn **2,65 m²** (xe lăn có người hỗ trợ), **0,75 m²** (tự đi có dụng cụ), **0,5 m²** (tự đi) mỗi bệnh nhân (H.2.10.1).
 
-## 5.7 Phòng trực điều khiển chống cháy, tầng hầm
+## 5.7 Phòng trực điều khiển chống cháy (6.17)
 
-- Phòng trực điều khiển chống cháy: theo 6.17 (đọc nguyên văn khi thiết kế).
-- Nhà có **2 – 3 tầng hầm**: mọi tầng hầm trang bị hệ thống theo 6.18 (đọc nguyên văn).
+**Phải có** (kèm nhân viên trực thường xuyên) ở:
+
+- Nhà ở, công trình công cộng **cao trên 10 tầng**;
+- Nhà có **2 – 3 tầng hầm**;
+- Công trình công cộng tập trung đông người (nhà hát, rạp chiếu phim, vũ trường, karaoke phải có ≥ 2 lối ra thoát nạn…) có **> 50 người/tầng** (Bảng G.9);
+- **Gara**, nhà sản xuất, kho có tổng diện tích sàn **> 18 000 m²**.
+
+**Yêu cầu bố trí:**
+
+| Hạng mục | Yêu cầu |
+| --- | --- |
+| Diện tích | Đủ đặt thiết bị, **≥ 6 m²** |
+| Lối ra | Ít nhất một lối ra trực tiếp vào **hành lang chính thoát nạn**, **ra ngoài nhà**, hoặc thông trực tiếp với **cầu thang thoát nạn** |
+| Ngăn cách | **Bộ phận ngăn cháy loại 1** |
+| Trang bị | Thông tin liên lạc, trung tâm báo cháy; bảng theo dõi, điều khiển chữa cháy, khống chế khói; sơ đồ mặt bằng thiết bị PCCC |
+
+**Nhà 2 – 3 tầng hầm (6.18):** mọi tầng hầm có **liên lạc hai chiều** từ phòng trực tới: phòng bơm sprinkler, bơm cấp nước ống đứng, phòng chuyển mạch, máy phát, phòng máy thang máy; phòng điều khiển chống khói; thang máy chữa cháy; gian lánh nạn; phòng điều khiển thông gió.
+
+Nhà cao trên 50 m, tầng lánh nạn và vùng an toàn: xem [Nhà cao tầng](09-nha-cao-tang.md).

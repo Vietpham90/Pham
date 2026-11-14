@@ -68,4 +68,15 @@ Dùng khi tự kiểm tra trước khi nộp thẩm duyệt. Mỗi dòng phải 
 - [ ] Lối ra mái (nhà ≥ 10 m), ≥ 1 lối / 9 300 m² mái; thang P1 (≤ 20 m), P2 (> 20 m); thang tại chênh mái > 1 m
 - [ ] Khe hở giữa các vế thang ≥ 75 mm (hoặc họng khô mỗi tầng)
 - [ ] Thang máy chữa cháy (> 28 m; F1.3 > 50 m; hầm sâu > 9 m): bán kính ≤ 60 m, sảnh ≥ 4 m² / 6 m², giếng REI 120, 630 / 1 000 kg, tốc độ ≥ H/60
-- [ ] Nhà > 100 m (> 120 m có sprinkler + báo cháy): tầng lánh nạn / vùng an toàn
+- [ ] Lối lên mái nhà F5 cao ≥ 10 m: 1 lối / 40 000 m² mái (A.1.3.1)
+- [ ] Phòng trực điều khiển chống cháy (nhà > 10 tầng, 2–3 tầng hầm, đông người > 50 người/tầng, gara/sản xuất/kho > 18 000 m²): ≥ 6 m², ngăn cháy loại 1, lối ra trực tiếp (6.17)
+
+## G. Nhà cao trên 50 m (Phụ lục A)
+
+- [ ] Bậc I, GHCL theo Bảng A.1; khoang cháy theo chiều cao ≤ 50 m (F1.3: khoang dưới ≤ 75 m)
+- [ ] Diện tích tầng/khoang cháy: khối đế ≤ 3 000, F1.2 ≤ 1 500, F1.3 ≤ 2 000, còn lại ≤ 2 500 m²
+- [ ] Gian đông người theo chiều cao (A.2.4); không có gian hạng A, B; kho dễ cháy > 50 m² không cao hơn 50 m
+- [ ] Hành lang chia đoạn ≤ 30 m (căn hộ) / ≤ 60 m; cụt ≤ 15 m, giữa hai buồng thang ≤ 20 m; số người × 1,25
+- [ ] Buồng thang không nhiễm khói ra ngoài trực tiếp và lên mái; F1.3: bản thang N1, N3 ≥ 1,2 m, N2 ≥ 1,05 m
+- [ ] Thang máy chữa cháy giếng riêng, sảnh riêng, bán kính ≤ 45 m
+- [ ] Nhà > 100 m (> 120 m có sprinkler + báo cháy): tầng lánh nạn ≤ 20 tầng/lần, đầu tiên ≤ tầng 21, 0,3 m²/người, thông gió 25 %; hoặc vùng an toàn loại 1 – 4

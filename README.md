@@ -63,3 +63,11 @@ node tools/test-doi-chieu-bang.js /tmp/so-tay.html noi-dung
 ```bash
 node tools/test-tinh-chat.js /tmp/so-tay.html
 ```
+
+```bash
+node tools/test-tinh-nang.js /tmp/so-tay.html /tmp/anh
+```
+
+```bash
+node tools/test-bam-sau-khi-go.js /tmp/so-tay.html
+```

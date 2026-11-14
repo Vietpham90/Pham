@@ -270,6 +270,21 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 .dg .firewall { fill: var(--fire); }
 .dg .solid { fill: var(--fire-bg); stroke: var(--fire); stroke-width: 1.2; }
 .dgbox { overflow: hidden; }
+
+/* Cải tiến */
+#dgov { position: fixed; inset: 0; z-index: 50; background: var(--bg); display: flex; flex-direction: column; padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+#dgov[hidden] { display: none !important; }
+.dgov-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; background: var(--fire); color: var(--on-fire); }
+.dgov-bar b { font-size: 15px; line-height: 1.3; }
+.zbtn { width: 40px; height: 40px; border-radius: 8px; border: 0; background: rgba(255,255,255,.18); color: inherit; font-size: 22px; line-height: 1; cursor: pointer; margin-left: 6px; }
+.dgov-body { flex: 1; overflow: auto; padding: 14px; -webkit-overflow-scrolling: touch; }
+.dgov-svg { background: var(--panel); border-radius: 10px; padding: 8px; max-width: none; }
+.dgov-svg svg { width: 100%; height: auto; display: block; }
+body.noscroll { overflow: hidden; }
+.dgbox svg { cursor: zoom-in; }
+.hint2 { font-style: normal; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+.hc-out { display: grid; gap: 6px; margin-top: 12px; } .hc-out .big { font-size: 36px; font-family: var(--mono); color: var(--fire); line-height: 1.1; }
+details.sub summary { cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 <style>
@@ -426,7 +441,7 @@ function renderHome() {
   view.innerHTML = `
     <p class="intro">Tra cứu yêu cầu kiến trúc – kết cấu PCCC. Gõ từ khóa ở ô tìm, hoặc chọn mục bên dưới. Có thể tìm không dấu.</p>
     <button class="ct-cta" data-go="cong-trinh"><b>Tra theo công trình</b><span>Chọn loại công trình, nhập chiều cao PCCC, số tầng — nhận danh sách yêu cầu cần lưu ý kèm số điều.</span></button>
-    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="hon-hop">Nhà hỗn hợp</button><button class="btn2" data-go="gian-phong">Gian phòng</button><button class="btn2" data-go="so-do">Sơ đồ</button><button class="btn2" data-go="du-an">Dự án</button></div>
+    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="hon-hop">Nhà hỗn hợp</button><button class="btn2" data-go="gian-phong">Gian phòng</button><button class="btn2" data-go="chieu-cao">Chiều cao PCCC</button><button class="btn2" data-go="so-do">Sơ đồ</button><button class="btn2" data-go="du-an">Dự án</button></div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đã đối chiếu với bản hợp nhất QCVN 06:2022/BXD + Sửa đổi 1:2023. <strong>✱ SĐ1</strong> đánh dấu nội dung sửa đổi. Mỗi giá trị kèm số điều để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>`;
@@ -907,7 +922,7 @@ function ctResult() {
   const { it, out } = ctEvaluate(ctV);
   const lab = { ok: "Đạt", warn: "Lưu ý", bad: "Vượt / không đạt" };
   return `<div class="ct-sum"><span class="chip">${it.g}</span><span class="chip">${ctV.h || 0} m</span><span class="chip">${ctV.n || 1} tầng nổi</span><span class="chip">${ctV.nb || 0} tầng hầm</span>${+ctV.v ? `<span class="chip">${(+ctV.v).toLocaleString("vi-VN")} m³</span>` : ""}${ctV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
-    `<div class="row-btns"><button class="btn1" data-report="ct">Tạo phiếu kiểm tra</button><button class="btn2" data-go="so-do">Sơ đồ minh họa</button></div>` + itemsHTML(out) +
+    `<div class="row-btns"><button class="btn1" data-report="ct">Tạo phiếu kiểm tra</button><button class="btn2" data-go="so-do">Sơ đồ minh họa</button></div>` + itemsHTML(out) + itemsHTML([{ t: "Ngưỡng gần nhất — thay đổi khi điều chỉnh phương án", items: thresholdsCT(ctV) }]) +
     `<p class="disclaimer">Kết quả là danh sách nội dung cần lưu ý, suy ra từ các điều đã dẫn của QCVN 06:2022/BXD (SĐ1:2023). Kiểm tra lại nguyên văn và các chú thích trước khi dùng trong hồ sơ.</p>`;
 }
 function renderCT() {
@@ -916,13 +931,14 @@ function renderCT() {
   const num = (id, label, val, unit, ph) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="number" inputmode="decimal" min="0" value="${val}" placeholder="${ph || ""}"><i>${unit}</i></span></label>`;
   view.innerHTML = ctTabs("cong-trinh") + `
   <section class="quick ct-form">
+    ${presetSelect()}
     <label class="fld wide"><span>Công trình</span>
       <span class="sel">${esc(it.n)} <b>${it.g}</b></span>
       <input id="ctq" type="search" autocomplete="off" placeholder="Đổi công trình: gõ chung cư, karaoke, kho…" value="${esc(ctQ)}">
     </label>
     <div id="ctlist" class="picks">${ctList()}</div>
     <div class="grid2">
-      ${num("cth", "Chiều cao PCCC", ctV.h, "m")}
+      <div class="fld">${num("cth", "Chiều cao PCCC", ctV.h, "m")}<button class="link-btn" data-go="chieu-cao">Tính chiều cao PCCC →</button></div>
       ${num("ctn", "Số tầng nổi", ctV.n, "tầng")}
       <label class="fld"><span>Số tầng hầm</span><select id="ctnb">${[0, 1, 2, 3, 4].map(k => `<option value="${k}"${+ctV.nb === k ? " selected" : ""}>${k}${k === 4 ? "+" : ""}</option>`).join("")}</select></label>
       ${num("cta", "Diện tích 1 tầng", ctV.a, "m²", "tùy chọn")}
@@ -1191,7 +1207,7 @@ function gpEvaluate(v) {
     else if (cls === "AB" && sk !== "S0") { g7note = "Bảng G.7 chỉ có dòng hạng A, B với cấp S0."; }
     else if (Array.isArray(t)) { if (t.length === 1 && Vol > 15) g7note = `Bảng G.7 với hạng ${v.f5h}, cấp ${S} chỉ có dòng khối tích ≤ 15 000 m³.`; else rate = Math.round(interp(Vol, t.map(x => x[0]), t.map(x => x[1]))); }
     else if (t) rate = t;
-    if (rate && ch > 6) { const inc = interp(Math.min(ch, 24), [6, 12, 18, 24], [0, 20, 30, 40]); rate = Math.round(rate * (1 + inc / 100)); g7note = `Đã tăng ${Math.round(inc)} % do gian cao ${String(ch).replace(".", ",")} m > 6 m (G.2.2.1 quy định theo chiều cao PCCC của nhà 12 / 18 / 24 m; ở đây lấy chiều cao gian — kiểm tra lại với nhà nhiều tầng).`; }
+    if (rate && ch > 6) { const hn = +v.hn || ch, inc = interp(Math.min(hn, 24), [6, 12, 18, 24], [0, 20, 30, 40]); rate = Math.round(rate * (1 + inc / 100)); g7note = `Đã tăng ${Math.round(inc)} % do gian cao ${String(ch).replace(".", ",")} m > 6 m, nội suy theo chiều cao PCCC của nhà ${String(hn).replace(".", ",")} m (12 m: 20 %, 18 m: 30 %, 24 m: 40 %)${v.hn ? "" : " — chưa nhập chiều cao nhà, đang lấy chiều cao gian"}.`; }
     rref = `Bảng G.7 (hạng ${v.f5h}, cấp ${S}${Vol ? `, khối tích ${(A * ch).toLocaleString("vi-VN")} m³` : ""})`;
     wmin = Math.max(wmin, 0.9);
   } else if (["tm", "g2"].includes(sp[2]) || sp[2] === "g1" || sp[2] === "khac") {
@@ -1278,6 +1294,7 @@ function renderGP() {
       ${isF5 ? `<label class="fld"><span>Hạng gian</span><select id="gpf5">${["A", "B", "C1", "C2", "C3", "C4", "D", "E"].map(x => `<option${gpV.f5h === x ? " selected" : ""}>${x}</option>`).join("")}</select></label>
       <label class="fld"><span>Cấp nguy hiểm cháy kết cấu</span><select id="gpf5s">${["S0", "S1", "S2", "S3"].map(x => `<option${(gpV.f5s || "S0") === x ? " selected" : ""}>${x}</option>`).join("")}</select></label>
       ${numF("gpden", "Mật độ dòng người lối đi chung", gpV.den || 1, "ng/m²")}
+      ${numF("gphn", "Chiều cao PCCC của nhà", gpV.hn || "", "m", "cho G.7")}
       <label class="fld"><span>Cửa gian (Bảng G.4)</span><select id="gppos"><option value="mid"${gpV.pos !== "dead" ? " selected" : ""}>Ở giữa hai lối ra</option><option value="dead"${gpV.pos === "dead" ? " selected" : ""}>Vào hành lang cụt</option></select></label>` : ""}
     </div>
     <div class="checks">
@@ -1297,7 +1314,7 @@ function gpSync(full) {
   const g = id => document.getElementById(id); if (!g("gpg")) return;
   const oldG = gpV.g;
   gpV.g = g("gpg").value; gpV.bac = g("gpbac").value; gpV.k = g("gpk").value; gpV.a = g("gpa").value; gpV.ch = g("gpch").value; gpV.p = g("gpp").value; gpV.d = g("gpd").value; gpV.L = g("gpL").value; gpV.W = g("gpW").value;
-  gpV.ham = g("gpham").checked; gpV.lane = g("gplane").checked; if (g("gpf5")) { gpV.f5h = g("gpf5").value; gpV.f5s = g("gpf5s").value; gpV.den = g("gpden").value; gpV.pos = g("gppos").value; }
+  gpV.ham = g("gpham").checked; gpV.lane = g("gplane").checked; if (g("gpf5")) { gpV.f5h = g("gpf5").value; gpV.f5s = g("gpf5s").value; gpV.den = g("gpden").value; gpV.pos = g("gppos").value; gpV.hn = g("gphn").value; }
   store.set("pccc-gp", gpV);
   if (full || (oldG !== gpV.g && (oldG.startsWith("F5") !== gpV.g.startsWith("F5") || oldG === "F3.1" || gpV.g === "F3.1"))) renderGP(); else g("gpres").innerHTML = gpResult();
 }
@@ -1378,6 +1395,137 @@ function renderDiagrams(focus) {
 }
 
 curReport = store.get("pccc-report-draft", null);
+/* ================= Cải tiến: chiều cao PCCC, mẫu công trình, phóng to sơ đồ, ngưỡng gần nhất ================= */
+const ctIdx = name => Math.max(0, CT.findIndex(c => c.n === name));
+
+/* ---- Mẫu công trình điển hình ---- */
+const PRESETS = [
+  { n: "Chung cư 24 tầng, 2 hầm", v: { i: ctIdx("Nhà chung cư"), h: 70, n: 24, nb: 2, a: 1200, p: "", v: "", sp: true, deep: false, hh: false } },
+  { n: "Chung cư 9 tầng, 1 hầm", v: { i: ctIdx("Nhà chung cư"), h: 26, n: 9, nb: 1, a: 700, p: "", v: "", sp: false, deep: false, hh: false } },
+  { n: "Văn phòng 12 tầng, 2 hầm", v: { i: ctIdx("Văn phòng, trụ sở cơ quan, ngân hàng"), h: 45, n: 12, nb: 2, a: 1800, p: "", v: "", sp: true, deep: true, hh: false } },
+  { n: "Khách sạn 20 tầng, 2 hầm", v: { i: ctIdx("Khách sạn, nhà khách, nhà nghỉ"), h: 65, n: 20, nb: 2, a: 1400, p: "", v: "", sp: true, deep: true, hh: false } },
+  { n: "Trung tâm thương mại 4 tầng", v: { i: ctIdx("Trung tâm thương mại, siêu thị, cửa hàng"), h: 18, n: 4, nb: 1, a: 5000, p: "", v: "", sp: true, deep: false, hh: false } },
+  { n: "Bệnh viện 9 tầng", v: { i: ctIdx("Bệnh viện (khối nội trú)"), h: 27, n: 9, nb: 1, a: 2000, p: "", v: "", sp: true, deep: false, hh: false } },
+  { n: "Trường THCS 4 tầng", v: { i: ctIdx("Trường tiểu học, THCS, THPT, dạy nghề"), h: 13, n: 4, nb: 0, a: 1500, p: "", v: "", sp: false, deep: false, hh: false } },
+  { n: "Karaoke 5 tầng", v: { i: ctIdx("Karaoke, vũ trường, bar, hộp đêm"), h: 16, n: 5, nb: 0, a: 250, p: 60, v: "", sp: false, deep: false, hh: false } },
+  { n: "Nhà xưởng 1 tầng hạng C, 10 000 m²", v: { i: ctIdx("Nhà sản xuất, nhà xưởng"), h: 1, n: 1, nb: 0, a: 10000, p: "", v: 110000, sp: true, deep: false, hh: false, hang: "C" } },
+  { n: "Kho logistics 1 tầng hạng C, 20 000 m²", v: { i: ctIdx("Nhà kho"), h: 1, n: 1, nb: 0, a: 20000, p: "", v: 240000, sp: true, deep: false, hh: false, hang: "C" } },
+  { n: "Nhà ở riêng lẻ 6 tầng", v: { i: ctIdx("Nhà ở riêng lẻ (kể cả kết hợp kinh doanh)"), h: 19, n: 6, nb: 1, a: 120, p: "", v: 2600, sp: false, deep: false, hh: false } }
+];
+function presetSelect() {
+  return `<label class="fld wide"><span>Mẫu công trình điển hình</span><select id="ctpreset"><option value="">— Chọn mẫu để điền nhanh —</option>${PRESETS.map((p, k) => `<option value="${k}">${esc(p.n)}</option>`).join("")}</select></label>`;
+}
+
+/* ---- Máy tính chiều cao PCCC (1.4.9) ---- */
+let hcV = Object.assign({ road: 0, floor: 66.0, tang: 3.3, win: 0.9, mode: "win", rail: 1.1, parapet: 70.5, tech: false, bas: -9.6, exitlvl: 0 }, store.get("pccc-hc", {}));
+function hcCompute(v) {
+  const road = +v.road || 0, fl = +v.floor || 0;
+  let top, how, ref = "1.4.9";
+  if (v.mode === "roof") { top = +v.parapet || 0; how = "mép trên tường bao mái (mái có khai thác sử dụng)"; ref = "1.4.9 CHÚ THÍCH 1"; }
+  else if (v.mode === "rail") { top = fl + (+v.rail || 0); how = "mép trên lan can ban công, lô gia tầng trên cùng"; ref = "1.4.9 CHÚ THÍCH 3"; }
+  else if (v.mode === "win") { top = fl + (+v.win || 0); how = "mép dưới cửa sổ tầng trên cùng"; }
+  else { top = fl + (+v.tang || 0) / 2; how = "1/2 tổng khoảng cách tới sàn và trần tầng trên cùng (không có cửa sổ)"; }
+  const H = Math.round((top - road) * 100) / 100;
+  const depth = Math.round(((+v.exitlvl || 0) - (+v.bas || 0)) * 100) / 100;
+  return { H, how, ref, depth };
+}
+function renderHC() {
+  setHeader("Chiều cao PCCC"); setNav("cong-trinh");
+  const r = hcCompute(hcV);
+  const num = (id, label, val, unit, hint) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="number" inputmode="decimal" step="0.01" value="${val}"><i>${unit}</i></span>${hint ? `<em class="hint2">${hint}</em>` : ""}</label>`;
+  view.innerHTML = ctTabs("cong-trinh") + `
+  <section class="quick ct-form hc-form">
+    <h2 style="margin:0">Máy tính chiều cao PCCC (1.4.9)</h2>
+    <p class="note" style="margin:0">Nhập cao độ tuyệt đối hoặc tương đối (cùng một mốc). Không tính tầng kỹ thuật trên cùng.</p>
+    <div class="grid2">
+      ${num("hcroad", "Cao độ mặt đường xe chữa cháy thấp nhất", hcV.road, "m")}
+      ${num("hcfloor", "Cao độ sàn tầng trên cùng (trừ tầng kỹ thuật)", hcV.floor, "m")}
+    </div>
+    <label class="fld wide"><span>Tầng trên cùng có</span><select id="hcmode">
+      <option value="win"${hcV.mode === "win" ? " selected" : ""}>Cửa sổ trên tường ngoài</option>
+      <option value="rail"${hcV.mode === "rail" ? " selected" : ""}>Ban công, lô gia có lan can</option>
+      <option value="none"${hcV.mode === "none" ? " selected" : ""}>Không có cửa sổ</option>
+      <option value="roof"${hcV.mode === "roof" ? " selected" : ""}>Mái có khai thác sử dụng (người có mặt thường xuyên)</option></select></label>
+    <div class="grid2">
+      ${hcV.mode === "win" ? num("hcwin", "Chiều cao bệ cửa sổ", hcV.win, "m") : ""}
+      ${hcV.mode === "rail" ? num("hcrail", "Chiều cao lan can", hcV.rail, "m") : ""}
+      ${hcV.mode === "none" ? num("hctang", "Chiều cao tầng trên cùng (sàn → trần)", hcV.tang, "m") : ""}
+      ${hcV.mode === "roof" ? num("hcpar", "Cao độ mép trên tường bao mái", hcV.parapet, "m") : ""}
+    </div>
+    <details class="sub"><summary>Độ sâu tầng hầm (cho thang máy chữa cháy, 6.13)</summary>
+      <div class="grid2" style="margin-top:8px">${num("hcbas", "Cao độ sàn tầng hầm dưới cùng", hcV.bas, "m")}${num("hcexit", "Cao độ lối ra thoát nạn ra ngoài", hcV.exitlvl, "m")}</div>
+    </details>
+  </section>
+  <div id="hcres">${hcResult(r)}</div>`;
+}
+function hcResult(r) {
+  r = r || hcCompute(hcV);
+  const band = r.H <= 15 ? "≤ 15 m" : r.H <= 28 ? "15 – 28 m" : r.H <= 50 ? "28 – 50 m" : r.H <= 75 ? "50 – 75 m" : r.H <= 100 ? "75 – 100 m" : r.H <= 150 ? "100 – 150 m" : "> 150 m";
+  return `<section class="quick hc-out"><span class="note">Chiều cao PCCC</span><b class="big">${String(r.H).replace(".", ",")} m</b><span class="note">tính tới ${r.how} · nhóm ${band}</span><span class="refs">${refHTML(r.ref)}<button class="ref dg" data-diag="chieu-cao">Sơ đồ</button></span>
+    <span class="note">Độ sâu sàn hầm dưới cùng: <b>${String(r.depth).replace(".", ",")} m</b>${r.depth > 9 ? " — > 9 m: <b>phải có thang máy chữa cháy</b> (6.13)" : ""}</span>
+    <div class="row-btns" style="margin:6px 0 0"><button class="btn1" id="hcuse">Dùng cho Tra theo công trình</button></div></section>
+    <p class="disclaimer">Mặt đường tiếp cận có cao độ khác nhau: nhà có thể có nhiều chiều cao PCCC tùy phương án (1.4.9 CHÚ THÍCH 4). Mái không có người thường xuyên không coi là mái khai thác sử dụng (CHÚ THÍCH 2).</p>`;
+}
+function hcSync(full) {
+  const g = id => document.getElementById(id);
+  const map = { hcroad: "road", hcfloor: "floor", hcwin: "win", hcrail: "rail", hctang: "tang", hcpar: "parapet", hcbas: "bas", hcexit: "exitlvl" };
+  Object.entries(map).forEach(([id, k]) => { if (g(id)) hcV[k] = g(id).value; });
+  if (g("hcmode")) hcV.mode = g("hcmode").value;
+  store.set("pccc-hc", hcV);
+  if (full) renderHC(); else g("hcres").innerHTML = hcResult();
+}
+
+/* ---- Phóng to sơ đồ ---- */
+function openDiag(id) {
+  const d = DIAGS[id]; if (!d) return;
+  let ov = document.getElementById("dgov");
+  if (!ov) { ov = document.createElement("div"); ov.id = "dgov"; ov.setAttribute("role", "dialog"); ov.setAttribute("aria-modal", "true"); document.body.appendChild(ov); }
+  ov.innerHTML = `<div class="dgov-bar"><b>${esc(d.t)}</b><span><button class="zbtn" data-zoom="-1" aria-label="Thu nhỏ">−</button><button class="zbtn" data-zoom="1" aria-label="Phóng to">+</button><button class="zbtn" id="dgclose" aria-label="Đóng">×</button></span></div>
+    <div class="dgov-body"><div class="dgov-svg" style="width:${100 * (openDiag.z || 1)}%">${d.svg}</div><p class="note">${esc(d.cap)}</p><span class="refs">${refHTML(d.ref)}</span></div>`;
+  ov.hidden = false; document.body.classList.add("noscroll");
+  openDiag.cur = id;
+}
+function closeDiag() { const ov = document.getElementById("dgov"); if (ov) ov.hidden = true; document.body.classList.remove("noscroll"); }
+
+/* ---- Ngưỡng gần nhất ---- */
+const H_THRESH = [
+  [9, "cầu thang loại 2, buồng thang L2", "3.4.12"], [12, "khoảng cách đường xe 5 → 8 m", "6.2.2.3"], [15, "bãi đỗ, lối vào từ trên cao, đai ngăn cháy mặt ngoài", "6.2.2, 6.3, 4.33.4"],
+  [21, "điều kiện 1 lối ra", "3.2.6.2"], [25, "nhà ở riêng lẻ, 1 lối ra", "1.1.2, 3.2.6.2"], [28, "buồng thang N1, thang máy chữa cháy, đường xe 10 m", "3.4.13, 6.13, 6.2.2.3"], [50, "Phụ lục A, thang máy chữa cháy chung cư", "A.2, 6.13"],
+  [75, "chung cư theo Phụ lục A.3", "A.3.1"], [100, "khu vực lánh nạn", "A.3.2"], [120, "khu vực lánh nạn khi có sprinkler", "A.3.2"], [150, "giới hạn phạm vi áp dụng", "1.1.2, 1.1.3"]
+];
+function feasibleCT(v) { const o = ctEvaluate(v); const s = o.out.find(x => x.t === "Bậc chịu lửa và khoang cháy"); return !s || !s.items.some(x => x.lv === "bad"); }
+function itemKeys(o) { const m = new Map(); o.out.forEach(s => s.items.forEach(x => { const k = s.t + "|" + x.ref + "|" + x.txt.replace(/[\d.,]+/g, "#").slice(0, 60); m.set(k, x); })); return m; }
+function thresholdsCT(v) {
+  const h = +v.h || 0, cur = ctEvaluate(v), ck = itemKeys(cur), lines = [];
+  const up = H_THRESH.filter(([t]) => t >= h).slice(0, 2);
+  up.forEach(([t, what, tref]) => {
+    const nv = { ...v, h: t + 0.1 }; const o = ctEvaluate(nv); const nk = itemKeys(o);
+    const added = [...nk.entries()].filter(([k, x]) => !ck.has(k) && (x.lv === "warn" || x.lv === "bad")).map(([, x]) => x.txt.replace(/\*\*/g, "").split(/[.:;(]/)[0].trim()).filter(Boolean);
+    const uniq = [...new Set(added)].slice(0, 4);
+    lines.push({ txt: `Cao thêm **${String(Math.round((t - h + 0.1) * 10) / 10).replace(".", ",")} m** (vượt ${t} m — ${what})` + (uniq.length ? `: phát sinh — ${uniq.join("; ")}.` : ": không phát sinh yêu cầu mới đáng kể."), ref: tref, lv: uniq.length ? "warn" : "ok" });
+  });
+  const down = H_THRESH.filter(([t]) => t < h).slice(-1);
+  down.forEach(([t, what, tref]) => {
+    const o = ctEvaluate({ ...v, h: t }); const nk = itemKeys(o);
+    const removed = [...ck.entries()].filter(([k, x]) => !nk.has(k) && (x.lv === "warn" || x.lv === "bad")).map(([, x]) => x.txt.replace(/\*\*/g, "").split(/[.:;(]/)[0].trim()).filter(Boolean);
+    const uniq = [...new Set(removed)].slice(0, 4);
+    if (uniq.length) lines.push({ txt: `Giảm xuống **≤ ${t} m** (bớt ${String(Math.round((h - t) * 10) / 10).replace(".", ",")} m): bỏ được — ${uniq.join("; ")}.`, ref: tref, lv: "ok" });
+  });
+  // diện tích tầng còn dư / cần giảm
+  const A = +v.a || 0;
+  if (A) {
+    const ok = feasibleCT(v);
+    let lo, hi;
+    if (ok) { lo = A; hi = A; while (hi < 200000 && feasibleCT({ ...v, a: hi * 2 })) hi *= 2; hi = Math.min(hi * 2, 200000); while (hi - lo > 50) { const m = (lo + hi) / 2; if (feasibleCT({ ...v, a: m })) lo = m; else hi = m; } if (lo < 199000) lines.push({ txt: `Diện tích 1 tầng có thể tăng tới khoảng **${(Math.round(lo / 50) * 50).toLocaleString("vi-VN")} m²** trước khi phải chia thêm khoang cháy (cùng chiều cao, số tầng${v.sp ? ", có sprinkler" : ""}).`, ref: "Phụ lục H", lv: "ok" }); }
+    else { lo = 0; hi = A; if (feasibleCT({ ...v, a: 50 })) { while (hi - lo > 50) { const m = (lo + hi) / 2; if (feasibleCT({ ...v, a: m })) lo = m; else hi = m; } lines.push({ txt: `Cần giảm diện tích 1 tầng trong một khoang cháy xuống khoảng **${(Math.round(lo / 50) * 50).toLocaleString("vi-VN")} m²** (hoặc chia khoang cháy bằng tường ngăn cháy loại 1).`, ref: "Phụ lục H", lv: "warn" }); }
+    }
+  }
+  // số tầng
+  const n = +v.n || 1;
+  [[4, "đai ngăn cháy mặt ngoài bắt buộc (nhà > 3 tầng, ≥ 15 m, không sprinkler)", "4.33.4"], [7, "nhà ở riêng lẻ thuộc phạm vi QCVN 06", "1.1.2"], [10, "vật liệu hoàn thiện đường thoát nạn nâng một cấp (Bảng B.8)", "Bảng B.8"], [11, "phòng trực điều khiển chống cháy (nhà ở, công cộng > 10 tầng)", "6.17"], [18, "vật liệu hoàn thiện CV0 (Bảng B.8)", "Bảng B.8"]].forEach(([t, what, tref]) => { const d = t - n; if (d >= 1 && d <= 2) lines.push({ txt: `Thêm **${d} tầng** (lên ${t} tầng): ${what}.`, ref: tref, lv: "" }); });
+  return lines;
+}
+
 /* ---------- routing ---------- */
 function route() {
   const h = decodeURIComponent(location.hash.slice(1));
@@ -1390,6 +1538,7 @@ function route() {
   if (h === "du-an") return renderProjects();
   if (h === "phieu") return renderReport();
   if (h === "so-do") return renderDiagrams();
+  if (h === "chieu-cao") return renderHC();
   if (h === "da-luu") return renderSaved();
   if (SECTIONS[h]) return renderSection(h);
   renderHome();
@@ -1407,7 +1556,12 @@ document.addEventListener("click", e => {
     saved = saved.includes(id) ? saved.filter(x => x !== id) : [...saved, id]; store.set("pccc-saved", saved);
     const on = saved.includes(id); star.setAttribute("aria-pressed", on); star.setAttribute("aria-label", on ? "Bỏ lưu" : "Lưu mục này"); return; }
   const rf = e.target.closest("[data-ref]"); if (rf) { e.preventDefault(); q.value = resolveRef(rf.dataset.ref); clearQ.hidden = false; renderSearch(q.value); window.scrollTo(0, 0); return; }
-  const dg = e.target.closest("[data-diag]"); if (dg) { e.preventDefault(); history.replaceState(null, "", "#so-do"); renderDiagrams(dg.dataset.diag); return; }
+  const dg = e.target.closest("[data-diag]"); if (dg) { e.preventDefault(); openDiag(dg.dataset.diag); return; }
+  const dgb = e.target.closest(".dgbox svg"); if (dgb) { openDiag(dgb.closest(".dgbox").id.replace("dg-", "")); return; }
+  if (e.target.id === "dgclose" || e.target.id === "dgov") { closeDiag(); return; }
+  const zb = e.target.closest("[data-zoom]"); if (zb) { openDiag.z = Math.min(3, Math.max(1, (openDiag.z || 1) + 0.5 * +zb.dataset.zoom)); openDiag(openDiag.cur); return; }
+  if (e.target.closest("#dgov .ref")) closeDiag();
+  if (e.target.id === "hcuse") { const r = hcCompute(hcV); ctV.h = r.H; if (r.depth > 9) ctV.deep = true; store.set("pccc-ct", ctV); go("cong-trinh"); return; }
   const rpb = e.target.closest("[data-report]"); if (rpb) { const k = rpb.dataset.report; if (k === "ct") ctSync(false); if (k === "mx") mxSync(false); if (k === "gp") gpSync(false); curReport = reportFrom(k); store.set("pccc-report-draft", curReport); go("phieu"); return; }
   if (e.target.id === "rpsave") { reportSync(); const i = projects.findIndex(p => p.id === curReport.id); const copy = JSON.parse(JSON.stringify(curReport)); if (i >= 0) projects[i] = copy; else projects.unshift(copy); store.set("pccc-projects", projects); document.getElementById("rpmsg").textContent = "Đã lưu vào Dự án trên thiết bị này."; return; }
   if (e.target.id === "rpcopy") { reportSync(); copyText(reportText(true)); return; }
@@ -1438,12 +1592,18 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("input", e => {
   if (!e.target.closest) return;
+  if (e.target.closest(".hc-form") && e.target.tagName === "INPUT") { hcSync(false); return; }
   if (e.target.closest(".mx-form") && e.target.tagName === "INPUT" && e.target.type !== "checkbox") { mxSync(false); return; }
   if (document.getElementById("gpg") && e.target.closest(".ct-form") && e.target.tagName === "INPUT" && e.target.type !== "checkbox") { gpSync(false); return; }
   if (e.target.classList && e.target.classList.contains("rpnote") || ["rpname", "rpauthor"].includes(e.target.id)) { reportSync(); return; }
 });
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeDiag(); });
 document.addEventListener("change", e => {
   if (!e.target.closest) return;
+  if (e.target.id === "ctpreset" && e.target.value !== "") { ctV = Object.assign({}, ctV, PRESETS[+e.target.value].v); store.set("pccc-ct", ctV); renderCT(); return; }
+  const isTyped = e.target.tagName === "INPUT" && !["checkbox", "radio", "date"].includes(e.target.type);
+  if (isTyped) return; // ô nhập số/chữ đã cập nhật theo sự kiện input; tránh vẽ lại làm mất lần bấm nút
+  if (e.target.closest(".hc-form")) { hcSync(e.target.id === "hcmode"); return; }
   if (e.target.closest(".mx-form")) { mxSync(e.target.classList.contains("mxi")); return; }
   if (document.getElementById("gpg") && e.target.closest(".ct-form")) { gpSync(["gpg"].includes(e.target.id)); return; }
   if (e.target.classList.contains("rpst") || e.target.id === "rpdate") { reportSync(); return; }

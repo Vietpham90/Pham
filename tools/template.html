@@ -323,6 +323,19 @@ const store = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
 let saved = store.get("pccc-saved", []);
+/* Số kiểu Việt Nam: "12,5" "1 200" "1.200" "1.200,5" "-0,45" */
+function parseNum(x) {
+  if (x === null || x === undefined) return "";
+  let t = String(x).trim().replace(/[\s\u00a0]/g, "");
+  if (!t) return "";
+  if (t.includes(",") && t.includes(".")) t = t.replace(/\./g, "").replace(",", ".");
+  else if (t.includes(",")) t = t.replace(",", ".");
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
+  const n = Number(t);
+  return Number.isFinite(n) ? n : "";
+}
+function fmtIn(x) { return x === "" || x === null || x === undefined ? "" : String(x).replace(".", ","); }
+function numv(el) { return el ? parseNum(el.value) : ""; }
 let checks = store.get("pccc-checks", {});
 
 /* ---------- markdown → blocks ---------- */
@@ -699,7 +712,8 @@ function floorIdxH2(n) { return n <= 1 ? 0 : n === 2 ? 1 : n === 3 ? 2 : n <= 5 
 
 function ctEvaluate(v) {
   const it = CT[v.i] || CT[0];
-  const g = it.g, G = g.slice(0, 2), h = +v.h || 0, n = Math.max(1, +v.n || 1), nb = +v.nb || 0, A = +v.a || 0, P = +v.p || 0, sp = !!v.sp, hang = v.hang || "C", V = +v.v || 0;
+  const pos = x => { const t = +x; return Number.isFinite(t) && t > 0 ? t : 0; };
+  const g = it.g, G = g.slice(0, 2), h = pos(v.h), n = Math.max(1, Math.round(pos(v.n)) || 1), nb = Math.min(4, Math.round(pos(v.nb))), A = pos(v.a), P = pos(v.p), sp = !!v.sp, hang = ["A", "B", "C", "D", "E"].includes(v.hang) ? v.hang : "C", V = pos(v.v);
   const fmtN = x => Math.round(x).toLocaleString("vi-VN");
   const out = []; const sec = (t) => { const s = { t, items: [] }; out.push(s); return s; };
   const add = (s, txt, ref, lv) => s.items.push({ txt, ref, lv: lv || "" });
@@ -906,7 +920,7 @@ function ctResult() {
 function renderCT() {
   setHeader("Tra theo công trình"); setNav("cong-trinh");
   const it = CT[ctV.i] || CT[0], f5 = it.g.startsWith("F5");
-  const num = (id, label, val, unit, ph) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="number" inputmode="decimal" min="0" value="${val}" placeholder="${ph || ""}"><i>${unit}</i></span></label>`;
+  const num = (id, label, val, unit, ph) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="text" inputmode="decimal" data-num="1" autocomplete="off" value="${fmtIn(val)}" placeholder="${ph || ""}"><i>${unit}</i></span></label>`;
   view.innerHTML = ctTabs("cong-trinh") + `
   <section class="quick ct-form">
     ${presetSelect()}
@@ -936,7 +950,7 @@ function renderCT() {
 }
 function ctSync(rerenderForm) {
   const gv = id => document.getElementById(id);
-  if (gv("cth")) { ctV.h = gv("cth").value; ctV.n = gv("ctn").value; ctV.nb = gv("ctnb").value; ctV.a = gv("cta").value; ctV.p = gv("ctp").value; ctV.v = gv("ctv").value;
+  if (gv("cth")) { ctV.h = numv(gv("cth")); ctV.n = numv(gv("ctn")); ctV.nb = gv("ctnb").value; ctV.a = numv(gv("cta")); ctV.p = numv(gv("ctp")); ctV.v = numv(gv("ctv"));
     ctV.sp = gv("ctsp").checked; ctV.deep = gv("ctdeep").checked; ctV.hh = gv("cthh").checked;
     if (gv("cthang")) ctV.hang = gv("cthang").value; ctV.c1 = gv("ctc1") ? gv("ctc1").checked : false; }
   store.set("pccc-ct", ctV);
@@ -1056,7 +1070,7 @@ function mxEvaluate(m) {
 }
 function renderMX() {
   setHeader("Nhà hỗn hợp"); setNav("cong-trinh");
-  const numF = (id, label, val, unit) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="number" inputmode="decimal" value="${val}"><i>${unit}</i></span></label>`;
+  const numF = (id, label, val, unit) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="text" inputmode="decimal" data-num="1" autocomplete="off" value="${fmtIn(val)}"><i>${unit}</i></span></label>`;
   view.innerHTML = ctTabs("hon-hop") + `
   <section class="quick ct-form mx-form">
     <p class="note" style="margin:0">Nhập thông số toàn nhà, sau đó từng phần công năng theo tầng (tầng hầm ghi số âm: −1, −2…).</p>
@@ -1076,8 +1090,8 @@ function renderMX() {
         <div class="grid4">
           <label class="fld"><span>Từ tầng</span><input class="mxf" type="number" value="${p.from}"></label>
           <label class="fld"><span>Đến tầng</span><input class="mxt" type="number" value="${p.to}"></label>
-          <label class="fld"><span>m²/tầng</span><input class="mxa" type="number" min="0" value="${p.a}"></label>
-          <label class="fld"><span>Người/tầng</span><input class="mxp" type="number" min="0" value="${p.p}" placeholder="—"></label>
+          <label class="fld"><span>m²/tầng</span><input class="mxa" type="text" inputmode="decimal" data-num="1" autocomplete="off" value="${fmtIn(p.a)}"></label>
+          <label class="fld"><span>Người/tầng</span><input class="mxp" type="text" inputmode="decimal" data-num="1" autocomplete="off" value="${fmtIn(p.p)}" placeholder="—"></label>
         </div>
         ${CT[p.i] && CT[p.i].g.startsWith("F5") ? `<label class="fld"><span>Hạng</span><select class="mxhang">${["A", "B", "C", "D", "E"].map(x => `<option${(p.hang || "C") === x ? " selected" : ""}>${x}</option>`).join("")}</select></label>` : ""}
         <button class="link-btn" data-mxdel="${k}">Xóa phần này</button>
@@ -1099,10 +1113,10 @@ function mxResult() {
 function mxSync(full) {
   const g = id => document.getElementById(id);
   if (!g("mxh")) return;
-  mxV.h = g("mxh").value; mxV.n = g("mxn").value; mxV.nb = g("mxnb").value; mxV.v = g("mxv").value; mxV.sp = g("mxsp").checked; mxV.deep = g("mxdeep").checked;
+  mxV.h = numv(g("mxh")); mxV.n = numv(g("mxn")); mxV.nb = g("mxnb").value; mxV.v = numv(g("mxv")); mxV.sp = g("mxsp").checked; mxV.deep = g("mxdeep").checked;
   document.querySelectorAll(".part").forEach(el => {
     const k = +el.dataset.k, p = mxV.parts[k]; if (!p) return;
-    p.i = +el.querySelector(".mxi").value; p.from = el.querySelector(".mxf").value; p.to = el.querySelector(".mxt").value; p.a = el.querySelector(".mxa").value; p.p = el.querySelector(".mxp").value;
+    p.i = +el.querySelector(".mxi").value; p.from = el.querySelector(".mxf").value; p.to = el.querySelector(".mxt").value; p.a = numv(el.querySelector(".mxa")); p.p = numv(el.querySelector(".mxp"));
     const hs = el.querySelector(".mxhang"); if (hs) p.hang = hs.value;
   });
   store.set("pccc-mx", mxV);
@@ -1254,7 +1268,7 @@ function renderGP() {
   setHeader("Kiểm tra gian phòng"); setNav("cong-trinh");
   const groups = ["F1.1", "F1.2", "F1.3", "F2.1", "F2.2", "F3.1", "F3.2", "F3.3", "F3.4", "F3.5", "F3.6", "F4.1", "F4.2", "F4.3", "F5.1", "F5.2"];
   const isF5 = gpV.g.startsWith("F5");
-  const numF = (id, label, val, unit, ph) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="number" inputmode="decimal" min="0" value="${val}" placeholder="${ph || ""}"><i>${unit}</i></span></label>`;
+  const numF = (id, label, val, unit, ph) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="text" inputmode="decimal" data-num="1" autocomplete="off" value="${fmtIn(val)}" placeholder="${ph || ""}"><i>${unit}</i></span></label>`;
   view.innerHTML = ctTabs("gian-phong") + `
   <section class="quick ct-form">
     <div class="grid2">
@@ -1291,8 +1305,8 @@ function gpResult() {
 function gpSync(full) {
   const g = id => document.getElementById(id); if (!g("gpg")) return;
   const oldG = gpV.g;
-  gpV.g = g("gpg").value; gpV.bac = g("gpbac").value; gpV.k = g("gpk").value; gpV.a = g("gpa").value; gpV.ch = g("gpch").value; gpV.p = g("gpp").value; gpV.d = g("gpd").value; gpV.L = g("gpL").value; gpV.W = g("gpW").value;
-  gpV.ham = g("gpham").checked; gpV.lane = g("gplane").checked; if (g("gpf5")) { gpV.f5h = g("gpf5").value; gpV.f5s = g("gpf5s").value; gpV.den = g("gpden").value; gpV.pos = g("gppos").value; gpV.hn = g("gphn").value; }
+  gpV.g = g("gpg").value; gpV.bac = g("gpbac").value; gpV.k = g("gpk").value; gpV.a = numv(g("gpa")); gpV.ch = numv(g("gpch")); gpV.p = numv(g("gpp")); gpV.d = numv(g("gpd")); gpV.L = numv(g("gpL")); gpV.W = numv(g("gpW"));
+  gpV.ham = g("gpham").checked; gpV.lane = g("gplane").checked; if (g("gpf5")) { gpV.f5h = g("gpf5").value; gpV.f5s = g("gpf5s").value; gpV.den = numv(g("gpden")); gpV.pos = g("gppos").value; gpV.hn = numv(g("gphn")); }
   store.set("pccc-gp", gpV);
   if (full || (oldG !== gpV.g && (oldG.startsWith("F5") !== gpV.g.startsWith("F5") || oldG === "F3.1" || gpV.g === "F3.1"))) renderGP(); else g("gpres").innerHTML = gpResult();
 }
@@ -1373,6 +1387,7 @@ function renderDiagrams(focus) {
 }
 
 curReport = store.get("pccc-report-draft", null);
+
 /* ================= Cải tiến: chiều cao PCCC, mẫu công trình, phóng to sơ đồ, ngưỡng gần nhất ================= */
 const ctIdx = name => Math.max(0, CT.findIndex(c => c.n === name));
 
@@ -1410,7 +1425,7 @@ function hcCompute(v) {
 function renderHC() {
   setHeader("Chiều cao PCCC"); setNav("cong-trinh");
   const r = hcCompute(hcV);
-  const num = (id, label, val, unit, hint) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="number" inputmode="decimal" step="0.01" value="${val}"><i>${unit}</i></span>${hint ? `<em class="hint2">${hint}</em>` : ""}</label>`;
+  const num = (id, label, val, unit, hint) => `<label class="fld"><span>${label}</span><span class="inp"><input id="${id}" type="text" ${["hcroad", "hcbas", "hcexit"].includes(id) ? "" : 'inputmode="decimal" '}data-num="1" autocomplete="off" value="${fmtIn(val)}"><i>${unit}</i></span>${hint ? `<em class="hint2">${hint}</em>` : ""}</label>`;
   view.innerHTML = ctTabs("cong-trinh") + `
   <section class="quick ct-form hc-form">
     <h2 style="margin:0">Máy tính chiều cao PCCC (1.4.9)</h2>
@@ -1447,7 +1462,7 @@ function hcResult(r) {
 function hcSync(full) {
   const g = id => document.getElementById(id);
   const map = { hcroad: "road", hcfloor: "floor", hcwin: "win", hcrail: "rail", hctang: "tang", hcpar: "parapet", hcbas: "bas", hcexit: "exitlvl" };
-  Object.entries(map).forEach(([id, k]) => { if (g(id)) hcV[k] = g(id).value; });
+  Object.entries(map).forEach(([id, k]) => { if (g(id)) hcV[k] = numv(g(id)); });
   if (g("hcmode")) hcV.mode = g("hcmode").value;
   store.set("pccc-hc", hcV);
   if (full) renderHC(); else g("hcres").innerHTML = hcResult();
@@ -1474,7 +1489,8 @@ const H_THRESH = [
 function feasibleCT(v) { const o = ctEvaluate(v); const s = o.out.find(x => x.t === "Bậc chịu lửa và khoang cháy"); return !s || !s.items.some(x => x.lv === "bad"); }
 function itemKeys(o) { const m = new Map(); o.out.forEach(s => s.items.forEach(x => { const k = s.t + "|" + x.ref + "|" + x.txt.replace(/[\d.,]+/g, "#").slice(0, 60); m.set(k, x); })); return m; }
 function thresholdsCT(v) {
-  const h = +v.h || 0, cur = ctEvaluate(v), ck = itemKeys(cur), lines = [];
+  v = { ...v, h: Math.max(0, +v.h || 0), a: Math.max(0, +v.a || 0), n: Math.max(1, +v.n || 1) };
+  const h = v.h, cur = ctEvaluate(v), ck = itemKeys(cur), lines = [];
   const up = H_THRESH.filter(([t]) => t >= h).slice(0, 2);
   up.forEach(([t, what, tref]) => {
     const nv = { ...v, h: t + 0.1 }; const o = ctEvaluate(nv); const nk = itemKeys(o);
@@ -1490,8 +1506,8 @@ function thresholdsCT(v) {
     if (uniq.length) lines.push({ txt: `Giảm xuống **≤ ${t} m** (bớt ${String(Math.round((h - t) * 10) / 10).replace(".", ",")} m): bỏ được — ${uniq.join("; ")}.`, ref: tref, lv: "ok" });
   });
   // diện tích tầng còn dư / cần giảm
-  const A = +v.a || 0;
-  if (A) {
+  const A = v.a;
+  if (A > 0 && A < 1e7) {
     const ok = feasibleCT(v);
     let lo, hi;
     if (ok) { lo = A; hi = A; while (hi < 200000 && feasibleCT({ ...v, a: hi * 2 })) hi *= 2; hi = Math.min(hi * 2, 200000); while (hi - lo > 50) { const m = (lo + hi) / 2; if (feasibleCT({ ...v, a: m })) lo = m; else hi = m; } if (lo < 199000) lines.push({ txt: `Diện tích 1 tầng có thể tăng tới khoảng **${(Math.round(lo / 50) * 50).toLocaleString("vi-VN")} m²** trước khi phải chia thêm khoang cháy (cùng chiều cao, số tầng${v.sp ? ", có sprinkler" : ""}).`, ref: "Phụ lục H", lv: "ok" }); }
@@ -1504,6 +1520,28 @@ function thresholdsCT(v) {
   return lines;
 }
 
+/* Làm sạch dữ liệu lưu (bị hỏng hoặc từ phiên bản cũ) */
+(function sanitizeStored() {
+  const obj = x => x && typeof x === "object" && !Array.isArray(x);
+  if (!obj(ctV) || !CT[ctV.i]) ctV = Object.assign({}, obj(ctV) ? ctV : {}, { i: 0 });
+  if (!obj(mxV) || !Array.isArray(mxV.parts)) mxV = Object.assign({}, obj(mxV) ? mxV : {}, { parts: [] });
+  mxV.parts = mxV.parts.filter(p => obj(p) && CT[p.i]).map(p => ({ ...p, from: Number.isFinite(+p.from) ? +p.from : 1, to: Number.isFinite(+p.to) ? +p.to : 1 }));
+  const GRP = ["F1.1", "F1.2", "F1.3", "F2.1", "F2.2", "F3.1", "F3.2", "F3.3", "F3.4", "F3.5", "F3.6", "F4.1", "F4.2", "F4.3", "F5.1", "F5.2"];
+  if (!obj(gpV)) gpV = {};
+  if (!GRP.includes(gpV.g)) gpV.g = "F3.1";
+  if (!G9[gpV.k]) gpV.k = 0;
+  if (!["A", "B", "C1", "C2", "C3", "C4", "D", "E", "C"].includes(gpV.f5h)) gpV.f5h = "C2";
+  if (!["S0", "S1", "S2", "S3"].includes(gpV.f5s)) gpV.f5s = "S0";
+  if (!["I", "II", "III", "IV", "V"].includes(gpV.bac)) gpV.bac = "I";
+  if (!obj(hcV)) hcV = { road: 0, floor: 66, tang: 3.3, win: 0.9, mode: "win", rail: 1.1, parapet: 70.5, bas: -9.6, exitlvl: 0 };
+  if (!["win", "rail", "none", "roof"].includes(hcV.mode)) hcV.mode = "win";
+  const okRow = r => obj(r) && typeof r.txt === "string";
+  projects = (Array.isArray(projects) ? projects : []).filter(p => obj(p) && Array.isArray(p.rows)).map(p => ({ id: String(p.id || Date.now().toString(36)), name: String(p.name || ""), author: String(p.author || ""), date: String(p.date || ""), title: String(p.title || "Dự án"), params: String(p.params || ""), kind: p.kind, rows: p.rows.filter(okRow).map(r => ({ sec: String(r.sec || ""), txt: r.txt, ref: String(r.ref || ""), lv: r.lv || "", st: String(r.st || ""), note: String(r.note || "") })) }));
+  if (curReport && !(obj(curReport) && Array.isArray(curReport.rows))) curReport = null;
+  if (curReport) curReport.rows = curReport.rows.filter(okRow);
+  saved = (Array.isArray(saved) ? saved : []).filter(x => typeof x === "string");
+  if (typeof checks !== "object" || !checks || Array.isArray(checks)) checks = {};
+})();
 /* ---------- routing ---------- */
 function route() {
   const h = decodeURIComponent(location.hash.slice(1));
@@ -1566,7 +1604,7 @@ backBtn.addEventListener("click", () => go("home"));
 let tmr;
 document.addEventListener("input", e => {
   if (e.target.id === "ctq") { ctQ = e.target.value; document.getElementById("ctlist").innerHTML = ctList(); return; }
-  if (e.target.closest && e.target.closest(".ct-form") && e.target.type === "number" && document.getElementById("cth")) ctSync(false);
+  if (e.target.closest && e.target.closest(".ct-form") && e.target.dataset && e.target.dataset.num && document.getElementById("cth")) ctSync(false);
 });
 document.addEventListener("input", e => {
   if (!e.target.closest) return;

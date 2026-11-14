@@ -59,7 +59,7 @@ main { padding-block: 16px calc(var(--nav-h) + 24px + env(safe-area-inset-bottom
 
 /* Bottom nav */
 nav.bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--panel); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
-nav.bottom .row { display: grid; grid-template-columns: repeat(5, 1fr); max-width: 760px; margin: 0 auto; height: var(--nav-h); }
+nav.bottom .row { display: grid; grid-template-columns: repeat(4, 1fr); max-width: 760px; margin: 0 auto; height: var(--nav-h); }
 nav.bottom button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer; }
 nav.bottom button svg { width: 22px; height: 22px; }
 nav.bottom button[aria-current="page"] { color: var(--fire); }
@@ -246,7 +246,6 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
     <button data-nav="cong-trinh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 21V9l6-4v16M10 21V3l10 5v13M2 21h20M14 11h2M14 15h2"/></svg>Công trình</button>
     <button data-nav="tra-nhanh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16M4 12h10M4 18h7"/><circle cx="18" cy="16" r="3"/></svg>Tra nhanh</button>
     <button data-nav="da-luu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Đã lưu</button>
-    <button data-nav="checklist"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 9l2 2 4-4M8 16h8"/></svg>Checklist</button>
   </div>
 </nav>
 
@@ -262,11 +261,10 @@ const META = {
   "chua-chay":  {n:"5", c:"", t:"Chữa cháy & cứu nạn", d:"Đường xe, bãi đỗ, lỗ cứu nạn, thang máy chữa cháy"},
   "cao-tang":   {n:"6", c:"f", t:"Nhà cao trên 50 m", d:"Phụ lục A: khoang cháy, thoát nạn, tầng lánh nạn, vùng an toàn"},
   "sua-doi":    {n:"✱", c:"a", t:"Sửa đổi 1:2023", d:"Các nội dung sửa đổi, cách trích dẫn"},
-  "checklist":  {n:"✓", c:"x", t:"Checklist hồ sơ", d:"Tự kiểm tra trước khi nộp thẩm duyệt"},
   "thuat-ngu":  {n:"Aa", c:"", t:"Thuật ngữ & cách đo", d:"Chiều cao PCCC, tầng hầm, cách đo khoảng cách"}
 };
 const ORDER = Object.keys(META);
-const FILE2ID = {"README.md":"tong-quan","01-phan-loai.md":"phan-loai","02-ngan-chay.md":"ngan-chay","03-thoat-nan.md":"thoat-nan","04-chay-lan.md":"chay-lan","05-chua-chay-cuu-nan.md":"chua-chay","06-sua-doi-1-2023.md":"sua-doi","07-checklist.md":"checklist","08-thuat-ngu.md":"thuat-ngu","09-nha-cao-tang.md":"cao-tang"};
+const FILE2ID = {"README.md":"tong-quan","01-phan-loai.md":"phan-loai","02-ngan-chay.md":"ngan-chay","03-thoat-nan.md":"thoat-nan","04-chay-lan.md":"chay-lan","05-chua-chay-cuu-nan.md":"chua-chay","06-sua-doi-1-2023.md":"sua-doi","08-thuat-ngu.md":"thuat-ngu","09-nha-cao-tang.md":"cao-tang"};
 
 /* ---------- storage (best effort) ---------- */
 const store = {
@@ -378,7 +376,7 @@ function renderHome() {
 
 function renderSection(id, openBlock) {
   const s = SECTIONS[id]; if (!s) return renderHome();
-  setHeader(META[id].t); setNav(id === "checklist" ? "checklist" : "");
+  setHeader(META[id].t); setNav("");
   let html = `<article class="doc">`;
   const leadHtml = mdToHtml(s.lead, id);
   if (leadHtml) html += `<div class="lead">${leadHtml}</div>`;

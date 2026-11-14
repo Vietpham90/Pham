@@ -19,7 +19,7 @@ Mọi hồ sơ thiết kế PCCC phần kiến trúc đi theo cùng một chuỗ
 | 7 | **Tiếp cận chữa cháy**: đường xe, bãi đỗ, lối vào từ trên cao, lối ra mái, thang máy chữa cháy, phòng trực điều khiển (Phần 6) | [Chữa cháy & cứu nạn](05-chua-chay-cuu-nan.md) |
 | + | Nhà cao **trên 50 m**, chung cư trên 75 m, nhà trên 100 m: yêu cầu bổ sung của Phụ lục A | [Nhà cao tầng](09-nha-cao-tang.md) |
 
-Sau đó rà các điểm [Sửa đổi 1:2023](06-sua-doi-1-2023.md) và chạy [Checklist hồ sơ](07-checklist.md).
+Sau đó rà các điểm [Sửa đổi 1:2023](06-sua-doi-1-2023.md).
 
 ## Giọng văn của sổ tay
 

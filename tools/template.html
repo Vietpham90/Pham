@@ -788,12 +788,12 @@ function ctEvaluate(v) {
         if ((it.tag === "benh-vien" || it.tag === "phong-kham") && (h > 28 || n > 9)) forced = ["I", "S0", it.tag === "benh-vien" ? "H.2.9.1" : "H.2.10.1"];
         else if (it.tag === "phong-kham" && n >= 2 && ["III", "IV", "V"].includes(minBac)) forced = ["II", "S0", "H.2.10.1"];
         else if (it.tag === "benh-vien" && n <= 1 && ["IV", "V"].includes(minBac)) forced = ["III", "S1", "H.2.9.2"];
-        add(s2, `Theo ${name}, với chiều cao ${h} m${n ? `, ${n} tầng` : ""}${A ? `, ${A.toLocaleString("vi-VN")} m²/tầng` : ""}: các phương án đạt — ` + ok.map(r => `**${r.b} – ${r.s}**${r.area === INF ? " (không hạn chế diện tích)" : r.area ? ` (≤ ${fmtA(r.area)})` : r.c ? ` (${r.c})` : ""}`).join("; ") + ".", name, "ok");
+        add(s2, `Theo ${name}, với chiều cao ${fmtIn(h)} m${n ? `, ${n} tầng` : ""}${A ? `, ${A.toLocaleString("vi-VN")} m²/tầng` : ""}: các phương án đạt — ` + ok.map(r => `**${r.b} – ${r.s}**${r.area === INF ? " (không hạn chế diện tích)" : r.area ? ` (≤ ${fmtA(r.area)})` : r.c ? ` (${r.c})` : ""}`).join("; ") + ".", name, "ok");
         if (forced) { minBac = forced[0]; add(s2, `Phương án theo bảng là bậc ${best.b}, ${best.s}, nhưng loại công trình này yêu cầu tối thiểu **bậc ${forced[0]}, ${forced[1]}**.`, forced[2], "warn"); }
         else add(s2, `Phương án bậc thấp nhất đạt: **bậc ${best.b}, ${best.s}**.` + (tb && tb.cap ? " Diện tích khoang cháy lấy theo Bảng H.2." : ""), name, "");
       } else {
         if (!sp && !v._probe) { const alt = ctEvaluate(Object.assign({}, v, { sp: true, _probe: true })); const okAlt = alt.out[1] && alt.out[1].items.find(x => x.lv === "ok"); if (okAlt) add(s2, "Nếu trang bị **chữa cháy tự động toàn nhà**: " + okAlt.txt.replace(/^Theo [^:]+: /, ""), name + (it.t === "H9" ? ", H.4.1" : it.t === "H11" ? ", H.5.3" : ", H.2.12.2"), "warn"); }
-        add(s2, `Không có dòng nào của ${name} đáp ứng chiều cao ${h} m${A ? ` và diện tích ${A.toLocaleString("vi-VN")} m²` : ""}${n > 16 && it.t === "H2" ? " (Bảng H.2 chỉ đến 16 tầng)" : ""}. Phải chia khoang cháy, giảm chiều cao/diện tích, hoặc có luận chứng kỹ thuật.`, name, "bad");
+        add(s2, `Không có dòng nào của ${name} đáp ứng chiều cao ${fmtIn(h)} m${A ? ` và diện tích ${A.toLocaleString("vi-VN")} m²` : ""}${n > 16 && it.t === "H2" ? " (Bảng H.2 chỉ đến 16 tầng)" : ""}. Phải chia khoang cháy, giảm chiều cao/diện tích, hoặc có luận chứng kỹ thuật.`, name, "bad");
       }
       if (tb && tb.x2) add(s2, sp ? "Đã tính tăng 2 lần diện tích cho nhà bậc I, II – S0 có chữa cháy tự động toàn nhà." : "Nhà bậc I, II – S0 có chữa cháy tự động toàn nhà được tăng diện tích khoang cháy tối đa 2 lần.", "H.2.12.2", "");
       if (isF5) add(s2, sp ? "Đã tính tăng 2 lần diện tích (trừ bậc IV, V) do có chữa cháy tự động." : "Có chữa cháy tự động toàn nhà: tăng 2 lần diện tích (trừ bậc IV, V).", it.t === "H9" ? "H.4.1" : "H.5.3", "");
@@ -822,7 +822,7 @@ function ctEvaluate(v) {
   const s3 = sec("Thoát nạn");
   const need2 = ["F1.1", "F1.2", "F2.1", "F2.2"].includes(g) || G === "F3" || G === "F4" || P >= 50 || (isF13 && A > 500) || (isF5 && ((["A", "B"].includes(hang) && P > 5) || (hang === "C" && P > 25)));
   if (need2) add(s3, "Mỗi tầng ≥ **2 lối ra thoát nạn**, bố trí phân tán ≥ 1/2 đường chéo mặt bằng" + (sp ? " (có sprinkler toàn bộ: ≥ 1/3)" : "") + ".", "3.2.6.1, 3.2.8", "warn");
-  else add(s3, isF13 ? "Tầng có tổng diện tích căn hộ ≤ 500 m²: được 1 lối ra; căn hộ cao trên 15 m phải có thêm lối ra khẩn cấp (ban công tường đặc 1,2 m / 1,6 m)." : "Số lối ra tầng xác định theo số người, diện tích (3.2.6.1). Nhập số người để kiểm tra.", "3.2.6.1 c), 3.2.13", "");
+  else add(s3, isF13 ? "Tầng có tổng diện tích căn hộ ≤ 500 m²: được 1 lối ra; căn hộ cao trên 15 m phải có thêm lối ra khẩn cấp (ban công tường đặc 1,2 m / 1,6 m)." : (isF5 ? "Nhà F5: ≥ 2 lối ra khi tầng hạng A, B có > 5 người, hạng C > 25 người; tầng hầm > 300 m² hoặc > 15 người; tầng từ 50 người. Nhập số người để kiểm tra." : "Số lối ra tầng xác định theo số người, diện tích (3.2.6.1). Nhập số người để kiểm tra."), isF13 ? "3.2.6.1 c), 3.2.13" : isF5 ? "3.2.6.1 b), d), e)" : "3.2.6.1", "");
   if (["F1.2", "F2.1", "F2.2", "F2.3", "F2.4"].includes(g) || G === "F3" || ["F4.2", "F4.3", "F4.4"].includes(g)) {
     const one = h <= 15 ? "tầng ≤ 300 m², ≤ 20 người" : h <= 21 ? "tầng ≤ 200 m², ≤ 20 người, có chữa cháy tự động (hoặc báo cháy tự động toàn nhà), lối thoát khẩn cấp có thiết bị hỗ trợ" : h <= 25 ? "tầng ≤ 150 m², ≤ 15 người, có báo cháy và chữa cháy tự động, lối thoát khẩn cấp có thiết bị hỗ trợ" : null;
     const lim1 = h <= 15 ? [300, 20] : h <= 21 ? [200, 20] : [150, 15];
@@ -832,7 +832,7 @@ function ctEvaluate(v) {
   if (g === "F4.1") { if (h <= 15 && (!A || A <= 500)) add(s3, "Trường F4.1 được 1 lối ra từ tầng khi: tiểu học cao ≤ 9 m, tầng ≤ 300 m²; trường khác cao ≤ 15 m, tầng ≤ 500 m²; không để xe, không kho A, B, C ở tầng có lối ra ngoài.", "3.2.6.2 d)", ""); }
   if (isF13 && h > 28 && h <= 50 && (!A || A <= 500)) add(s3, "F1.3 cao 28 – 50 m, ≤ 500 m² căn hộ/tầng: được thay N1 bằng N2 khi lối vào qua khoang đệm ngăn cháy áp suất dương, có thang máy cho chữa cháy, báo cháy địa chỉ hoặc sprinkler mọi phòng, có âm thanh cảnh báo.", "3.2.6.2 c)", "");
   // buồng thang
-  if (h > 28 || (isF5 && ["A", "B"].includes(hang))) add(s3, "**Buồng thang bộ không nhiễm khói, trong đó phải có N1** (N1 được thay bằng lối vào qua khoang đệm, cả hai có áp suất dương, cấp điện 2 nguồn).", "3.4.13, 2.4.3.3", "warn");
+  if (h > 28 || (isF5 && ["A", "B"].includes(hang))) add(s3, isF5 ? `**Buồng thang bộ không nhiễm khói.** Nhà F5 được thay N1 bằng N2 hoặc N3: ${["A", "B"].includes(hang) ? "hạng A, B — áp suất dương thường xuyên" : hang === "C" ? "hạng C — áp suất dương khi có cháy" : "hạng D, E — áp suất dương khi có cháy, hoặc L1 phân khoang bằng vách ngăn cháy đặc mỗi 20 m chiều cao"}.${h > 28 && ["C", "E"].includes(hang) ? " Nhà hạng C, E không có người làm việc thường xuyên: không bắt buộc." : ""}` : "**Buồng thang bộ không nhiễm khói, trong đó phải có N1** (N1 được thay bằng lối vào qua khoang đệm, cả hai có áp suất dương, cấp điện 2 nguồn).", isF5 ? "3.4.13 b)" : "3.4.13, 2.4.3.3", "warn");
   else {
     add(s3, "Được dùng buồng thang **L1** (lỗ lấy sáng ≥ 1,2 m²/tầng) và cầu thang bộ loại 3.", "3.4.11, 3.4.8", "ok");
     if (h <= 12 && /F1|F2|F3|F4/.test(G)) add(s3, `Buồng thang L2 chỉ khi nhà bậc I – III, S0 – S1, cao ≤ 9 m (≤ 12 m nếu lỗ lấy sáng tự mở khi cháy, trừ y tế nội trú), tối đa 50 % số buồng thang.`, "3.4.12", "");
@@ -852,9 +852,9 @@ function ctEvaluate(v) {
   if (it.tag === "benh-vien" && (h > 28 || n > 9)) { w = "1,35 m"; wref = "H.2.9.1"; }
   if (isF13 && h > 75) { w = "N1, N3: 1,20 m; N2: 1,05 m"; wref = "A.3.1.8"; }
   add(s3, `Bản thang tối thiểu **${w}** và không nhỏ hơn chiều rộng tính toán, chiều rộng cửa trên nó. Độ dốc ≤ 1:1, mặt bậc ≥ 25 cm, cao bậc 5 – 22 cm.`, wref + ", 3.4.2", "");
-  add(s3, `Lối ra thoát nạn cao ≥ 1,9 m, rộng ≥ ${(g === "F1.1" && P > 15) || (!isF13 && P > 50) || (it.tag === "benh-vien" && (h > 28 || n > 9)) ? "1,2" : "0,8"} m; hành lang cao ≥ 2,0 m, rộng ≥ ${(G === "F1" && P > 15) || P > 50 ? "1,2" : "1,0"} m.`, "3.2.9, 3.3.6", "");
+  add(s3, `Lối ra thoát nạn cao ≥ 1,9 m, rộng ≥ ${(g === "F1.1" && P > 15) || (!isF13 && P > 50) || (it.tag === "benh-vien" && (h > 28 || n > 9)) ? "1,2" : isF5 ? "0,9" : "0,8"} m; hành lang cao ≥ 2,0 m, rộng ≥ ${(G === "F1" && P > 15) || P > 50 ? "1,2" : "1,0"} m.`, isF5 ? "3.2.9, G.2.2, 3.3.6" : "3.2.9, 3.3.6", "");
   // khoảng cách
-  if (h > 50 && !isF5 && !(isF13 && h <= 75)) add(s3, "Khoảng cách từ cửa căn hộ, gian phòng tới lối ra: hành lang cụt **≤ 15 m**, giữa hai buồng thang không nhiễm khói **≤ 20 m**. Hành lang chia đoạn ≤ 30 m (căn hộ) / ≤ 60 m. Số người tính toán × 1,25.", "A.2.14, A.2.16, A.2.19", "warn");
+  if (h > 50 && !isF5 && !(isF13 && h <= 75)) add(s3, `Khoảng cách từ cửa căn hộ, gian phòng tới lối ra: hành lang cụt **≤ 15 m**, giữa hai buồng thang không nhiễm khói **≤ 20 m**. Hành lang chia đoạn ≤ 30 m (căn hộ) / ≤ 60 m.${isF13 ? "" : " Số người tính toán × 1,25."}`, isF13 ? "A.2.14, A.2.19" : "A.2.14, A.2.16, A.2.19", "warn");
   else if (g === "F1.4") add(s3, "Nhà ở riêng lẻ: Phụ lục G không có bảng khoảng cách riêng; tham khảo Bảng G.1 (nhà ở) và tiêu chuẩn nhà ở riêng lẻ.", "Phụ lục G", "");
   else if (["F1.2", "F1.3"].includes(g)) add(s3, `Bảng G.1 (từ cửa ${isF13 ? "căn hộ" : "phòng ở"}): bậc ${minBac || "I"}${minBac === "I" || minBac === "II" || !minBac ? ", S0: giữa 2 lối ra ≤ 40 m, hành lang cụt ≤ 25 m" : minBac === "III" ? ", S0: 30 / 20 m; S1: 25 / 15 m" : ", S0: 25 / 15 m"}.`, "Bảng G.1", "");
   else if (isF5) add(s3, "Khoảng cách thoát nạn theo Bảng G.3 (chỗ làm việc xa nhất, theo khối tích và hạng) và Bảng G.4 (từ cửa gian ≤ 1 000 m²).", "Bảng G.3, G.4", "");
@@ -1056,7 +1056,7 @@ function mxEvaluate(m) {
   const nonRes = above.filter(p => CT[p.i].g !== "F1.3");
   const res = above.filter(p => CT[p.i].g === "F1.3");
   const nonResBelow = res.length && nonRes.length && Math.max(...nonRes.map(p => +p.to)) < Math.min(...res.map(p => +p.from));
-  if (nonResBelow) { const hp = Math.max(...nonRes.map(p => partTopH(m, p))); add(s2, `Phần không để ở chỉ nằm ở phía dưới: yêu cầu đường xe, bãi đỗ cho phần này xác định theo chiều cao PCCC của phần không để ở (ước tính **${hp} m**).`, "6.2.2.4 a)", "warn"); }
+  if (nonResBelow) { const hp = Math.max(...nonRes.map(p => partTopH(m, p))); add(s2, `Phần không để ở chỉ nằm ở phía dưới: yêu cầu đường xe, bãi đỗ cho phần này xác định theo chiều cao PCCC của phần không để ở (ước tính **${fmtIn(hp)} m**).`, "6.2.2.4 a)", "warn"); }
   if (hasF13) add(s2, "Có phần F1.3: chiều dài bãi đỗ tính theo 6.2.2.3 (lối vào từ trên cao của phần công cộng) và đáp ứng 6.2.2 (F1.3: bãi đỗ tiếp cận toàn bộ một mặt ngoài, đường xe cách khoang đệm thang máy chữa cháy / buồng thang có họng DN 65 ≤ 18 m).", "6.2.2.4 c), 6.2.2.2", "warn");
   else add(s2, "Không có phần F1.3: chiều dài bãi đỗ lấy **giá trị lớn hơn** giữa Bảng 15 (theo diện tích sàn) và Bảng 16 (theo khối tích các phần F5).", "6.2.2.4 b)", "warn");
   add(s2, `Mép đường xe cách tường nhà ≤ ${H < 12 ? 5 : H <= 28 ? 8 : 10} m; thang máy chữa cháy ${H > 28 || m.deep ? `bắt buộc, bán kính ≤ ${H > 50 ? 45 : 60} m` : "chưa bắt buộc"}.`, "6.2.2.3, 6.13" + (H > 50 ? ", A.2.12" : ""), H > 28 ? "warn" : "");
@@ -1113,7 +1113,7 @@ function renderMX() {
 }
 function mxResult() {
   const r = mxEvaluate(mxV);
-  return `<div class="ct-sum"><span class="chip">Hỗn hợp</span><span class="chip">${mxV.h} m</span><span class="chip">${mxV.n} tầng nổi</span><span class="chip">${mxV.nb} tầng hầm</span>${mxV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
+  return `<div class="ct-sum"><span class="chip">Hỗn hợp</span><span class="chip">${fmtIn(mxV.h)} m</span><span class="chip">${mxV.n} tầng nổi</span><span class="chip">${mxV.nb} tầng hầm</span>${mxV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
     `<div class="row-btns"><button class="btn1" data-report="mx">Tạo phiếu kiểm tra</button></div>` +
     itemsHTML(r.out) +
     r.partSecs.map(({ p, it, secs }) => `<h3 class="part-h">Phần: ${esc(it.n)} <span>${it.g} · tầng ${p.from} → ${p.to}${p.a ? ` · ${(+p.a).toLocaleString("vi-VN")} m²` : ""}</span></h3>` + itemsHTML(secs)).join("") +
@@ -1183,14 +1183,14 @@ function gpEvaluate(v) {
   if (g === "F1.1" && P > 15) reasons.push("gian F1.1 > 15 người (3.2.5 a)");
   if (v.ham && P > 15) reasons.push("gian trong tầng hầm > 15 người (3.2.5 b)");
   if (P >= 50) reasons.push("≥ 50 người (3.2.5 c)");
-  if (!isF5 && P < 50 && +v.d > 25) reasons.push(`< 50 người nhưng đường đi tới lối ra ${v.d} m > 25 m (3.2.5 d)`);
+  if (!isF5 && P < 50 && +v.d > 25) reasons.push(`< 50 người nhưng đường đi tới lối ra ${fmtIn(v.d)} m > 25 m (3.2.5 d)`);
   if (isF5 && ["A", "B"].includes(v.f5h) && P > 5) reasons.push("F5 hạng A, B > 5 người (3.2.5 f)");
   if (isF5 && /^C[123]?$/.test(v.f5h) && (P > 25 || A > 1000)) reasons.push("F5 hạng C > 25 người hoặc > 1 000 m² (3.2.5 f)");
   if (reasons.length) add(s1, "Gian phải có **≥ 2 lối ra thoát nạn**: " + reasons.join("; ") + ". Được cho ≤ 50 % số lối ra đi qua gian liền kề có lối ra đạt quy chuẩn.", "3.2.5", "warn");
   else add(s1, "Gian được có **1 lối ra thoát nạn**" + (!isF5 && P < 50 && !v.d ? " (kiểm tra thêm: đường đi từ chỗ xa nhất tới lối ra ≤ 25 m, nhập ô khoảng cách để xét)" : "") + ".", "3.2.5", "ok");
   if (reasons.length && +v.L && +v.W) {
-    const D = Math.sqrt(v.L * v.L + v.W * v.W), need = D / (v.lane ? 3 : 2);
-    add(s1, `Đường chéo mặt bằng ${v.L} × ${v.W} m = ${D.toFixed(1).replace(".", ",")} m → hai lối ra cách nhau **≥ ${need.toFixed(1).replace(".", ",")} m** (${v.lane ? "1/3 — nhà có sprinkler toàn bộ" : "1/2 đường chéo"}), đo giữa hai cạnh xa nhất (≥ 7 m).`, "3.2.8", "warn");
+    const D = Math.sqrt(v.L * v.L + v.W * v.W), need = D / (v.sp ? 3 : 2);
+    add(s1, `Đường chéo mặt bằng ${fmtIn(v.L)} × ${fmtIn(v.W)} m = ${D.toFixed(1).replace(".", ",")} m → hai lối ra cách nhau **≥ ${need.toFixed(1).replace(".", ",")} m** (${v.sp ? "1/3 — nhà có sprinkler toàn bộ" : "1/2 đường chéo"}), đo giữa hai cạnh xa nhất (≥ 7 m).`, "3.2.8", "warn");
   }
   if (P > 15 || ["A", "B"].includes(v.f5h) && isF5) add(s1, "Cửa mở **theo chiều thoát ra**" + (["F1.3", "F1.4"].includes(g) ? " (gian F1.3, F1.4 không quy định chiều mở)" : "") + "; mở tự do từ bên trong không cần chìa.", "3.2.10, 3.2.11", "");
   else add(s1, "Gian ≤ 15 người (trừ hạng A, B): không quy định chiều mở cửa.", "3.2.10", "ok");
@@ -1213,7 +1213,7 @@ function gpEvaluate(v) {
     rref = `Bảng G.7 (hạng ${v.f5h}, cấp ${S}${Vol ? `, khối tích ${(A * ch).toLocaleString("vi-VN")} m³` : ""})`;
     wmin = Math.max(wmin, 0.9);
   } else if (["tm", "g2"].includes(sp[2]) || sp[2] === "g1" || sp[2] === "khac") {
-    const row1 = (sp[2] === "tm" && v.lane) || (sp[2] === "g2" && /ăn|đọc/.test(sp[0]));
+    const row1 = (sp[2] === "tm" && v.lane) || (sp[2] === "g2" && v.ad);
     const T = row1 ? [[165, 220, 275], [115, 155, null], [80, null, null]] : [[75, 100, 125], [50, 70, null], [40, null, null]];
     const vi = Vol <= 5 ? 0 : Vol <= 10 ? 1 : 2;
     rate = T[bi][vi]; rref = "Bảng G.5";
@@ -1262,15 +1262,18 @@ function gpEvaluate(v) {
   } else {
     if (sp[2] === "khac") { add(s3, "Gian thuộc loại này (văn phòng, phòng ngủ, kho…) không thuộc Bảng G.2b: khoảng cách tính từ cửa gian tới lối ra của tầng theo Bảng G.2a (bậc I – III: giữa hai lối ra 60 / 50 / 40 / 35 / 20 m theo mật độ; hành lang cụt 30 / 25 / 20 / 15 / 10 m).", "Bảng G.2a", ""); }
     else {
-    const type = sp[2] === "tm" ? (v.lane ? 2 : 3) : /ăn|đọc/.test(sp[0]) ? 1 : 0;
+    if (sp[2] === "g2" && !v.ad) { add(s3, "Phòng họp, hội thảo, phòng học không thuộc Bảng G.2b: khoảng cách tính từ cửa gian tới lối ra của tầng theo Bảng G.2a. Nếu là phòng ăn, phòng đọc có lối đi chính ≥ 0,2 m²/người — đánh dấu ô tương ứng.", "Bảng G.2a, G.2b", ""); }
+    else {
+    const type = sp[2] === "tm" ? (v.lane ? 2 : 3) : sp[2] === "g2" ? 1 : 0;
     const T = [[[30, 45, 55], [20, 30, null], [15, null, null]], [[65, null, null], [45, null, null], [30, null, null]], [[50, 65, 80], [35, 45, null], [25, null, null]], [[25, 30, 35], [15, 20, null], [10, null, null]]];
     const vi = Vol <= 5 ? 0 : Vol <= 10 ? 1 : 2;
     const d = T[type][bi][vi];
     add(s3, d ? `Từ điểm bất kỳ trong gian tới lối ra gần nhất: **≤ ${d} m** (${["phòng chờ, triển lãm, khiêu vũ", "phòng ăn, phòng đọc", "thương mại, lối đi chính ≥ 25 %", "thương mại, lối đi chính < 25 %"][type]}; khối tích ${Vol <= 5 ? "≤ 5 000" : Vol <= 10 ? "5 000 – 10 000" : "> 10 000"} m³).` : "Ngoài Bảng G.2b — xác định theo luận chứng kỹ thuật.", "Bảng G.2b", d ? "warn" : "bad");
     add(s3, "Từ cửa gian tới lối ra của tầng: Bảng G.2a theo mật độ dòng người trên hành lang.", "Bảng G.2a", "");
     }
+    }
   }
-  if (+v.d && reasons.length === 0 && !isF5 && P < 50) add(s3, `Đường đi ${v.d} m ${+v.d > 25 ? "> 25 m: cần 2 lối ra" : "≤ 25 m: 1 lối ra đạt"}.`, "3.2.5 d)", +v.d > 25 ? "bad" : "ok");
+  if (+v.d && reasons.length === 0 && !isF5 && P < 50) add(s3, `Đường đi ${fmtIn(v.d)} m ${+v.d > 25 ? "> 25 m: cần 2 lối ra" : "≤ 25 m: 1 lối ra đạt"}.`, "3.2.5 d)", +v.d > 25 ? "bad" : "ok");
   if (v.ham) add(s3, "Gian trong tầng hầm: không đặt gian F1.1 – F1.3, không đặt gian hạng A, B.", "3.1.6, 4.8", "");
   return { out, P };
 }
@@ -1301,7 +1304,9 @@ function renderGP() {
     </div>
     <div class="checks">
       <label><input type="checkbox" id="gpham"${gpV.ham ? " checked" : ""}> Gian nằm trong tầng hầm, nửa hầm</label>
-      <label><input type="checkbox" id="gplane"${gpV.lane ? " checked" : ""}> ${gpV.g === "F3.1" ? "Lối đi chính ≥ 25 % diện tích gian" : "Nhà có sprinkler toàn bộ"}</label>
+      ${(G9[gpV.k] || G9[0])[2] === "tm" ? `<label><input type="checkbox" id="gplane"${gpV.lane ? " checked" : ""}> Gian thương mại: lối đi chính ≥ 25 % diện tích gian</label>` : ""}
+      ${(G9[gpV.k] || G9[0])[2] === "g2" ? `<label><input type="checkbox" id="gpad"${gpV.ad ? " checked" : ""}> Là phòng ăn / phòng đọc, lối đi chính ≥ 0,2 m²/người (≤ 5 người/m²)</label>` : ""}
+      <label><input type="checkbox" id="gpsp"${gpV.sp ? " checked" : ""}> Nhà có chữa cháy tự động sprinkler toàn bộ</label>
     </div>
   </section>
   <div id="gpres">${gpResult()}</div>`;
@@ -1310,13 +1315,13 @@ function gpResult() {
   const r = gpEvaluate(gpV);
   return `<div class="ct-sum"><span class="chip">${gpV.g}</span><span class="chip">${(+gpV.a || 0).toLocaleString("vi-VN")} m²</span><span class="chip">${r.P} người</span><span class="chip">Bậc ${gpV.bac}</span></div>` +
     `<div class="row-btns"><button class="btn1" data-report="gp">Tạo phiếu kiểm tra</button></div>` + itemsHTML(r.out) +
-    `<p class="disclaimer">Ô cuối cùng dùng chung: với nhóm F3.1 là điều kiện lối đi chính ≥ 25 % (Bảng G.2b, G.5); với nhóm khác là sprinkler toàn bộ (giảm khoảng cách phân tán còn 1/3 đường chéo). Định mức F5 lấy dòng S0, bậc I – IV.</p>`;
+    `<p class="disclaimer">Định mức Bảng G.5 dòng 1 chỉ áp dụng cho gian thương mại có lối đi chính ≥ 25 % diện tích và phòng ăn, phòng đọc có mật độ lối đi chính ≤ 5 người/m²; các gian khác lấy dòng 2. Sprinkler toàn bộ cho phép giảm khoảng cách phân tán hai lối ra còn 1/3 đường chéo (3.2.8).</p>`;
 }
 function gpSync(full) {
   const g = id => document.getElementById(id); if (!g("gpg")) return;
   const oldG = gpV.g;
   gpV.g = g("gpg").value; gpV.bac = g("gpbac").value; gpV.k = g("gpk").value; gpV.a = numv(g("gpa")); gpV.ch = numv(g("gpch")); gpV.p = numv(g("gpp")); gpV.d = numv(g("gpd")); gpV.L = numv(g("gpL")); gpV.W = numv(g("gpW"));
-  gpV.ham = g("gpham").checked; gpV.lane = g("gplane").checked; if (g("gpf5")) { gpV.f5h = g("gpf5").value; gpV.f5s = g("gpf5s").value; gpV.den = numv(g("gpden")); gpV.pos = g("gppos").value; gpV.hn = numv(g("gphn")); }
+  gpV.ham = g("gpham").checked; if (g("gplane")) gpV.lane = g("gplane").checked; if (g("gpad")) gpV.ad = g("gpad").checked; gpV.sp = g("gpsp").checked; if (g("gpf5")) { gpV.f5h = g("gpf5").value; gpV.f5s = g("gpf5s").value; gpV.den = numv(g("gpden")); gpV.pos = g("gppos").value; gpV.hn = numv(g("gphn")); }
   store.set("pccc-gp", gpV);
   if (full || (oldG !== gpV.g && (oldG.startsWith("F5") !== gpV.g.startsWith("F5") || oldG === "F3.1" || gpV.g === "F3.1"))) renderGP(); else g("gpres").innerHTML = gpResult();
 }
@@ -1326,8 +1331,8 @@ let projects = store.get("pccc-projects", []);
 let curReport = null;
 function reportFrom(kind) {
   let input, secs;
-  if (kind === "ct") { const r = ctEvaluate(ctV); const it = CT[ctV.i]; input = { kind, title: `${it.n} (${it.g})`, params: `Cao PCCC ${ctV.h} m · ${ctV.n} tầng nổi · ${ctV.nb} tầng hầm${ctV.a ? ` · ${ctV.a} m²/tầng` : ""}${ctV.v ? ` · ${ctV.v} m³` : ""}${ctV.sp ? " · có sprinkler" : ""}`, v: JSON.parse(JSON.stringify(ctV)) }; secs = r.out; }
-  else if (kind === "mx") { const r = mxEvaluate(mxV); input = { kind, title: "Nhà hỗn hợp: " + mxV.parts.map(p => CT[p.i].n).join(" + "), params: `Cao PCCC ${mxV.h} m · ${mxV.n} tầng nổi · ${mxV.nb} tầng hầm${mxV.sp ? " · có sprinkler" : ""}`, v: JSON.parse(JSON.stringify(mxV)) };
+  if (kind === "ct") { const r = ctEvaluate(ctV); const it = CT[ctV.i]; input = { kind, title: `${it.n} (${it.g})`, params: `Cao PCCC ${fmtIn(ctV.h)} m · ${ctV.n} tầng nổi · ${ctV.nb} tầng hầm${ctV.a ? ` · ${fmtIn(ctV.a)} m²/tầng` : ""}${ctV.v ? ` · ${fmtIn(ctV.v)} m³` : ""}${ctV.sp ? " · có sprinkler" : ""}`, v: JSON.parse(JSON.stringify(ctV)) }; secs = r.out; }
+  else if (kind === "mx") { const r = mxEvaluate(mxV); input = { kind, title: "Nhà hỗn hợp: " + mxV.parts.map(p => CT[p.i].n).join(" + "), params: `Cao PCCC ${fmtIn(mxV.h)} m · ${mxV.n} tầng nổi · ${mxV.nb} tầng hầm${mxV.sp ? " · có sprinkler" : ""}`, v: JSON.parse(JSON.stringify(mxV)) };
     secs = [...r.out, ...r.partSecs.flatMap(({ it, p, secs }) => secs.map(s => ({ t: `${s.t} — ${it.n} (tầng ${p.from} → ${p.to})`, items: s.items }))), ...r.common]; }
   else if (kind === "tn") { const R = tnEvaluate(tnV); input = { kind, title: `Bảng tính thoát nạn — nhóm ${R.g}`, params: `Bậc ${R.bac} · ${R.S} · cao PCCC ${fmtIn(R.h)} m · tầng đông nhất ${R.maxP} người`, v: JSON.parse(JSON.stringify(tnV)) };
     secs = R.res.map(r => ({ t: `Tầng ${r.F.fl.label} — ${r.P} người`, items: [
@@ -1336,7 +1341,7 @@ function reportFrom(kind) {
       { txt: `Bản thang: yêu cầu ≥ ${fmt2(r.stReq)} m; thiết kế ${r.stD ? fmt2(r.stD) : "—"} m.`, ref: "3.4.1", lv: r.stD && r.stD + 1e-9 < r.stReq ? "warn" : "" },
       ...(r.dLim ? [{ txt: `Khoảng cách thoát nạn: giới hạn ≤ ${r.dLim} m; thiết kế ${r.dD || "—"} m.`, ref: r.dRef, lv: r.dD > r.dLim ? "warn" : "" }] : []),
       ...r.notes.filter(n => !n.bad).map(n => ({ txt: n.t, ref: "", lv: "" }))] })); }
-  else { const r = gpEvaluate(gpV); input = { kind, title: `Gian phòng ${gpV.g} — ${G9[gpV.k][0]}`, params: `${gpV.a} m² · cao ${gpV.ch} m · ${r.P} người · bậc ${gpV.bac}`, v: JSON.parse(JSON.stringify(gpV)) }; secs = r.out; }
+  else { const r = gpEvaluate(gpV); input = { kind, title: `Gian phòng ${gpV.g} — ${G9[gpV.k][0]}`, params: `${fmtIn(gpV.a)} m² · cao ${fmtIn(gpV.ch)} m · ${r.P} người · bậc ${gpV.bac}`, v: JSON.parse(JSON.stringify(gpV)) }; secs = r.out; }
   const rows = []; secs.forEach(s => s.items.forEach(x => rows.push({ sec: s.t, txt: x.txt, ref: x.ref, lv: x.lv, st: "", note: "" })));
   return { id: Date.now().toString(36), name: "", author: "", date: new Date().toISOString().slice(0, 10), ...input, rows };
 }
@@ -1604,7 +1609,12 @@ function tnEvaluate(v) {
     if (basement && (F.A > 300 || P > 15)) { exReq = 2; why.push("tầng hầm > 300 m² hoặc > 15 người"); }
     if (isF5 && ((["A", "B"].includes(v.f5h) && P > 5) || (/^C/.test(v.f5h || "C") && P > 25))) { exReq = 2; why.push("F5 theo hạng"); }
     const exD = +F.ex || 0, wD0 = +F.w || 0;
+    // 3.2.6.2 a): được phép 1 lối ra khi thỏa mãn đồng thời các điều kiện
+    const one = (["F1.2", "F4.2", "F4.3", "F4.4"].includes(g) || G === "F2" || G === "F3") && bac !== "V" && !basement && P < 50
+      && (h <= 15 ? F.A <= 300 && P <= 20 : h <= 21 ? F.A <= 200 && P <= 20 : h <= 25 ? F.A <= 150 && P <= 15 : false);
+    if (exD === 1 && exReq === 2 && one) { exReq = 1; why.push("3.2.6.2 a)"); note(`Được phép 1 lối ra theo 3.2.6.2 a) (${fmtIn(F.A)} m², ${P} người, cao ${fmtIn(h)} m) khi thỏa mãn đồng thời các điều kiện còn lại: không để xe cơ giới, kho A, B, C tại tầng có lối ra ngoài${h > 15 ? "; có chữa cháy tự động (hoặc báo cháy tự động toàn nhà); có lối thoát nạn khẩn cấp hoặc lên sân thượng thoáng" : h <= 9 ? "; thang bộ loại 2 khi có lối thoát khẩn cấp hoặc lên sân thượng thoáng" : ""}.`); }
     if (exD && exD < exReq) bad(`Cần ≥ ${exReq} lối ra (${why.join(", ")}), thiết kế ${exD}.`);
+    if (isF13 && exReq === 1 && exD === 1 && h > 15) note("F1.3 một lối ra: mỗi căn hộ ở độ cao > 15 m phải có thêm lối ra khẩn cấp (3.2.6.1 c, 3.2.13).");
     // chiều rộng lối ra
     let wEachMin = 0.8; if ((g === "F1.1" && P > 15) || (!isF13 && P > 50)) wEachMin = 1.2; if (isF5) wEachMin = Math.max(wEachMin, 0.9);
     const k = Math.max(exD, exReq, 1);
@@ -1621,6 +1631,7 @@ function tnEvaluate(v) {
     if (g === "F1.1") stMin = P > 15 ? 1.2 : 1.0;
     if (maxUp > 200) stMin = Math.max(stMin, 1.2);
     if (h <= 15 && P <= 15 && g !== "F1.1" && maxUp <= 200) stMin = 0.7;
+    if (g === "F1.1" && h > 28) { stMin = Math.max(stMin, 1.35); note("Bệnh viện F1.1 cao > 28 m (hoặc > 9 tầng): bản thang thoát nạn ≥ 1,35 m (H.2.9.1)."); }
     if (isF13 && h > 75) { stMin = Math.max(stMin, 1.2); note("Phần ở nhà > 75 m: bản thang buồng N1, N3 ≥ 1,2 m; N2 ≥ 1,05 m (A.3.1.8)."); }
     const stCalc = r1 && !basement && !ground ? P / r1 / Math.max(k - 1, 1) : 0;
     if (ground && r1) note("Tầng 1 thoát trực tiếp ra ngoài: bản thang kiểm tra theo các tầng trên.");
@@ -1639,7 +1650,7 @@ function tnEvaluate(v) {
       else if (den > 5) note("Mật độ > 5 người/m²: dùng cột > 5 của Bảng G.2a."); }
     else note("Nhà F5: khoảng cách theo Bảng G.3, G.4 — dùng tab Gian phòng.");
     const dD = +F.d || 0;
-    if (dLim && dD && dD > dLim) bad(`Khoảng cách ${dD} m > ${dLim} m (${dRef}, ${F.pos === "dead" ? "hành lang cụt" : "giữa hai lối ra"}).`);
+    if (dLim && dD && dD > dLim) bad(`Khoảng cách ${fmtIn(dD)} m > ${dLim} m (${dRef}, ${F.pos === "dead" ? "hành lang cụt" : "giữa hai lối ra"}).`);
     if (mult > 1) note("Số người đã nhân 1,25 (A.2.16).");
     res.push({ F, P, exReq, exD, why, wReqTotal, wD, wEachMin, wRef, stReq, stD, dLim, dD, dRef, pass, notes, basement });
   });
@@ -1837,7 +1848,7 @@ document.addEventListener("change", e => {
   if (e.target.closest(".tn-form")) { tnSync(false); return; }
   if (e.target.closest(".hc-form")) { hcSync(e.target.id === "hcmode"); return; }
   if (e.target.closest(".mx-form")) { mxSync(e.target.classList.contains("mxi")); return; }
-  if (document.getElementById("gpg") && e.target.closest(".ct-form")) { gpSync(["gpg"].includes(e.target.id)); return; }
+  if (document.getElementById("gpg") && e.target.closest(".ct-form")) { gpSync(["gpg", "gpk"].includes(e.target.id)); return; }
   if (e.target.classList.contains("rpst") || e.target.id === "rpdate") { reportSync(); return; }
   if (!e.target.closest(".ct-form")) return;
   if (e.target.id === "cthang") { ctSync(true); return; }

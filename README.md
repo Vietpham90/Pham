@@ -79,3 +79,7 @@ node tools/test-do-ben.js /tmp/so-tay.html /tmp/anh
 ```bash
 node tools/test-tinh-thoat-nan.js /tmp/so-tay.html /tmp/anh
 ```
+
+```bash
+node tools/test-dau-thap-phan.js /tmp/so-tay.html
+```

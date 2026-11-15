@@ -20,7 +20,7 @@ const { chromium } = require('playwright');
         const needLift = isF13 ? h > 50 : h > 28;
         if (needLift !== /\*\*Thang máy chữa cháy\*\*/.test(t)) fails.push(`${c.n} ${h} m: thang máy chữa cháy ${needLift ? "thiếu" : "thừa"}`);
         // 2. Buồng thang không nhiễm khói khi > 28 m
-        if (h > 28 && !/không nhiễm khói, trong đó phải có N1/.test(t)) fails.push(`${c.n} ${h} m: thiếu yêu cầu N1`);
+        if (h > 28 && !/không nhiễm khói, trong đó phải có N1|Nhà F5 được thay N1/.test(t)) fails.push(`${c.n} ${h} m: thiếu yêu cầu N1`);
         // 3. Khoảng cách đường xe không giảm khi nhà cao lên
         const rd = road(o); if (rd != null && rd < prevRoad) fails.push(`${c.n} ${h} m: khoảng cách đường xe giảm`); if (rd) prevRoad = rd;
         // 4. Sprinkler không làm kết quả xấu đi

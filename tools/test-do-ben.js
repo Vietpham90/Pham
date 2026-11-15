@@ -18,10 +18,9 @@ const { chromium } = require('playwright');
   await p.goto(f + '#gian-phong'); await p.waitForTimeout(250);
   await typeIn('#gpch', '4,5'); await typeIn('#gpa', '600');
   ok('Gian phòng: chiều cao "4,5"', /2\.700 m³/.test(await p.$eval('#gpres', e => e.innerText)), (await p.$eval('#gpres', e => e.innerText)).match(/[\d.]+ m³/));
-  await p.goto(f + '#chieu-cao'); await p.waitForTimeout(250);
-  await p.selectOption('#hcmode', 'win'); await p.waitForTimeout(150);
-  await typeIn('#hcroad', '-0,45'); await typeIn('#hcfloor', '66'); await typeIn('#hcwin', '0,9');
-  ok('Chiều cao: "-0,45" và "0,9" → 67,35 m', /67,35 m/.test(await p.$eval('.hc-out .big', e => e.textContent)), await p.$eval('.hc-out .big', e => e.textContent));
+  await p.goto(f + '#cong-trinh'); await p.waitForTimeout(250);
+  await typeIn('#cth', '67,35');
+  ok('Chiều cao nhập tay "67,35" → 67,35 m', /67,35 m/.test(await p.$eval('.ct-sum', e => e.innerText)), await p.$eval('.ct-sum', e => e.innerText));
   console.log('A xong');
   // B. Giá trị biên
   const edge = await p.evaluate(() => { const bad = []; const re = /NaN|undefined|Infinity|null/;
@@ -29,7 +28,6 @@ const { chromium } = require('playwright');
     cases.push({ i: 0, h: 30, n: 9, a: -100 }, { i: 0, h: -30, n: -2, a: 'abc' }); cases.forEach(v => { try { const o = ctEvaluate(v); o.out.forEach(s => s.items.forEach(x => { if (re.test(x.txt)) bad.push([v, x.txt.slice(0, 80)]); })); thresholdsCT(v); } catch (e) { bad.push([v, e.message]); } });
     [{ g: "F3.1", k: 99, a: -5, ch: 0 }, { g: "F5.1", k: 12, a: 1000, ch: 5, f5h: "Z", f5s: "S9", den: -1 }, { g: "ZZ", k: 0, a: 100, ch: 3 }].forEach(v => { try { gpEvaluate(v).out.forEach(s => s.items.forEach(x => { if (re.test(x.txt)) bad.push([v, x.txt.slice(0, 80)]); })); } catch (e) { bad.push([v, e.message]); } });
     try { mxEvaluate({ h: 30, n: 10, nb: 0, parts: [] }); mxEvaluate({ h: 30, n: 10, nb: 0, parts: [{ i: 999, from: 1, to: 2 }] }); } catch (e) { bad.push(["mx", e.message]); }
-    try { hcCompute({}); } catch (e) { bad.push(["hc", e.message]); }
     return bad; });
   ok('Giá trị biên (âm, rỗng, quá lớn, mã sai) không gây lỗi', edge.length === 0, edge);
   ok('Không lỗi JS (phần A, B)', errs.length === 0, errs);
@@ -85,7 +83,7 @@ const { chromium } = require('playwright');
   // F. Nền tối các màn hình mới
   await ctx.close(); ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' }); p = await ctx.newPage(); p.setDefaultTimeout(4000);
   const low = await p.evaluate(() => 0);
-  for (const h of ['#chieu-cao', '#cong-trinh']) {
+  for (const h of ['#tinh-thoat-nan', '#cong-trinh']) {
     await p.goto(f + h); await p.waitForTimeout(250);
     const bad = await p.evaluate(() => { const lum = c => { const m = c.match(/\d+(\.\d+)?/g); if (!m) return 1; const [r, g, b] = m.slice(0, 3).map(x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }); return .2126 * r + .7152 * g + .0722 * b; };
       const bgOf = el => { while (el) { const c = getComputedStyle(el).backgroundColor; if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; el = el.parentElement; } return getComputedStyle(document.body).backgroundColor; };

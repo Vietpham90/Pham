@@ -4,21 +4,13 @@ const { chromium } = require('playwright');
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   const f = 'file://' + process.argv[2]; const res = []; const ok = (name, cond, info) => res.push((cond ? 'ĐẠT  ' : 'LỖI  ') + name + (cond ? '' : ' → ' + JSON.stringify(info)));
   await p.goto(f + '#cong-trinh'); await p.waitForTimeout(300);
-  // 1. Chiều cao PCCC
-  const hc = await p.evaluate(() => [
-    hcCompute({ road: 0, floor: 66, win: .9, mode: "win" }).H, hcCompute({ road: -0.45, floor: 66, win: .9, mode: "win" }).H,
-    hcCompute({ road: 0, floor: 66, tang: 3.3, mode: "none" }).H, hcCompute({ road: 0, floor: 66, parapet: 70.5, mode: "roof" }).H,
-    hcCompute({ road: 0, floor: 66, rail: 1.1, mode: "rail" }).H, hcCompute({ bas: -9.6, exitlvl: 0 }).depth]);
-  ok('Chiều cao: cửa sổ 66 + 0,9', hc[0] === 66.9, hc[0]); ok('Chiều cao: đường −0,45', hc[1] === 67.35, hc[1]); ok('Chiều cao: không cửa sổ (1/2 tầng)', hc[2] === 67.65, hc[2]);
-  ok('Chiều cao: mái khai thác', hc[3] === 70.5, hc[3]); ok('Chiều cao: lan can', hc[4] === 67.1, hc[4]); ok('Độ sâu hầm 9,6 m', hc[5] === 9.6, hc[5]);
+  // 1. Chiều cao PCCC nhập tay (đã bỏ máy tính chiều cao)
+  ok('Không còn máy tính chiều cao PCCC', await p.evaluate(() => typeof hcCompute === "undefined" && !document.querySelector('[data-go="chieu-cao"]')));
+  await p.click('#cth', { clickCount: 3 }); await p.keyboard.press('Control+A'); await p.keyboard.type('32'); await p.waitForTimeout(150);
+  ok('Nhập tay chiều cao 32 m', /32 m/.test(await p.$eval('.ct-sum', e => e.innerText)));
   await p.goto(f + '#chieu-cao'); await p.waitForTimeout(200);
-  await p.selectOption('#hcmode', 'none'); await p.waitForTimeout(150);
-  ok('Đổi chế độ hiện ô chiều cao tầng', await p.$('#hctang') !== null);
-  await p.fill('#hcfloor', '30'); await p.fill('#hctang', '4'); await p.waitForTimeout(150);
-  const big = await p.$eval('.hc-out .big', e => e.textContent); ok('Hiển thị 32 m', big.trim() === '32 m', big);
-  await p.screenshot({ path: process.argv[3] + '-hc.png' });
-  await p.click('#hcuse'); await p.waitForTimeout(400); if (!(await p.$('#cth'))) console.log('DBG', await p.evaluate(() => location.hash + ' | ' + document.getElementById('hdr').textContent + ' | ' + document.getElementById('view').innerHTML.slice(0, 200)));
-  ok('Chuyển sang Toàn nhà với 32 m', await p.$eval('#cth', e => e.value) === '32', await p.$eval('#cth', e => e.value));
+  ok('Địa chỉ cũ #chieu-cao về trang chủ, không lỗi', await p.evaluate(() => !!document.querySelector('.toc')));
+  await p.goto(f + '#cong-trinh'); await p.waitForTimeout(200);
   // 2. Mẫu công trình
   await p.selectOption('#ctpreset', '0'); await p.waitForTimeout(250);
   ok('Mẫu chung cư 24 tầng → 70 m', await p.$eval('#cth', e => e.value) === '70');

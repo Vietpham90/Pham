@@ -28,20 +28,8 @@
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --nav-h: 60px;
 }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
-  --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
-  --ink: #f3ece3; --muted: #b8ada1;
-  --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
-  --exit: #47cd89; --exit-bg: #0f3a26;
-  --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
-  color-scheme: dark; } }
-:root[data-theme="dark"] {
-  --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
-  --ink: #f3ece3; --muted: #b8ada1;
-  --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
-  --exit: #47cd89; --exit-bg: #0f3a26;
-  --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
-  color-scheme: dark; }
+/* Nền màu be dùng cố định, không đổi theo chế độ tối của máy */
+:root, :root[data-theme="dark"] { color-scheme: light; }
 
 * { box-sizing: border-box; }
 [hidden] { display: none !important; }

@@ -45,6 +45,7 @@ const { chromium } = require('playwright');
     localStorage.setItem("pccc-saved", JSON.stringify(["khong-ton-tai--3", 5, null]));
     localStorage.setItem("pccc-hc", "[]");
   });
+  ok('Không còn phiếu kiểm tra, mục Dự án', await p.evaluate(() => !document.querySelector('[data-report], [data-go="du-an"]') && typeof renderReport === 'undefined'));
   for (const h of ['', '#cong-trinh', '#hon-hop', '#gian-phong', '#du-an', '#phieu', '#da-luu', '#chieu-cao', '#tra-nhanh', '#so-do', '#khong-co-trang-nay', '#settings']) {
     await p.goto(f + h); await p.waitForTimeout(150);
     const blank = await p.$eval('#view', e => e.innerText.trim().length < 20);
@@ -52,11 +53,11 @@ const { chromium } = require('playwright');
   }
   ok('Dữ liệu lưu bị hỏng: mọi trang vẫn mở được', errs.length === 0, errs);
   await p.goto(f + '#cong-trinh'); await p.waitForTimeout(200);
-  try { await p.click('[data-report="ct"]'); await p.waitForTimeout(150); ok('Tạo phiếu sau khi dữ liệu hỏng', (await p.$$('.rp-row')).length > 0); } catch (e) { ok('Tạo phiếu sau khi dữ liệu hỏng', false, e.message); }
+  ok('Toàn nhà vẫn ra kết quả sau khi dữ liệu hỏng', (await p.$$('#ctres .ct-sec')).length > 0);
   await p.goto(f + '#hon-hop'); await p.waitForTimeout(200);
-  try { await p.click('[data-report="mx"]'); await p.waitForTimeout(150); ok('Tạo phiếu hỗn hợp với phần lỗi', (await p.$$('.rp-row')).length > 0, errs); } catch (e) { ok('Tạo phiếu hỗn hợp với phần lỗi', false, e.message); }
+  ok('Hỗn hợp vẫn ra kết quả với phần lỗi', (await p.$$('#mxres .ct-sec')).length > 0, errs);
   await p.goto(f + '#gian-phong'); await p.waitForTimeout(200);
-  try { await p.click('[data-report="gp"]'); await p.waitForTimeout(150); ok('Tạo phiếu gian phòng với dữ liệu lỗi', (await p.$$('.rp-row')).length > 0, errs); } catch (e) { ok('Tạo phiếu gian phòng với dữ liệu lỗi', false, e.message); }
+  ok('Gian phòng vẫn ra kết quả với dữ liệu lỗi', (await p.$$('#gpres .ct-sec')).length > 0, errs);
   ok('Không lỗi JS (phần C)', errs.length === 0, errs);
   console.log('C xong');
   // D. Tìm kiếm ký tự đặc biệt, điều hướng

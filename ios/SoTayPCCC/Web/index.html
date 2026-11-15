@@ -218,7 +218,7 @@ details.tnrow[open] > summary { margin-bottom: 8px; }
 @media (max-width: 360px) { .grid2 { grid-template-columns: 1fr; } }
 
 /* Mở rộng */
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--tint); padding: 4px; border-radius: 10px; margin: 0 0 12px; }
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--tint); padding: 4px; border-radius: 10px; margin: 0 0 12px; }
 .tabs button { border: 0; background: transparent; height: 36px; border-radius: 7px; font-weight: 600; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--muted); padding: 0 4px; font-family: var(--sans); min-width: 0; }
 .tabs button[aria-selected="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
 .refs { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -262,10 +262,6 @@ details.tnrow[open] > summary { margin-bottom: 8px; }
 .part .fld input, .part .fld select { background: var(--panel); }
 .part-h { font-size: 15px; margin: 18px 0 8px; } .part-h span { display: block; font-size: 12.5px; color: var(--muted); font-weight: 500; font-family: var(--mono); }
 .rp { display: grid; gap: 8px; margin-top: 12px; }
-.rp-row { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; display: grid; gap: 8px; font-size: 14px; line-height: 1.5; }
-.rp-row.st-ok { box-shadow: inset 0 0 0 2px var(--exit-bg); } .rp-row.st-bad { box-shadow: inset 0 0 0 2px var(--fire-bg); } .rp-row.st-na { opacity: .7; }
-.rp-ctl { display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr); gap: 8px; }
-.rp-ctl select, .rp-ctl input, .fld input[type=date], #rpname, #rpauthor { height: 38px; border: 1px solid var(--line); border-radius: 8px; padding: 0 8px; font: inherit; font-size: 15px; background: var(--bg); color: var(--ink); width: 100%; }
 .proj { display: grid; gap: 4px; } .proj > button:first-child { width: 100%; text-align: left; border: 1px solid var(--line); background: var(--panel); border-radius: 12px; padding: 12px 14px; cursor: pointer; }
 .dgbox svg { width: 100%; height: auto; display: block; margin: 4px 0 8px; }
 .dg text { fill: var(--ink); font-family: var(--sans); font-size: 11px; } .dg text.s { font-size: 10px; fill: var(--muted); } .dg text.b { font-weight: 700; font-size: 12px; }
@@ -275,8 +271,7 @@ details.tnrow[open] > summary { margin-bottom: 8px; }
 .dg .st { fill: var(--exit-bg); stroke: var(--exit); stroke-width: 1.5; } .dg .pos { stroke-dasharray: 4 2; } .dg .air { fill: var(--panel); stroke: var(--exit); stroke-dasharray: 2 2; }
 .dg .lob { fill: var(--exit-bg); stroke: var(--exit); } .dg .cor { stroke: var(--muted); stroke-width: 6; opacity: .3; }
 .dg .solid { fill: var(--fire-bg); stroke: var(--fire); } .dg .spk { fill: var(--fire); } .dg .exit { fill: var(--exit); } .dg .pt { fill: var(--fire); } .dg .ent rect { fill: var(--amber); }
-@media (max-width: 420px) { .grid4 { grid-template-columns: 1fr 1fr; } .rp-ctl { grid-template-columns: 1fr; } }
-
+@media (max-width: 420px) { .grid4 { grid-template-columns: 1fr 1fr; } 
 /* Sơ đồ kiểu bản vẽ */
 .dg .wallthick { fill: none; stroke: var(--ink); stroke-width: 4; stroke-linejoin: miter; }
 .dg .fillroom { fill: var(--tint); }
@@ -490,7 +485,8 @@ function setHeader(title) {
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 
-const APP_VER = { so: "1.26", ngay: "15/11/2026", moi: [
+const APP_VER = { so: "1.27", ngay: "15/11/2026", moi: [
+  "Bỏ phiếu kiểm tra và mục Dự án; tab công cụ còn Toàn nhà, Hỗn hợp, Gian phòng.",
   "Thêm 7 sơ đồ minh họa: tầng hầm / nửa hầm, lối ra khẩn cấp qua ban công, chiều rộng hành lang khi cửa mở ra, thang máy chữa cháy và sảnh, lối ra mái và thang P1/P2, đường một làn và đường cụt, tầng lánh nạn; mục lục sơ đồ dạng nút.",
   "Tìm theo tên công trình thông minh hơn: hiểu tên thường gọi (hotel, cao ốc, bãi xe, nhà máy, cafe…), xếp kết quả đúng nhất lên đầu, đọc luôn quy mô gõ kèm (\"khách sạn 15 tầng 50m 1200m2\") để điền sẵn.",
   "Bỏ bảng tính toán thoát nạn.",
@@ -509,7 +505,6 @@ function renderHome() {
       <button class="tool" data-go="gian-phong"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 12h8v8M14 20v-3"/></svg><b>Gian phòng</b><span>Lối ra, G.5, G.2b</span></button>
       <button class="tool" data-go="hon-hop"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5"/></svg><b>Nhà hỗn hợp</b><span>Nhiều công năng</span></button>
       <button class="tool" data-go="so-do"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg><b>Sơ đồ</b><span>Hình minh họa</span></button>
-      <button class="tool" data-go="du-an"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><b>Dự án</b><span>Phiếu đã lưu</span></button>
     </div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button></li>`; }).join("")}</ul>
@@ -1119,7 +1114,7 @@ function ctResult() {
   const { it, out } = ctEvaluate(ctV);
   const lab = { ok: "Đạt", warn: "Lưu ý", bad: "Vượt / không đạt" };
   return `<div class="ct-sum"><span class="chip">${it.g}</span><span class="chip">${fmtIn(ctV.h || 0)} m</span><span class="chip">${ctV.n || 1} tầng nổi</span><span class="chip">${ctV.nb || 0} tầng hầm</span>${+ctV.a || +ctV.at ? `<span class="chip">${(+ctV.a || Math.round(+ctV.at / (+ctV.n || 1))).toLocaleString("vi-VN")} m²/tầng${+ctV.a ? "" : " (ước tính)"}</span>` : ""}${+ctV.v ? `<span class="chip">${(+ctV.v).toLocaleString("vi-VN")} m³</span>` : ""}${ctV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
-    `<div class="row-btns"><button class="btn1" data-report="ct">Tạo phiếu kiểm tra</button><button class="btn2" data-go="so-do">Sơ đồ minh họa</button></div>` + ctSummary(out) + `<div class="fold-bar"><p class="label" style="margin:0">Chi tiết theo mục</p><button class="link-btn" data-foldall>Mở tất cả</button></div>` + itemsHTML(out, true) + itemsHTML([{ t: "Ngưỡng gần nhất — thay đổi khi điều chỉnh phương án", items: thresholdsCT(ctV) }], true) +
+    `<div class="row-btns"><button class="btn2" data-go="so-do">Sơ đồ minh họa</button></div>` + ctSummary(out) + `<div class="fold-bar"><p class="label" style="margin:0">Chi tiết theo mục</p><button class="link-btn" data-foldall>Mở tất cả</button></div>` + itemsHTML(out, true) + itemsHTML([{ t: "Ngưỡng gần nhất — thay đổi khi điều chỉnh phương án", items: thresholdsCT(ctV) }], true) +
     `<p class="disclaimer">Kết quả là danh sách nội dung cần lưu ý, suy ra từ các điều đã dẫn của QCVN 06:2022/BXD (SĐ1:2023). Kiểm tra lại nguyên văn và các chú thích trước khi dùng trong hồ sơ.</p>`;
 }
 function renderCT() {
@@ -1163,7 +1158,7 @@ function ctSync(rerenderForm) {
   if (rerenderForm) renderCT(); else document.getElementById("ctres").innerHTML = ctResult();
 }
 
-/* ================= Mở rộng: liên kết số điều, nhà hỗn hợp, gian phòng, phiếu kiểm tra, sơ đồ ================= */
+/* ================= Mở rộng: liên kết số điều, nhà hỗn hợp, gian phòng, sơ đồ ================= */
 const LV_LABEL = { ok: "Đạt", warn: "Lưu ý", bad: "Vượt / không đạt" };
 
 /* ---- 4. Liên kết số điều ---- */
@@ -1202,7 +1197,7 @@ function itemsHTML(sections, fold) {
 
 /* ---- Thanh chuyển công cụ ---- */
 function ctTabs(active) {
-  const t = [["cong-trinh", "Toàn nhà"], ["hon-hop", "Hỗn hợp"], ["gian-phong", "Gian phòng"], ["du-an", "Dự án"]];
+  const t = [["cong-trinh", "Toàn nhà"], ["hon-hop", "Hỗn hợp"], ["gian-phong", "Gian phòng"]];
   return `<div class="seg tabs" role="tablist">${t.map(([id, l]) => `<button role="tab" data-go="${id}" aria-selected="${id === active}">${l}</button>`).join("")}</div>`;
 }
 
@@ -1312,7 +1307,6 @@ function renderMX() {
 function mxResult() {
   const r = mxEvaluate(mxV);
   return `<div class="ct-sum"><span class="chip">Hỗn hợp</span><span class="chip">${fmtIn(mxV.h)} m</span><span class="chip">${mxV.n} tầng nổi</span><span class="chip">${mxV.nb} tầng hầm</span>${mxV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
-    `<div class="row-btns"><button class="btn1" data-report="mx">Tạo phiếu kiểm tra</button></div>` +
     `<div class="fold-bar"><p class="label" style="margin:0">Chi tiết theo mục</p><button class="link-btn" data-foldall>Mở tất cả</button></div>` + itemsHTML(r.out, true) +
     r.partSecs.map(({ p, it, secs }) => `<h3 class="part-h">Phần: ${esc(it.n)} <span>${it.g} · tầng ${p.from} → ${p.to}${p.a ? ` · ${(+p.a).toLocaleString("vi-VN")} m²` : ""}</span></h3>` + itemsHTML(secs, true)).join("") +
     (r.common.length ? itemsHTML(r.common.map(s => ({ t: "Ngăn cháy lan (toàn nhà)", items: s.items })), true) : "") +
@@ -1525,7 +1519,7 @@ function renderGP() {
 function gpResult() {
   const r = gpEvaluate(gpV);
   return `<div class="ct-sum"><span class="chip">${gpV.g}</span><span class="chip">${(+gpV.a || 0).toLocaleString("vi-VN")} m²</span><span class="chip">${r.P} người</span><span class="chip">Bậc ${gpV.bac}</span></div>` +
-    `<div class="row-btns"><button class="btn1" data-report="gp">Tạo phiếu kiểm tra</button></div>` + itemsHTML(r.out) +
+    itemsHTML(r.out) +
     `<p class="disclaimer">Định mức Bảng G.5 dòng 1 chỉ áp dụng cho gian thương mại có lối đi chính ≥ 25 % diện tích và phòng ăn, phòng đọc có mật độ lối đi chính ≤ 5 người/m²; các gian khác lấy dòng 2. Sprinkler toàn bộ cho phép giảm khoảng cách phân tán hai lối ra còn 1/3 đường chéo (3.2.8).</p>`;
 }
 function gpSync(full) {
@@ -1535,64 +1529,6 @@ function gpSync(full) {
   gpV.ham = g("gpham").checked; if (g("gplane")) gpV.lane = g("gplane").checked; if (g("gpad")) gpV.ad = g("gpad").checked; gpV.sp = g("gpsp").checked; if (g("gpf5")) { gpV.f5h = g("gpf5").value; gpV.f5s = g("gpf5s").value; gpV.den = numv(g("gpden")); gpV.pos = g("gppos").value; gpV.hn = numv(g("gphn")); }
   store.set("pccc-gp", gpV);
   if (full || (oldG !== gpV.g && (oldG.startsWith("F5") !== gpV.g.startsWith("F5") || oldG === "F3.1" || gpV.g === "F3.1"))) renderGP(); else g("gpres").innerHTML = gpResult();
-}
-
-/* ---- 2. Phiếu kiểm tra + dự án ---- */
-let projects = store.get("pccc-projects", []);
-let curReport = null;
-function reportFrom(kind) {
-  let input, secs;
-  if (kind === "ct") { const r = ctEvaluate(ctV); const it = CT[ctV.i]; input = { kind, title: `${it.n} (${it.g})`, params: `Cao PCCC ${fmtIn(ctV.h)} m · ${ctV.n} tầng nổi · ${ctV.nb} tầng hầm${ctV.a ? ` · ${fmtIn(ctV.a)} m²/tầng` : ""}${ctV.v ? ` · ${fmtIn(ctV.v)} m³` : ""}${ctV.sp ? " · có sprinkler" : ""}`, v: JSON.parse(JSON.stringify(ctV)) }; secs = r.out; }
-  else if (kind === "mx") { const r = mxEvaluate(mxV); input = { kind, title: "Nhà hỗn hợp: " + mxV.parts.map(p => CT[p.i].n).join(" + "), params: `Cao PCCC ${fmtIn(mxV.h)} m · ${mxV.n} tầng nổi · ${mxV.nb} tầng hầm${mxV.sp ? " · có sprinkler" : ""}`, v: JSON.parse(JSON.stringify(mxV)) };
-    secs = [...r.out, ...r.partSecs.flatMap(({ it, p, secs }) => secs.map(s => ({ t: `${s.t} — ${it.n} (tầng ${p.from} → ${p.to})`, items: s.items }))), ...r.common]; }
-  else { const r = gpEvaluate(gpV); input = { kind, title: `Gian phòng ${gpV.g} — ${G9[gpV.k][0]}`, params: `${fmtIn(gpV.a)} m² · cao ${fmtIn(gpV.ch)} m · ${r.P} người · bậc ${gpV.bac}`, v: JSON.parse(JSON.stringify(gpV)) }; secs = r.out; }
-  const rows = []; secs.forEach(s => s.items.forEach(x => rows.push({ sec: s.t, txt: x.txt, ref: x.ref, lv: x.lv, st: "", note: "" })));
-  return { id: Date.now().toString(36), name: "", author: "", date: new Date().toISOString().slice(0, 10), ...input, rows };
-}
-function renderReport() {
-  if (!curReport) return renderProjects();
-  setHeader("Phiếu kiểm tra"); setNav("cong-trinh");
-  const R = curReport; let last = "";
-  const opts = ["", "Đáp ứng", "Chưa đáp ứng", "Không áp dụng"];
-  view.innerHTML = ctTabs("du-an") + `
-  <section class="quick ct-form">
-    <label class="fld wide"><span>Tên dự án / hạng mục</span><input id="rpname" value="${esc(R.name)}" placeholder="Ví dụ: Tòa nhà A — hồ sơ thẩm duyệt"></label>
-    <div class="grid2"><label class="fld"><span>Người lập</span><input id="rpauthor" value="${esc(R.author)}"></label><label class="fld"><span>Ngày</span><input id="rpdate" type="date" value="${R.date}"></label></div>
-    <p class="note" style="margin:0"><strong>${esc(R.title)}</strong><br>${esc(R.params)}</p>
-    <div class="row-btns"><button class="btn1" id="rpsave">Lưu dự án</button><button class="btn2" id="rpcopy">Sao chép bảng (Excel, Word)</button><button class="btn2" id="rpcopytxt">Sao chép văn bản</button></div>
-    <p class="note" id="rpmsg" role="status" style="margin:0"></p>
-  </section>
-  <div class="rp">${R.rows.map((r, k) => { const head = r.sec !== last ? `<h3 class="part-h">${esc(r.sec)}</h3>` : ""; last = r.sec; return head + `
-    <div class="rp-row st-${["", "ok", "bad", "na"][opts.indexOf(r.st)] || "none"}" data-k="${k}">
-      <div class="rp-tx"><b>${k + 1}.</b> ${md(r.txt)} <span class="refs">${refHTML(r.ref)}</span></div>
-      <div class="rp-ctl"><select class="rpst" aria-label="Đánh giá dòng ${k + 1}">${opts.map(o => `<option${r.st === o ? " selected" : ""} value="${o}">${o || "— Đánh giá —"}</option>`).join("")}</select>
-      <input class="rpnote" value="${esc(r.note)}" placeholder="Ghi chú, giải pháp, bản vẽ…" aria-label="Ghi chú dòng ${k + 1}"></div>
-    </div>`; }).join("")}</div>
-  <p class="note">${R.rows.filter(r => r.st === "Đáp ứng").length} đáp ứng · ${R.rows.filter(r => r.st === "Chưa đáp ứng").length} chưa đáp ứng · ${R.rows.filter(r => r.st === "Không áp dụng").length} không áp dụng · ${R.rows.filter(r => !r.st).length} chưa đánh giá</p>`;
-}
-function reportSync() {
-  if (!curReport) return; const g = id => document.getElementById(id);
-  if (g("rpname")) { curReport.name = g("rpname").value; curReport.author = g("rpauthor").value; curReport.date = g("rpdate").value; }
-  document.querySelectorAll(".rp-row").forEach(el => { const r = curReport.rows[+el.dataset.k]; r.st = el.querySelector(".rpst").value; r.note = el.querySelector(".rpnote").value; el.className = "rp-row st-" + ({ "Đáp ứng": "ok", "Chưa đáp ứng": "bad", "Không áp dụng": "na" }[r.st] || "none"); });
-  store.set("pccc-report-draft", curReport);
-}
-function reportText(tsv) {
-  const R = curReport, strip = s => s.replace(/\*\*/g, "");
-  if (tsv) return ["STT\tNhóm yêu cầu\tYêu cầu\tĐiều khoản\tĐánh giá\tGhi chú", ...R.rows.map((r, k) => [k + 1, r.sec, strip(r.txt), r.ref, r.st, r.note].map(c => String(c).replace(/[\t\n]/g, " ")).join("\t"))].join("\n");
-  let s = `PHIẾU KIỂM TRA AN TOÀN CHÁY — QCVN 06:2022/BXD (SĐ1:2023)\nDự án: ${R.name || "—"}\nNgười lập: ${R.author || "—"}    Ngày: ${R.date}\n${R.title}\n${R.params}\n`; let last = "";
-  R.rows.forEach((r, k) => { if (r.sec !== last) { s += `\n${r.sec.toUpperCase()}\n`; last = r.sec; } s += `${k + 1}. ${strip(r.txt)} [${r.ref}]${r.st ? ` — ${r.st}` : ""}${r.note ? ` — ${r.note}` : ""}\n`; });
-  return s;
-}
-async function copyText(t) {
-  const msg = document.getElementById("rpmsg");
-  try { await navigator.clipboard.writeText(t); if (msg) msg.textContent = "Đã sao chép. Dán vào Excel hoặc Word."; }
-  catch (e) { const ta = document.createElement("textarea"); ta.value = t; ta.style.cssText = "width:100%;height:160px;font:12px var(--mono)"; if (msg) { msg.textContent = "Trình duyệt chặn sao chép tự động — chọn toàn bộ nội dung dưới đây và sao chép:"; msg.after(ta); } ta.focus(); ta.select(); }
-}
-function renderProjects() {
-  setHeader("Dự án đã lưu"); setNav("cong-trinh");
-  view.innerHTML = ctTabs("du-an") + (projects.length ? `<ul class="results">${projects.map((p, k) => { const done = p.rows.filter(r => r.st).length; return `<li class="proj"><button data-proj="${k}"><span class="sec">${esc(p.date)} · ${esc(p.author || "")}</span><span class="ttl">${esc(p.name || p.title)}</span><span class="snip">${esc(p.title)} — ${done}/${p.rows.length} dòng đã đánh giá, ${p.rows.filter(r => r.st === "Chưa đáp ứng").length} chưa đáp ứng</span></button><button class="link-btn" data-projdel="${k}">Xóa</button></li>`; }).join("")}</ul>` :
-    `<div class="empty">Chưa có dự án nào.<br>Ở tab Toàn nhà, Hỗn hợp hoặc Gian phòng, bấm <strong>Tạo phiếu kiểm tra</strong>, đánh giá từng dòng rồi bấm <strong>Lưu dự án</strong>.</div>`) +
-    `<p class="note">Dự án được lưu trên thiết bị này. Dùng nút sao chép trong phiếu để chuyển sang Excel, Word hoặc gửi cho đồng nghiệp.</p>`;
 }
 
 /* ---- 5. Sơ đồ minh họa ---- */
@@ -1619,7 +1555,6 @@ function renderDiagrams(focus) {
   if (focus) { const el = document.getElementById("dg-" + focus); if (el) setTimeout(() => el.scrollIntoView({ block: "start" }), 0); } else window.scrollTo(0, 0);
 }
 
-curReport = store.get("pccc-report-draft", null);
 
 /* ================= Cải tiến: chiều cao PCCC, mẫu công trình, phóng to sơ đồ, ngưỡng gần nhất ================= */
 const ctIdx = name => Math.max(0, CT.findIndex(c => c.n === name));
@@ -1707,10 +1642,6 @@ function thresholdsCT(v) {
   if (!["A", "B", "C1", "C2", "C3", "C4", "D", "E", "C"].includes(gpV.f5h)) gpV.f5h = "C2";
   if (!["S0", "S1", "S2", "S3"].includes(gpV.f5s)) gpV.f5s = "S0";
   if (!["I", "II", "III", "IV", "V"].includes(gpV.bac)) gpV.bac = "I";
-  const okRow = r => obj(r) && typeof r.txt === "string";
-  projects = (Array.isArray(projects) ? projects : []).filter(p => obj(p) && Array.isArray(p.rows)).map(p => ({ id: String(p.id || Date.now().toString(36)), name: String(p.name || ""), author: String(p.author || ""), date: String(p.date || ""), title: String(p.title || "Dự án"), params: String(p.params || ""), kind: p.kind, rows: p.rows.filter(okRow).map(r => ({ sec: String(r.sec || ""), txt: r.txt, ref: String(r.ref || ""), lv: r.lv || "", st: String(r.st || ""), note: String(r.note || "") })) }));
-  if (curReport && !(obj(curReport) && Array.isArray(curReport.rows))) curReport = null;
-  if (curReport) curReport.rows = curReport.rows.filter(okRow);
   saved = (Array.isArray(saved) ? saved : []).filter(x => typeof x === "string");
   if (typeof checks !== "object" || !checks || Array.isArray(checks)) checks = {};
 })();
@@ -1723,8 +1654,6 @@ function route() {
   if (h === "cong-trinh") return renderCT();
   if (h === "hon-hop") return renderMX();
   if (h === "gian-phong") return renderGP();
-  if (h === "du-an") return renderProjects();
-  if (h === "phieu") return renderReport();
   if (h === "so-do") return renderDiagrams();
   if (h === "da-luu") return renderSaved();
   if (SECTIONS[h]) return renderSection(h);
@@ -1750,12 +1679,6 @@ document.addEventListener("click", e => {
   const zb = e.target.closest("[data-zoom]"); if (zb) { openDiag.z = Math.min(3, Math.max(1, (openDiag.z || 1) + 0.5 * +zb.dataset.zoom)); openDiag(openDiag.cur); return; }
   if (e.target.closest("#dgov .ref")) closeDiag();
   const fa = e.target.closest("[data-foldall]"); if (fa) { const ds = [...document.querySelectorAll("details.ct-d")]; const open = ds.some(d => !d.open); ds.forEach(d => d.open = open); fa.textContent = open ? "Thu gọn" : "Mở tất cả"; return; }
-  const rpb = e.target.closest("[data-report]"); if (rpb) { const k = rpb.dataset.report; if (k === "ct") ctSync(false); if (k === "mx") mxSync(false); if (k === "gp") gpSync(false); curReport = reportFrom(k); store.set("pccc-report-draft", curReport); go("phieu"); return; }
-  if (e.target.id === "rpsave") { reportSync(); const i = projects.findIndex(p => p.id === curReport.id); const copy = JSON.parse(JSON.stringify(curReport)); if (i >= 0) projects[i] = copy; else projects.unshift(copy); store.set("pccc-projects", projects); document.getElementById("rpmsg").textContent = "Đã lưu vào Dự án trên thiết bị này."; return; }
-  if (e.target.id === "rpcopy") { reportSync(); copyText(reportText(true)); return; }
-  if (e.target.id === "rpcopytxt") { reportSync(); copyText(reportText(false)); return; }
-  const pj = e.target.closest("[data-proj]"); if (pj) { curReport = JSON.parse(JSON.stringify(projects[+pj.dataset.proj])); store.set("pccc-report-draft", curReport); go("phieu"); return; }
-  const pd = e.target.closest("[data-projdel]"); if (pd) { if (pd.dataset.confirm) { projects.splice(+pd.dataset.projdel, 1); store.set("pccc-projects", projects); renderProjects(); } else { pd.dataset.confirm = "1"; pd.textContent = "Bấm lần nữa để xóa"; } return; }
   if (e.target.id === "mxadd") { mxSync(false); mxV.parts.push({ i: 25, from: 1, to: 1, a: 1000, p: "" }); store.set("pccc-mx", mxV); renderMX(); return; }
   const md_ = e.target.closest("[data-mxdel]"); if (md_) { mxSync(false); mxV.parts.splice(+md_.dataset.mxdel, 1); store.set("pccc-mx", mxV); renderMX(); return; }
   const cg = e.target.closest("[data-ctgo]"); if (cg) { ctV.i = +cg.dataset.ctgo; Object.assign(ctV, ctQty(q.value)); ctQ = ""; store.set("pccc-ct", ctV); q.value = ""; clearQ.hidden = true; if (location.hash === "#cong-trinh") route(); else go("cong-trinh"); window.scrollTo(0, 0); return; }
@@ -1783,7 +1706,6 @@ document.addEventListener("input", e => {
   if (!e.target.closest) return;
   if (e.target.closest(".mx-form") && e.target.tagName === "INPUT" && e.target.type !== "checkbox") { mxSync(false); return; }
   if (document.getElementById("gpg") && e.target.closest(".ct-form") && e.target.tagName === "INPUT" && e.target.type !== "checkbox") { gpSync(false); return; }
-  if (e.target.classList && e.target.classList.contains("rpnote") || ["rpname", "rpauthor"].includes(e.target.id)) { reportSync(); return; }
 });
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDiag(); });
 document.addEventListener("change", e => {
@@ -1793,7 +1715,6 @@ document.addEventListener("change", e => {
   if (isTyped) return; // ô nhập số/chữ đã cập nhật theo sự kiện input; tránh vẽ lại làm mất lần bấm nút
   if (e.target.closest(".mx-form")) { mxSync(e.target.classList.contains("mxi")); return; }
   if (document.getElementById("gpg") && e.target.closest(".ct-form")) { gpSync(["gpg", "gpk"].includes(e.target.id)); return; }
-  if (e.target.classList.contains("rpst") || e.target.id === "rpdate") { reportSync(); return; }
   if (!e.target.closest(".ct-form")) return;
   if (e.target.id === "cthang") { ctSync(true); return; }
   if (e.target.tagName === "SELECT" || e.target.type === "checkbox") ctSync(false);

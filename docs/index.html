@@ -153,6 +153,10 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; justify-content: center; }
 .chips button { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
 
+.ver { margin: 18px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
+.ver p { margin: 0 0 6px; } .ver b { color: var(--ink); }
+.ver summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+.ver ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
 .disclaimer { font-size: 12.5px; color: var(--amber-ink); background: var(--amber-bg); border-radius: 10px; padding: 10px 12px; margin: 16px 0 0; }
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
 .pager button { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 10px 12px; text-align: left; cursor: pointer; font-size: 13px; min-height: 56px; }
@@ -460,6 +464,13 @@ function setHeader(title) {
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 
+const APP_VER = { so: "1.23", ngay: "15/11/2026", moi: [
+  "Nền ứng dụng màu be, cố định cả khi điện thoại ở chế độ tối.",
+  "Bỏ máy tính chiều cao PCCC — nhập tay chiều cao trong Tra theo công trình.",
+  "Bảng G.9 đủ 14 mục (nhà để xe ô tô 2 người/ô để xe).",
+  "Bảng tính thoát nạn: kiểm tra từng không gian theo công năng (3.2.5, Bảng G.5, G.2b); nhà F5 theo Bảng G.3, G.4, G.7, G.8.",
+  "Tra theo công trình: gợi ý từ ô tìm kiếm, tổng diện tích sàn, tóm tắt yêu cầu chính kết cấu / kiến trúc.",
+  "Kiểm tra diện tích khoang cháy theo Bảng H.2 cho nhà văn hóa, giáo dục; R 45 kết cấu mái sân khấu (H.2.6.4)."] };
 function renderHome() {
   setHeader(null); setNav("home");
   view.innerHTML = `
@@ -468,7 +479,9 @@ function renderHome() {
     <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="hon-hop">Nhà hỗn hợp</button><button class="btn2" data-go="gian-phong">Gian phòng</button><button class="btn2" data-go="tinh-thoat-nan">Tính thoát nạn</button><button class="btn2" data-go="so-do">Sơ đồ</button><button class="btn2" data-go="du-an">Dự án</button></div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button></li>`; }).join("")}</ul>
-    <p class="disclaimer">Đã đối chiếu với bản hợp nhất QCVN 06:2022/BXD + Sửa đổi 1:2023. <strong>✱ SĐ1</strong> đánh dấu nội dung sửa đổi. Mỗi giá trị kèm số điều để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>`;
+    <p class="disclaimer">Đã đối chiếu với bản hợp nhất QCVN 06:2022/BXD + Sửa đổi 1:2023. <strong>✱ SĐ1</strong> đánh dấu nội dung sửa đổi. Mỗi giá trị kèm số điều để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
+    <footer class="ver"><p><b>Phiên bản ${APP_VER.so}</b> · cập nhật ${APP_VER.ngay}<br>Căn cứ: QCVN 06:2022/BXD (TT 06/2022/TT-BXD) và Sửa đổi 1:2023 (TT 09/2023/TT-BXD)</p>
+      <details><summary>Thay đổi gần đây</summary><ul>${APP_VER.moi.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></footer>`;
 }
 
 function renderSection(id, openBlock) {

@@ -23,7 +23,7 @@
   --ink: #1f1a17; --muted: #5e554d;
   --fire: #b42318; --fire-bg: #fde4e1; --on-fire: #ffffff;
   --exit: #067647; --exit-bg: #dcf5e7;
-  --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
+  --water: #1f6fd1; --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
   --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --nav-h: 60px;
@@ -34,14 +34,14 @@
   --ink: #f3ece3; --muted: #b8ada1;
   --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
   --exit: #47cd89; --exit-bg: #0f3a26;
-  --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  --water: #6aa9f0; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
   color-scheme: dark; } }
 :root[data-mau="toi"] {
   --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
   --ink: #f3ece3; --muted: #b8ada1;
   --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
   --exit: #47cd89; --exit-bg: #0f3a26;
-  --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  --water: #6aa9f0; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
   color-scheme: dark; }
 
 * { box-sizing: border-box; }
@@ -301,6 +301,19 @@ details.sub summary { cursor: pointer; font-weight: 600; font-size: 13.5px; colo
 ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } ul.plain li + li { margin-top: 6px; }
 .ct-sec .tx strong { color: var(--ink); }
 .quick textarea:focus, .fld input:focus, .fld select:focus { outline: 2px solid var(--fire); outline-offset: 0; }
+.ctfig { margin: 10px 0 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px 8px; }
+.ctfig > svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; }
+.fg-fl { fill: var(--bg); stroke: var(--ink); stroke-width: 1.2; } .fg-win { fill: var(--tint); }
+.fg-roof { fill: var(--ink); } .fg-brk { fill: var(--tint); stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.fg-zig { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.fg-soil { fill: var(--tint); } .fg-bas { fill: var(--panel); stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 2; }
+.fg-car { fill: var(--muted); } .fg-whl { fill: var(--ink); }
+.fg-gnd { stroke: var(--ink); stroke-width: 2; } .fg-dim { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.fg-t { font: 500 10.5px var(--sans); fill: var(--ink); } .fg-c { text-anchor: middle; } .fg-r { text-anchor: end; } .fg-b { font-weight: 700; }
+.fg-leg { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; margin-top: 8px; font-size: 12.5px; }
+.fg-leg span { display: inline-flex; align-items: center; gap: 5px; } .fg-leg svg { width: 14px; height: 14px; flex: none; } .fg-leg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.fg-leg .off { color: var(--muted); text-decoration: line-through; } .fg-leg .off svg { filter: grayscale(1); opacity: .45; }
+.fg-note { margin: 6px 0 0; font-size: 11.5px; color: var(--muted); text-align: center; }
 .tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 0 0 4px; }
 .tile { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: var(--panel); display: grid; gap: 2px; min-width: 0; }
 .tile b { font-size: 16px; } .tile span { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
@@ -522,7 +535,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v30 · cập nhật 15/11/2026</p>`;
+    <p class="ver">Phiên bản v31 · cập nhật 15/11/2026</p>`;
   window.scrollTo(0, 0);
 }
 function renderSection(id, openBlock) {
@@ -1704,6 +1717,65 @@ function ctBar() {
   bar.hidden = r.getBoundingClientRect().top < window.innerHeight - 140;
 }
 window.addEventListener("scroll", ctBar, { passive: true });
+/* Hình minh họa mặt cắt: tầng, hầm, chiều cao và các hệ thống phải trang bị (vẽ theo kết quả ctEvaluate) */
+function ctFigure(t, v, all, partS) {
+  if (t.og === "ham") return "";
+  const st = re => { const it = all.find(i => re.test(i.txt)); return !it ? "na" : it.lv === "req" || it.lv === "alt" ? "on" : it.lv === "no" ? "off" : "na"; };
+  const bc = st(/^\*\*Hệ thống báo cháy/), hn = st(/^\*\*Hệ thống họng nước/), loa = st(/^\*\*Loa thông báo và hướng dẫn/), ok = st(/^\*\*Đường ống khô/);
+  let spr = st(/^\*\*Hệ thống chữa cháy tự động/); if (spr !== "on" && partS) spr = "part";
+  const qo = (all.find(i => /Lưu lượng ngoài nhà/.test(i.txt)) || { txt: "" }).txt.match(/Lưu lượng ngoài nhà\*?\*?\s*([\d,]+) L\/s/);
+  const jt = (all.find(i => /^\*\*Số tia × lưu lượng/.test(i.txt)) || { txt: "" }).txt.replace(/\*\*/g, "").match(/:\s*(\d+) × ([\d,]+) L\/s/);
+  const gara = v.pcar > 0 || v.parea > 0 || (["de-xe", "gara-ck"].includes(t.id) && (v.bas || v.nb > 0));
+  const n = Math.max(1, v.n), brk = n > 8, nd = brk ? 7 : n, fh = Math.max(18, Math.min(34, Math.floor(170 / nd)));
+  const nb = Math.min(3, v.nb || (v.bas ? 1 : 0)), bh = 20, X = 96, W = 150, top = 30;
+  const G = top + nd * fh + (brk ? 14 : 0), H = G + nb * bh + 14;
+  const c = (on, part) => on === "on" ? "var(--fire)" : part ? "var(--amber)" : "var(--line)";
+  let g = "";
+  // các tầng trên mặt đất
+  for (let k = 0; k < nd; k++) {
+    const y = G - (k + 1) * fh - (brk && k >= 6 ? 14 : 0);
+    g += `<rect x="${X}" y="${y}" width="${W}" height="${fh}" class="fg-fl"/>`;
+    for (let j = 0; j < 4; j++) { const wx = X + 14 + j * 34; g += `<rect x="${wx}" y="${y + fh * .32}" width="18" height="${fh * .4}" rx="1.5" class="fg-win"/>`; }
+    if (bc === "on") g += `<circle cx="${X + 10}" cy="${y + 4}" r="2.6" fill="var(--fire)"/>`;
+    if (spr === "on" || spr === "part" && k === 0) for (let j = 0; j < 3; j++) { const sx = X + 40 + j * 40; g += `<path d="M${sx} ${y} v4 m-4 0 h8" stroke="var(--water)" stroke-width="1.6" fill="none"/><path d="M${sx - 5} ${y + 9} l-2 4 M${sx} ${y + 9} v4 M${sx + 5} ${y + 9} l2 4" stroke="var(--water)" stroke-width="1" opacity=".8"/>`; }
+    if (hn === "on") g += `<rect x="${X + W - 13}" y="${y + fh - 13}" width="9" height="11" rx="1" fill="var(--fire)"/><circle cx="${X + W - 8.5}" cy="${y + fh - 7.5}" r="2.2" fill="none" stroke="var(--on-fire)" stroke-width="1"/>`;
+  }
+  if (brk) { const y = G - 6 * fh - 14; g += `<rect x="${X}" y="${y}" width="${W}" height="14" class="fg-brk"/><path d="M${X - 6} ${y + 10} l8 -6 l6 6 l8 -6 M${X + W - 8} ${y + 10} l8 -6 l6 6" class="fg-zig"/><text x="${X + W / 2}" y="${y + 10.5}" class="fg-t fg-c">… ${n - 7} tầng nữa …</text>`; }
+  const roof = G - nd * fh - (brk ? 14 : 0);
+  g += `<rect x="${X}" y="${roof - 4}" width="${W}" height="4" class="fg-roof"/>`;
+  // tầng hầm
+  g += `<rect x="0" y="${G}" width="340" height="${nb * bh + 10}" class="fg-soil"/>`;
+  for (let k = 0; k < nb; k++) {
+    const y = G + k * bh;
+    g += `<rect x="${X - 20}" y="${y}" width="${W + 40}" height="${bh}" class="fg-bas"/>`;
+    if (gara) for (let j = 0; j < 4; j++) { const cx = X - 8 + j * 46; g += `<rect x="${cx}" y="${y + 9}" width="24" height="7" rx="2.5" class="fg-car"/><circle cx="${cx + 6}" cy="${y + 16.5}" r="2" class="fg-whl"/><circle cx="${cx + 18}" cy="${y + 16.5}" r="2" class="fg-whl"/>`; }
+    if (bc === "on" || gara && v.pcar > 0) g += `<circle cx="${X - 12}" cy="${y + 4}" r="2.4" fill="var(--fire)"/>`;
+    if (spr === "on" || spr === "part" || gara && v.pcar > 0) for (let j = 0; j < 4; j++) { const sx = X + 4 + j * 42; g += `<path d="M${sx} ${y} v3 m-3 0 h6" stroke="var(--water)" stroke-width="1.4"/>`; }
+  }
+  if (v.nb > 3) g += `<text x="${X + W + 26}" y="${G + nb * bh - 4}" class="fg-t">+${v.nb - 3}</text>`;
+  g += `<line x1="0" y1="${G}" x2="340" y2="${G}" class="fg-gnd"/>`;
+  // chiều cao PCCC
+  if (v.h > 0) { const x = 40; g += `<path d="M${x} ${G} V${roof} M${x - 4} ${roof + 6} l4 -6 l4 6 M${x - 4} ${G - 6} l4 6 l4 -6" class="fg-dim"/><text x="${x - 6}" y="${(G + roof) / 2}" class="fg-t fg-r fg-b">${fmtN(v.h)} m</text>`; }
+  g += `<text x="${X + W / 2}" y="${roof - 9}" class="fg-t fg-c fg-b">${n} tầng${v.nb ? ` · ${v.nb} hầm` : ""}</text>`;
+  // ống khô
+  if (ok === "on") g += `<path d="M${X - 7} ${G} V${roof}" stroke="var(--fire)" stroke-width="2.4" stroke-dasharray="5 3"/><text x="${X - 11}" y="${G - 6}" class="fg-t fg-r" style="fill:var(--fire)">ống khô</text>`;
+  // loa
+  if (loa === "on") g += `<path d="M${X + W - 26} ${roof - 22} h5 l6 -5 v16 l-6 -5 h-5z" fill="var(--fire)"/><path d="M${X + W - 11} ${roof - 21} q4 3 0 6 M${X + W - 8} ${roof - 24} q8 6 0 12" stroke="var(--fire)" stroke-width="1.4" fill="none"/>`;
+  // trụ nước ngoài nhà
+  if (qo) { const hx = 292; g += `<path d="M${hx - 7} ${G} v-18 q7 -9 14 0 v18z" fill="var(--fire)"/><rect x="${hx - 11}" y="${G - 14}" width="22" height="4" rx="2" fill="var(--fire)"/><text x="${hx}" y="${G - 34}" class="fg-t fg-c fg-b">${qo[1]} L/s</text><text x="${hx}" y="${G - 24}" class="fg-t fg-c">trụ nước</text>`; }
+  const IC = {
+    bc: '<circle cx="7" cy="7" r="3.2" fill="var(--fire)"/>',
+    spr: '<path d="M7 1v4M3 5h8" stroke="var(--water)" stroke-width="1.8"/><path d="M3.5 8l-1.5 4M7 8v4.5M10.5 8l1.5 4" stroke="var(--water)" stroke-width="1.2"/>',
+    hn: '<rect x="2.5" y="1.5" width="9" height="11" rx="1" fill="var(--fire)"/><circle cx="7" cy="7" r="2.3" fill="none" stroke="var(--on-fire)" stroke-width="1.1"/>',
+    ok: '<path d="M7 0v14" stroke="var(--fire)" stroke-width="2.4" stroke-dasharray="4 2.5"/>',
+    loa: '<path d="M1.5 5h3l4-3.5v11l-4-3.5h-3z" fill="var(--fire)"/><path d="M10.5 4.5q2.5 2.5 0 5" stroke="var(--fire)" stroke-width="1.3" fill="none"/>',
+    tru: '<path d="M4 14V7q3-5 6 0v7z" fill="var(--fire)"/><rect x="2" y="8" width="10" height="2.5" rx="1.2" fill="var(--fire)"/>'
+  };
+  const lg = [["Báo cháy", bc, "bc"], ["Sprinkler", spr === "part" ? "on" : spr, "spr", spr === "part" ? "một phần" : ""], ["Họng nước" + (jt ? ` ${jt[1]} × ${jt[2]} L/s` : ""), hn, "hn"], ["Ống khô", ok, "ok"], ["Loa", loa, "loa"], ["Nước ngoài nhà" + (qo ? ` ${qo[1]} L/s` : ""), qo ? "on" : "na", "tru"]].filter(x => x[1] !== "na" || x[0].startsWith("Báo") || x[0].startsWith("Spr"));
+  const lbl = lg.map(x => x[0] + (x[1] === "on" ? ": phải trang bị" : ": không bắt buộc")).join("; ");
+  return `<figure class="ctfig"><svg viewBox="0 0 340 ${H}" role="img" aria-label="Mặt cắt minh họa — ${esc(lbl)}">${g}</svg>
+  <figcaption class="fg-leg">${lg.map(([l, s2, ic, note]) => `<span class="${s2 === "on" ? "on" : "off"}"><svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">${IC[ic]}</svg>${esc(l)}${note ? ` (${note})` : ""}</span>`).join("")}</figcaption><p class="fg-note">Hình minh họa theo kết quả tra, không theo tỉ lệ. Gạch ngang: không bắt buộc với quy mô đã nhập.</p></figure>`;
+}
 function ctResult() {
   const t = TI[ctV.id];
   const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "dt1", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
@@ -1722,7 +1794,7 @@ function ctResult() {
   const sprMain = all.find(i => /^\*\*Hệ thống chữa cháy tự động/.test(i.txt));
   const sprTile = sprMain && sprMain.lv === "no" && partS ? `<div class="tile t"><b>Một phần</b><span>Chữa cháy tự động</span></div>` : tile("Chữa cháy tự động", /^\*\*Hệ thống chữa cháy tự động/);
   const tiles = `<div class="tiles" id="ctsum">${tile("Báo cháy tự động", /^\*\*Hệ thống báo cháy/)}${sprTile}${tile("Họng nước trong nhà", /^\*\*Hệ thống họng nước/)}${tile("Nước ngoài nhà riêng", /^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)}${all.some(i => /^\*\*Đường ống khô/.test(i.txt)) ? tile("Đường ống khô", /^\*\*Đường ống khô/) : `<div class="tile n"><b>Không</b><span>Đường ống khô</span></div>`}${tile("Loa thông báo", /^\*\*Loa thông báo/)}${t06}</div><p class="note">Có* — được thay bằng thiết bị báo cháy độc lập. Một phần — chỉ bắt buộc cho khu vực (để xe, thương mại…). “—” — không xét hoặc xem chi tiết.</p>`;
-  return `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>${tiles}
+  return `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>${tiles}${ctFigure(t, v, all, partS)}
   <div class="row-btns"><button class="btn2" id="ctcopy">Sao chép kết quả</button></div><p class="note" id="ctmsg" role="status"></p>` + itemsHTML(out) +
   q13Block(t, v) + q06Block(t, v) +
   `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;

@@ -1292,7 +1292,7 @@ const MAP06 = { "nha-o-kd": "Nhà ở riêng lẻ", "nha-o-sx": "Nhà ở riêng
   "the-thao": "Nhà thi đấu", "nha-hat": "Nhà hát", "thu-vien": "Thư viện", "bao-tang": "Bảo tàng", "van-hoa": "Trung tâm hội nghị", "karaoke": "Karaoke",
   "ton-giao": "Nhà hát", "cho-tttm": "Trung tâm thương mại", "sieu-thi": "Trung tâm thương mại", "nha-hang": "Nhà hàng", "vui-choi": "Khu vui chơi",
   "cua-hang": "Trung tâm thương mại", "chat-long": "Trung tâm thương mại", "khach-san": "Khách sạn", "buu-dien": "Bưu điện", "van-phong": "Văn phòng",
-  "hon-hop": "Nhà chung cư", "ga-hk": "Nhà ga", "ga-ds": "Nhà ga", "ga-hh": "Nhà ga", "ga-cap-treo": "Nhà ga", "ben-xe": "Nhà ga", "dv-cang": "Nhà ga",
+  "hon-hop": "Nhà chung cư", "ga-hk": "Nhà ga", "ga-ds": "Nhà ga", "ga-hh": "Nhà kho", "ga-cap-treo": "Nhà ga", "ben-xe": "Nhà ga", "dv-cang": "Nhà ga",
   "kslk": "Văn phòng", "dang-kiem": "Gara có sửa chữa", "de-xe": "Gara để xe không sửa chữa", "gara-ck": "Gara để xe không sửa chữa",
   "ky-thuat-mb": "Nhà sản xuất", "nong-san": "Nhà kho", "kho": "Nhà kho", "san-xuat": "Nhà sản xuất" };
 function q06Eval(t, v) {
@@ -1300,15 +1300,24 @@ function q06Eval(t, v) {
   const i = Q06.CT.findIndex(c => c.n.startsWith(key)); if (i < 0) return null;
   const dt1 = v.dt1 > 0 ? v.dt1 : (v.a && v.n ? Math.round(v.a / v.n) : 0);
   const sp = ctEvaluate(t, v).flatMap(s => s.items).some(x => /^\*\*Hệ thống chữa cháy tự động/.test(x.txt) && x.lv === "req");
-  const r = Q06.ctEvaluate({ i, h: v.h, n: v.n, nb: v.nb, a: dt1, p: v.ppl || "", v: v.vol || "", sp, deep: !!v.deep, hh: t.id === "hon-hop", hang: hangMain(v.hang || "C"), c1: false });
-  return { it: Q06.CT[i], dt1, sp, out: r.out };
+  const n06 = Math.max(1, v.n - (v.banHam ? 1 : 0));   // QCVN 06 dùng số tầng nổi; số tầng QCVN 10 (1.4.24) tính cả bán hầm
+  const r = Q06.ctEvaluate({ i, h: v.h, n: n06, nb: v.nb, a: dt1, p: v.ppl || "", v: v.vol || "", sp, deep: !!v.deep, hh: t.id === "hon-hop", hang: hangMain(v.hang || "C"), c1: false });
+  // Gợi ý: chưa có sprinkler mà có mục vượt → thử phương án có sprinkler toàn nhà
+  let alt = null;
+  const nBad = o => o.reduce((k, s) => k + s.items.filter(x => x.lv === "bad").length, 0);
+  if (!sp && nBad(r.out) > 0) {
+    const r2 = Q06.ctEvaluate({ i, h: v.h, n: n06, nb: v.nb, a: dt1, p: v.ppl || "", v: v.vol || "", sp: true, deep: !!v.deep, hh: t.id === "hon-hop", hang: hangMain(v.hang || "C"), c1: false });
+    const fixed = r.out.flatMap(s => s.items).filter(x => x.lv === "bad").filter(x => !r2.out.flatMap(s => s.items).some(y => y.lv === "bad" && y.ref === x.ref));
+    alt = { before: nBad(r.out), after: nBad(r2.out), fixed: fixed.map(x => x.ref), ok2: r2.out.flatMap(s => s.items).find(x => x.lv === "ok" && /phương án đạt/.test(x.txt)) };
+  }
+  return { it: Q06.CT[i], dt1, sp, n06, out: r.out, alt };
 }
 const LV06 = { ok: ["ok", "Đạt"], warn: ["warn", "Lưu ý"], bad: ["bad", "Vượt / không đạt"] };
 function items06HTML(sections) {
   return sections.filter(s => s.items.length).map(s => `<section class="ct-sec q06"><h2>${esc(s.t)}</h2><ul>${s.items.map(x => { const lv = LV06[x.lv]; return `<li class="lv-${lv ? lv[0] : "n"}">${lv ? `<span class="lv">${lv[1]}</span>` : ""}<span class="tx">${md(x.txt)}</span><span class="refs">${String(x.ref || "").split(/\s*,\s*(?![^(]*\))/).filter(Boolean).map(r => `<span class="ref r06">06 · ${esc(r)}</span>`).join("")}</span></li>`; }).join("")}</ul></section>`).join("");
 }
 /* ---------- giao diện Tra theo công trình ---------- */
-const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, pmoto: 0, dt1: 0, show06: true, srv: 0, mba: 0, mbaKv: 0, pdien: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
+const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, pmoto: 0, dt1: 0, show06: true, banHam: false, srv: 0, mba: 0, mbaKv: 0, pdien: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
 let ctV = Object.assign({}, DEF, store.get("q10-ct", {}));
 if (!TI[ctV.id]) ctV.id = DEF.id;
 if (!Array.isArray(ctV.mix) || ctV.mix.length !== 3 || !ctV.mix.every(r => Array.isArray(r) && TI[r[0]])) ctV.mix = JSON.parse(JSON.stringify(DEF.mix));
@@ -1361,6 +1370,7 @@ function renderCT() {
   if (t.og === "F5") { checks.push(chkF("w60", "Không có lỗ mở trên mái và nhà rộng > 60 m (Bảng H.4)")); checks.push(chkF("ceil10", "Gian cao ≤ 10 m, sprinkler liên động trung tâm báo cháy")); }
   if (f5) { checks.push(chkF("steel", "Kết cấu thép không bảo vệ / gỗ (H.2.3)")); checks.push(chkF("combust", "Vật liệu cháy bao quanh cấu trúc (bậc IV, S2, S3)")); }
   checks.push(chkF("deep", "Sàn hầm dưới cùng sâu > 9 m"));
+  checks.push(chkF("banHam", "Có tầng bán hầm (đã tính trong số tầng)"));
   if (MAP06[t.id]) checks.push(chkF("show06", "Kèm kiểm tra kiến trúc theo QCVN 06 (bậc chịu lửa, khoang cháy, thoát nạn, tiếp cận)"));
   if (t.og === "F13" || t.og === "F") checks.push(chkF("rural", "Khu vực nông thôn"));
   const mixHtml = t.id === "hon-hop" ? `<div class="mixbox"><p class="label" style="margin:0">Quy tắc 70 % (1.5.8) — diện tích sàn từng công năng</p>${(ctV.mix || []).map((r, i) => `<div class="grid2"><label class="fld"><span>Công năng ${i + 1}</span><select data-mix="${i}" data-mk="0">${T.filter(x => x.og !== "F5" && x.id !== "hon-hop" && x.og !== "ham").map(x => `<option value="${x.id}"${x.id === r[0] ? " selected" : ""}>${esc(x.n)}</option>`).join("")}</select></label><label class="fld"><span>Diện tích sàn</span><span class="inp"><input id="mix-a${i}" data-mix="${i}" data-mk="1" type="text" inputmode="decimal" autocomplete="off" value="${fmtIn(r[1])}"><i>m²</i></span></label></div>`).join("")}<p class="note" style="margin:0">Không tính diện tích kỹ thuật, PCCC, gian lánh nạn và đỗ xe.</p><div id="mixres">${mixHTML()}</div></div>` : "";
@@ -1418,7 +1428,7 @@ function q06Block(t, v) {
   if (!ctV.show06) return "";
   const r = q06Eval(t, v); if (!r) return "";
   const bad = r.out.reduce((n, s) => n + s.items.filter(i => i.lv === "bad").length, 0);
-  return `<div class="q06head" id="q06"><h2>Kiến trúc theo QCVN 06:2022/BXD + SĐ1:2023</h2><div class="ct-sum"><span class="chip">${esc(r.it.n)} · ${esc(r.it.g)}</span><span class="chip">${fmtN(r.dt1)} m²/tầng</span><span class="chip">${r.sp ? "có sprinkler (từ QCVN 10)" : "không sprinkler toàn nhà"}</span>${bad ? `<span class="chip hot">${bad} mục vượt / không đạt</span>` : ""}</div><p class="note">Sprinkler toàn nhà lấy theo kết quả QCVN 10 ở trên — ảnh hưởng diện tích khoang cháy (QCVN 06 H.4.1), khoảng cách lối ra, đai ngăn cháy. Số điều “06 · …” là điều của QCVN 06; tra nguyên văn trong sổ tay QCVN 06.</p></div>` + items06HTML(r.out);
+  return `<div class="q06head" id="q06"><h2>Kiến trúc theo QCVN 06:2022/BXD + SĐ1:2023</h2><div class="ct-sum"><span class="chip">${esc(r.it.n)} · ${esc(r.it.g)}</span><span class="chip">${r.n06} tầng nổi</span><span class="chip">${fmtN(r.dt1)} m²/tầng</span><span class="chip">${r.sp ? "có sprinkler (từ QCVN 10)" : "không sprinkler toàn nhà"}</span>${bad ? `<span class="chip hot">${bad} mục vượt / không đạt</span>` : ""}</div>${r.alt ? `<p class="mixout ${r.alt.after < r.alt.before ? "ok" : "warn"}">${r.alt.after < r.alt.before ? `Nếu <b>lắp sprinkler toàn nhà</b> (dù QCVN 10 chưa bắt buộc): số mục vượt giảm từ ${r.alt.before} còn ${r.alt.after}${r.alt.ok2 ? " — " + md(r.alt.ok2.txt) : ""}. Cách khác: chia khoang cháy hoặc giảm diện tích tầng.` : `Lắp sprinkler toàn nhà cũng không làm hết các mục vượt${r.out.some(x => x.items.some(i => i.lv === "bad" && i.ref === "Bảng H.1")) ? " (QCVN 06 chỉ cho tăng diện tích khoang cháy khi có chữa cháy tự động với Bảng H.2 – H.4, **không áp dụng Bảng H.1** nhà chung cư)" : ""} — cần **chia khoang cháy**, đổi bậc chịu lửa hoặc giảm diện tích, chiều cao.`.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")}</p>` : ""}<p class="note">Sprinkler toàn nhà lấy theo kết quả QCVN 10 ở trên — ảnh hưởng diện tích khoang cháy (QCVN 06 cho tăng 2 lần với Bảng H.2 – H.4 và nhà sản xuất, kho; không áp dụng Bảng H.1), khoảng cách lối ra, đai ngăn cháy. Số điều “06 · …” là điều của QCVN 06; tra nguyên văn trong sổ tay QCVN 06.</p></div>` + items06HTML(r.out);
 }
 function ctText() {
   const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "dt1", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;

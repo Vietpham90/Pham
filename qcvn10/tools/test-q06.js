@@ -29,6 +29,24 @@ const { chromium } = require("playwright");
   });
   if (sp.r1 !== true || sp.r2 !== false) errs.push("Truyền sprinkler sai: " + JSON.stringify(sp)); else ok++;
   if (!sp.r3sp || !sp.r3) errs.push("Nhà xưởng C3 8 tầng 10 800 m²/tầng phải đạt bậc I, II – S0 nhờ sprinkler: " + JSON.stringify(sp)); else ok++;
+  // 3b — ánh xạ nhóm F theo Bảng 6 QCVN 06; số tầng nổi khi có bán hầm
+  const m = await p10.evaluate(() => {
+    const g = id => q06Eval(TI[id], Object.assign({}, DEF, { n: 3, h: 10, a: 1500 })).it.g;
+    const r = q06Eval(TI["van-phong"], Object.assign({}, DEF, { n: 6, h: 20, a: 3000, banHam: true }));
+    return { gaHh: g("ga-hh"), gaHk: g("ga-hk"), benXe: g("ben-xe"), ks: g("khach-san"), cc: g("chung-cu"), kara: g("karaoke"), n06: r.n06 };
+  });
+  const want = { gaHh: "F5.2", gaHk: "F3.3", benXe: "F3.3", ks: "F1.2", cc: "F1.3", kara: "F2.1", n06: 5 };
+  if (JSON.stringify(m) !== JSON.stringify(want)) errs.push("Ánh xạ nhóm F / số tầng nổi: " + JSON.stringify(m)); else ok++;
+  // 3c — gợi ý sprinkler khi vượt khoang cháy
+  const g = await p10.evaluate(() => {
+    const r = q06Eval(TI["chung-cu"], Object.assign({}, DEF, { n: 7, h: 24, a: 21000, vol: 69300, hl: true, pmoto: 3000 }));
+    const bad = r.out.flatMap(s => s.items).filter(i => i.lv === "bad").map(i => i.ref);
+    return { sp: r.sp, bad, alt: r.alt };
+  });
+  // QCVN 06 chỉ cho tăng 2 lần với Bảng H.2 – H.4, không với Bảng H.1 (chung cư) → sprinkler không làm hết vượt
+  if (g.sp || !g.bad.includes("Bảng H.1") || !g.alt || g.alt.after !== g.alt.before) errs.push("Chung cư 7 tầng 3 000 m²/tầng: phải báo vượt Bảng H.1 và sprinkler KHÔNG làm hết vượt — " + JSON.stringify(g)); else ok++;
+  const g2 = await p10.evaluate(() => { const r = q06Eval(TI["ktx"], Object.assign({}, DEF, { n: 4, h: 13, a: 24000, dt1: 6000 })); return { sp: r.sp, alt: r.alt }; });
+  if (g2.sp || !g2.alt || !(g2.alt.after < g2.alt.before)) errs.push("Ký túc xá 4 tầng 6 000 m²/tầng: sprinkler phải làm đạt Bảng H.2 — " + JSON.stringify(g2)); else ok++;
   // 4 — giao diện: bỏ chọn thì ẩn, ô tóm tắt, sao chép kèm QCVN 06
   await p10.goto("file://" + process.argv[2] + "#cong-trinh"); await p10.waitForTimeout(100);
   await p10.selectOption("#ct-id", "chung-cu"); await p10.waitForTimeout(60);

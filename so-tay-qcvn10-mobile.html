@@ -583,7 +583,9 @@ const A1 = {
           s: v => v.bas ? { req: true, why: "tầng hầm, bán hầm: " + NOLIMIT + " (13.1)" } : v.n <= 2 ? { req: v.a >= 500, why: "1 – 2 tầng: ≥ 500 m² (13.2.1)" } : { req: true, why: "≥ 3 tầng: " + NOLIMIT + " (13.2.2)" } },
   "14": { r: v => ({ req: v.n >= 4, why: "≥ 4 tầng" }), s: v => ({ req: v.h >= 25, why: "chiều cao PCCC ≥ 25 m" }) },
   "15": { r: v => ({ req: true, why: NOLIMIT }),
-          s: v => v.bas ? { req: v.a >= 200, why: "tầng hầm: ≥ 200 m² (15.1)" } : v.n <= 2 ? { req: v.a >= 3500, why: "1 – 2 tầng: ≥ 3 500 m² (15.2.1)" } : { req: true, why: "≥ 3 tầng: " + NOLIMIT + " (15.2.2)" } },
+          s: v => { const tr = v.n <= 2 ? { req: v.a >= 3500, why: "trên mặt đất 1 – 2 tầng: ≥ 3 500 m² (15.2.1)" } : { req: true, why: "trên mặt đất ≥ 3 tầng: " + NOLIMIT + " (15.2.2)" };
+            if (!v.bas) return tr;
+            return tr.req ? { req: true, why: tr.why + "; tầng hầm, bán hầm: ≥ 200 m² (15.1)" } : { req: v.a >= 200, why: "tầng hầm, bán hầm: ≥ 200 m² (15.1) — phần trên mặt đất " + tr.why.replace(/^trên mặt đất /, "") + " chưa tới ngưỡng" }; } },
   "16": { r: v => ({ req: v.a >= 500, tbdl: v.n < 3 && v.a < 1500, why: "≥ 500 m² (TBĐL khi < 3 tầng và < 1 500 m²)" }), s: v => ({ req: v.h >= 25 || v.a >= 5000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 5 000 m²" }) },
   "17": { r: v => v.bas ? { req: true, why: "tầng hầm: " + NOLIMIT + " (17.1)" } : { req: v.n >= 3 || v.a >= 300, tbdl: v.n < 5 && v.a < 500, why: "≥ 3 tầng hoặc ≥ 300 m² (TBĐL khi < 5 tầng và < 500 m²) (17.2)" },
           s: v => v.bas ? { req: v.a >= 200, why: "tầng hầm: ≥ 200 m² (17.1)" } : { req: v.h >= 25 || v.a >= 3500, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 3 500 m² (17.2)" } },
@@ -934,9 +936,9 @@ function ctEvaluate(t, v) {
     const pa = (v.parea || 0) + (v.pmoto || 0);
     if (pa) push(S5, pa >= 18000 ? "req" : "no", `**Loa thông báo** — nhà để xe ô tô, xe máy kín (kể cả trong nhà có chức năng khác) ${fmtN(pa)} m² ${pa >= 18000 ? "≥" : "<"} 18 000 m²`, "Bảng G.1 mục 3");
     if (v.parea > 0 && !nhaO) {
-      const hh = v.phh > 0 ? v.phh : 3.3, kv = v.parea * hh;
+      const hh = v.phh > 0 ? v.phh : 3.3, Lx = v.nb >= 2 ? v.nb : 1, a1x = Math.round(v.parea / Lx), kv = a1x * hh;
       const pj = kv < 500 ? null : kv <= 5000 ? [2, 2.5] : [2, 5];
-      push(S5, "val", `**Họng nước khu để xe**: khoang ≈ ${fmtN(v.parea)} m² × ${fmtN(hh)} m${v.phh > 0 ? "" : " (ước)"} = ${fmtN(kv)} m³ → ` + (pj ? `**2 lăng × ${fmtN(pj[1])} L/s**` : "dưới 500 m³, Bảng H.5 CT2 không quy định") + " (khoang 500 – 5 000 m³: 2 × 2,5; > 5 000 m³: 2 × 5)", "Bảng H.5 CT2");
+      push(S5, "val", `**Họng nước khu để xe**: khoang ≈ ${fmtN(a1x)} m²${Lx > 1 ? ` (${fmtN(v.parea)} m² / ${Lx} tầng hầm)` : ""} × ${fmtN(hh)} m${v.phh > 0 ? "" : " (ước)"} = ${fmtN(kv)} m³ → ` + (pj ? `**2 lăng × ${fmtN(pj[1])} L/s**` : "dưới 500 m³, Bảng H.5 CT2 không quy định") + " (khoang 500 – 5 000 m³: 2 × 2,5; > 5 000 m³: 2 × 5)", "Bảng H.5 CT2");
       if (pj && jMain && jMain.n) {
         const qa = jMain.n * jMain.q + (jMain.add || 0), qb = pj[0] * pj[1];
         push(S5, "val", `**Lưu lượng thiết kế bơm họng nước = ${fmtN(Math.max(qa, qb))} L/s** — lấy phần lớn hơn: phần nhà ${fmtN(qa)} L/s, khu để xe ${fmtN(qb)} L/s${qb > qa ? " → **khu để xe quyết định**" : ""}`, "H.2.5");
@@ -976,7 +978,11 @@ function ctEvaluate(t, v) {
   push(S4, "req", "**Chiếu sáng sự cố, chỉ dẫn thoát nạn** — theo **TCVN 13456**", "2.2.1");
   let g1 = null;
   if (t.g1 === "cc") g1 = { req: v.n > 10 || v.nb >= 2, why: "> 10 tầng hoặc ≥ 2 tầng hầm", ref: "Bảng G.1 mục 1" };
-  else if (t.g1 === "ppl") g1 = { req: v.ppl >= 50 || v.n > 10 || v.nb >= 2, why: "≥ 50 người trên 1 tầng (mục 2) hoặc > 10 tầng, ≥ 2 tầng hầm (mục 1)", ref: "Bảng G.1 mục 2" };
+  else if (t.g1 === "ppl") {
+    const est = v.ppl > 0 ? 0 : Math.ceil(Math.max(v.room || 0, (v.seats || 0) / Math.max(1, v.n)));
+    const pp = v.ppl > 0 ? v.ppl : est;
+    g1 = { req: pp >= 50 || v.n > 10 || v.nb >= 2, why: "≥ 50 người trên 1 tầng (mục 2) hoặc > 10 tầng, ≥ 2 tầng hầm (mục 1)" + (est ? ` — chưa nhập số người/tầng, ước ≥ ${fmtN(est)} người theo ${(v.seats || 0) / Math.max(1, v.n) >= (v.room || 0) ? "số chỗ / số tầng" : "người trong phòng lớn nhất"}` : !v.ppl && v.n <= 10 && v.nb < 2 ? " — **nhập số người trên 1 tầng để xét mục 2**" : ""), ref: "Bảng G.1 mục 2" };
+  }
   else if (t.g1 === "xe") g1 = { req: v.gara !== "ho" && v.a >= 18000, why: "nhà để xe dạng kín ≥ 18 000 m²", ref: "Bảng G.1 mục 3" };
   else if (t.g1 === "sx") g1 = { req: v.a >= 18000 && v.ppl >= 300, why: "≥ 18 000 m² và ≥ 300 người trên 1 tầng", ref: "Bảng G.1 mục 4" };
   else if (t.g1 === "ham") g1 = { req: v.len >= 500, why: "hầm dài ≥ 500 m", ref: "Bảng G.1 mục 5" };
@@ -1506,7 +1512,7 @@ function renderCT() {
   if (need.includes("bacS") || f5) extra.push(selF("S", "Cấp kết cấu (S)", ["S0", "S1", "S2", "S3"]));
   if (f5) extra.push(selF("hang", "Hạng cháy nổ", ["A", "B", "C1", "C2", "C3", "C4", "D", "E"]));
   if (need.includes("gara")) extra.push(selF("gara", "Dạng nhà để xe", [["kin", "Dạng kín"], ["ho", "Dạng hở"]]));
-  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín", "m²")); extra.push(numF("phh", "Chiều cao tầng để xe", "m", "", "3,3")); extra.push(numF("pmoto", "Diện tích để xe máy kín", "m²")); }
+  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín (tổng các tầng)", "m²")); extra.push(numF("phh", "Chiều cao tầng để xe", "m", "", "3,3")); extra.push(numF("pmoto", "Diện tích để xe máy kín", "m²")); }
   if (need.includes("ga")) extra.push(numF("ga", "Gian lớn nhất", "m²", "", "= tổng"));
   if (need.includes("tm")) { extra.push(numF("tmTr", "Gian thương mại trên mặt đất", "m²")); extra.push(numF("tmHam", "Gian thương mại tầng hầm", "m²")); }
   if (t.og !== "ham") { extra.push(numF("srv", "Phòng máy chủ, IT", "m²")); extra.push(numF("pdien", "Phòng điện tổng, tủ phân phối", "m²")); extra.push(numF("mba", "Máy biến áp trong nhà", "MVA")); extra.push(numF("mbaKv", "Điện áp máy biến áp", "kV")); }

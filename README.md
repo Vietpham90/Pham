@@ -92,6 +92,8 @@ Tra cứu trang bị phương tiện PCCC và CNCH: báo cháy, chữa cháy t�
 | `docs/qcvn10/` | Bản web cài được (PWA), chạy offline — trên GitHub Pages ở địa chỉ `…/qcvn10/` |
 | `so-tay-qcvn10-mobile.html` | Một tệp HTML, mở trực tiếp bằng trình duyệt điện thoại |
 | `so-tay-qcvn10-offline.html` | Một tệp HTML **chạy hoàn toàn không cần mạng**, đã nhúng phông chữ (570 KB) |
+| `so-tay-qcvn10-iphone.html` | Bản **đọc tĩnh** không cần JavaScript — tải về iPhone, mở bằng ứng dụng Tệp là đọc được (không có công cụ tra) |
+| `qcvn10/ios/` | Dự án Xcode ứng dụng iOS “QCVN 10”, chạy offline — xem `qcvn10/ios/README.md` |
 
 Công cụ trong sổ tay:
 
@@ -102,7 +104,8 @@ Công cụ trong sổ tay:
 ### Xem offline trên điện thoại
 
 - **Android**: tải `so-tay-qcvn10-offline.html` về máy → mở bằng **Chrome** (trình quản lý tệp → Mở bằng → Chrome). Dùng được khi không có mạng; dữ liệu nhập được nhớ trên máy.
-- **iPhone**: trình xem trước của ứng dụng Tệp không chạy JavaScript nên các công cụ tra sẽ không hoạt động. Dùng bản web: bật GitHub Pages (như hướng dẫn ở đầu tài liệu), mở `…/qcvn10/` bằng Safari khi có mạng một lần → **Chia sẻ → Thêm vào MH chính**. Từ đó mở offline được.
+- **iPhone, chỉ đọc**: tải `so-tay-qcvn10-iphone.html` → mở trong ứng dụng Tệp. Đọc được toàn bộ nội dung, không cần mạng; không có công cụ tra.
+- **iPhone, đầy đủ công cụ**: trình xem trước của ứng dụng Tệp không chạy JavaScript. Dùng ứng dụng iOS (`qcvn10/ios/`, cần Mac) hoặc bản web: bật GitHub Pages (như hướng dẫn ở đầu tài liệu), mở `…/qcvn10/` bằng Safari khi có mạng một lần → **Chia sẻ → Thêm vào MH chính**. Từ đó mở offline được.
 
 Tạo lại các bản sau khi sửa nội dung (chạy từ thư mục gốc repo), rồi tăng `VERSION` trong `docs/qcvn10/sw.js`. Đặt biến `FONTS` tới thư mục phông fontsource để tạo cả bản offline:
 

@@ -35,11 +35,13 @@ Mọi ngưỡng trang bị của hai nhóm công trình hay gặp nhất, gom v�
 | Khu vực | Báo cháy tự động | Chữa cháy tự động | Điều |
 | --- | --- | --- | --- |
 | Phòng lưu giữ ô tô trong nhà | Không phụ thuộc diện tích | **≥ 3 xe ô tô** | Bảng A.3 mục 4.4 |
+| Phòng lưu giữ **xe máy** (phương tiện cơ giới đường bộ trừ ô tô) | **≥ 1 000 m²** | **≥ 1 000 m²** | Bảng A.3 mục 4.2 |
 | Gian thương mại tầng hầm | Không phụ thuộc diện tích | **≥ 200 m²** | Bảng A.3 mục 5.10.1 |
 | Gian thương mại trên mặt đất | **≥ 500 m²** | **≥ 500 m²** | Bảng A.3 mục 5.10.2 |
 | Phòng máy chủ | **≥ 24 m²** | **≥ 24 m²** | Bảng A.3 mục 5.9 |
 
-- Nhà để xe kín (kể cả trong nhà khác) **≥ 18 000 m²** → loa thông báo (Bảng G.1 mục 3).
+- Nhà để xe ô tô, xe máy kín (kể cả trong nhà khác) **≥ 18 000 m²** → loa thông báo (Bảng G.1 mục 3).
+- Chung cư dưới 30 m chưa phải lắp sprinkler toàn nhà, nhưng gara **xe máy ≥ 1 000 m²** hoặc gara **≥ 3 ô tô** vẫn phải có sprinkler cho khu để xe; khi đó cần thêm họng lấy nước hai cửa DN65 (H.2.19).
 - Họng nước khu để xe kín: khoang 500 – 5 000 m³ → **2 × 2,5 L/s**; > 5 000 m³ → **2 × 5 L/s** (Bảng H.5 CT2).
 - Có công năng khác chiếm > 30 % diện tích sàn → kiểm tra **quy tắc 70 %** (1.5.8).
 

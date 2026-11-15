@@ -8,6 +8,7 @@ python3 tools/build.py noi-dung tools/template.html "$T/so-tay.html" >/dev/null
 for t in test-quy-tac test-chung-cu-kho test-co-so test-giao-dien; do node qcvn10/tools/$t.js "$T/q10.html" | tail -1; done
 node qcvn10/tools/test-tim-ten.js "$T/q10.html" | tail -1
 node qcvn10/tools/test-tim-kiem.js "$T/q10.html" | tail -1
+node qcvn10/tools/test-dong-bo.js "$T/q10.html" | tail -1
 node qcvn10/tools/test-q13.js "$T/q10.html" | tail -1
 node qcvn10/tools/test-kich-ban.js "$T/q10.html" | tail -1
 node qcvn10/tools/test-nhieu-khoi.js "$T/q10.html" | tail -1

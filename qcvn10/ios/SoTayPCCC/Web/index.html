@@ -181,6 +181,7 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 .mau { display: flex; gap: 6px; justify-content: center; margin: 14px 0 0; flex-wrap: wrap; }
 .mau button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
 .mau button[aria-pressed=true] { background: var(--fire); color: var(--on-fire); border-color: var(--fire); }
+.sync { margin: 4px 0 0; font-size: 12px; color: var(--exit); text-align: center; } .sync:empty { display: none; }
 .ver { margin: 6px 0 0; font-size: 12px; color: var(--muted); text-align: center; font-family: var(--mono); }
 .disclaimer { font-size: 12.5px; color: var(--amber-ink); background: var(--amber-bg); border-radius: 10px; padding: 10px 12px; margin: 16px 0 0; }
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
@@ -414,6 +415,7 @@ function mauGet() { try { return localStorage.getItem("q10-mau") || "be"; } catc
 function mauSet(m) {
   if (m === "be") delete document.documentElement.dataset.mau; else document.documentElement.dataset.mau = m;
   try { localStorage.setItem("q10-mau", m); } catch (e) {}
+  if (typeof syncPush === "function" && document.querySelector(".mau")) { try { localStorage.setItem("q10-ts", String(Date.now())); } catch (e) {} syncPush(); }
   document.querySelectorAll(".mau button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mau === m));
 }
 mauSet(mauGet());
@@ -440,7 +442,7 @@ const FILE2ID = {"README.md":"tong-quan","01-quy-dinh-chung.md":"chung","02-tran
 /* ---------- lưu trên thiết bị (không bắt buộc) ---------- */
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); localStorage.setItem("q10-ts", String(Date.now())); } catch (e) {} if (typeof syncPush === "function") syncPush(); }
 };
 let saved = store.get("q10-saved", []);
 /* Số kiểu Việt Nam: "12,5" "1 200" "1.200" "1.200,5" */
@@ -546,7 +548,8 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v31 · cập nhật 15/11/2026</p>`;
+    <p class="ver">Phiên bản v32 · cập nhật 15/11/2026</p>
+    <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
 function renderSection(id, openBlock) {
@@ -2266,6 +2269,68 @@ function go(hash, block) {
   if (location.hash.slice(1) === hash) route(); else location.hash = hash;
 }
 window.addEventListener("hashchange", route);
+
+/* ---------- Đồng bộ theo tài khoản Claude (chỉ khi mở qua link claude.ai) ----------
+   Lưu riêng cho từng người tại data/users/<id>/q10 — người khác (kể cả chủ sở hữu) không đọc được.
+   Bản offline, PWA không có claude.use → chỉ lưu trên máy như trước. */
+const SYNC_KEYS = ["q10-saved", "q10-ct", "q10-mk", "q10-gp", "q10-w", "q10-h7", "q10-cs", "q10-csx", "q10-mau"];
+let syncRef = null, syncState = "off", syncTimer = null, syncBusy = false;
+function syncMsg() {
+  return { off: "", wait: "☁ Đang kết nối đồng bộ…", on: "☁ Đồng bộ theo tài khoản Claude: mục đã lưu, thông số tra, dự án nhiều khối dùng được trên mọi máy đăng nhập tài khoản này", saving: "☁ Đang lưu lên tài khoản…", err: "☁ Chưa đồng bộ được — dữ liệu vẫn lưu trên máy này" }[syncState] || "";
+}
+function syncShow(st) { syncState = st; const el = document.getElementById("syncst"); if (el) el.textContent = syncMsg(); }
+function syncLocal() {
+  const o = {}; try { SYNC_KEYS.forEach(k => { const v = localStorage.getItem(k); if (v !== null) o[k] = v; }); } catch (e) {}
+  let ts = 0; try { ts = +localStorage.getItem("q10-ts") || 0; } catch (e) {}
+  return { data: o, ts };
+}
+function syncPush() {
+  if (!syncRef) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(async () => {
+    if (syncBusy) { syncPush(); return; }
+    syncBusy = true; syncShow("saving");
+    try { const l = syncLocal(); await syncRef.set({ v: 1, ts: l.ts || Date.now(), data: l.data }); syncShow("on"); } catch (e) { syncShow("err"); }
+    syncBusy = false;
+  }, 1500);
+}
+function syncReload() {
+  saved = store.get("q10-saved", []);
+  ctV = Object.assign({}, DEF, store.get("q10-ct", {})); if (!TI[ctV.id]) ctV.id = DEF.id;
+  if (!Array.isArray(ctV.mix) || ctV.mix.length !== 3 || !ctV.mix.every(r => Array.isArray(r) && TI[r[0]])) ctV.mix = JSON.parse(JSON.stringify(DEF.mix));
+  mkV = store.get("q10-mk", null); if (!mkV || !Array.isArray(mkV.parts) || !mkV.parts.every(x => x && TI[x.id])) mkV = JSON.parse(JSON.stringify(MK_DEF));
+  gpV = Object.assign({ k: 50, x: 30, q: "" }, store.get("q10-gp", {}));
+  wV = Object.assign({ pop: 20000, hi: true, ac: 150, mode: "kdc" }, store.get("q10-w", {}));
+  h7V = Object.assign({ dn: "50", tip: "16", jet: 6, hose: 20 }, store.get("q10-h7", {}));
+  csV = Object.assign({ floors: "1200, 1200, 800", road: true }, store.get("q10-cs", {}));
+  csxV = Object.assign({ i: 0, x: 200000, cap: "1", auto: true }, store.get("q10-csx", {}));
+  const m = mauGet(); if (m === "be") delete document.documentElement.dataset.mau; else document.documentElement.dataset.mau = m;
+}
+async function syncPull() {
+  if (!syncRef) return;
+  try {
+    const snap = await syncRef.get(), l = syncLocal();
+    const r = snap.exists ? snap.data() : null;
+    if (r && r.data && typeof r.data === "object" && +r.ts > l.ts) {
+      const a = document.activeElement; if (a && /INPUT|SELECT|TEXTAREA/.test(a.tagName) && a.id !== "q") return;
+      try { SYNC_KEYS.forEach(k => { const v = r.data[k]; if (typeof v === "string" && v.length < 200000) localStorage.setItem(k, v); else localStorage.removeItem(k); }); localStorage.setItem("q10-ts", String(+r.ts)); } catch (e) {}
+      syncReload(); route();
+    } else if (!r || l.ts > +r.ts) syncPush();
+    syncShow("on");
+  } catch (e) { syncShow("err"); }
+}
+(async () => {
+  if (!window.claude || typeof window.claude.use !== "function") return;
+  syncShow("wait");
+  try {
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    const uid = db && user ? await user.id() : null;
+    if (!uid) { syncShow("off"); return; }
+    syncRef = db.doc("data/users/" + uid + "/q10");
+    await syncPull();
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") syncPull(); });
+  } catch (e) { syncShow("err"); }
+})();
 async function copyText(t, msgId) {
   let ok = false;
   try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {

@@ -49,6 +49,17 @@ const { chromium } = require("playwright");
   await p.evaluate(() => localStorage.setItem("q10-mk", JSON.stringify({ parts: [{ id: "khong-co" }] })));
   await p.reload(); await p.waitForTimeout(150);
   check((await p.$$(".mkpart")).length === 4, "dữ liệu lưu hỏng → dùng mẫu");
+  // 7. Tầng hầm 2 – 3 tầng: loa cho chung cư phía trên, ống khô khi sâu > 9 m, phạm vi QCVN 06 theo nhà phía trên
+  const h = await p.evaluate(() => { const R = mkEval({ pop: 0, parts: [
+    { id: "chung-cu", ten: "A", n: 7, h: 21, dt1: 1200, th: 3.3, hl: true }, { id: "de-xe", ten: "H2", n: 2, dt1: 6000, th: 3.5, ham: true, cho: 300 }] });
+    const R3 = mkEval({ pop: 0, parts: [{ id: "chung-cu", ten: "A", n: 7, h: 21, dt1: 1200, th: 3.3 }, { id: "de-xe", ten: "H3", n: 3, dt1: 6000, th: 3.6, ham: true, cho: 400 }] });
+    const R4 = mkEval({ pop: 0, parts: [{ id: "chung-cu", ten: "A", n: 7, h: 21, dt1: 1200, th: 3.3 }, { id: "de-xe", ten: "H4", n: 4, dt1: 6000, th: 3.3, ham: true, cho: 400 }] });
+    const sc = r => r.r6.out.flatMap(s => s.items).find(i => i.ref === "1.1.2").lv;
+    return { loaA: R.rows[0].loa, dryH2: R.rows[1].dry, sc2: sc(R.rows[1]), dryH3: R3.rows[1].dry, dryA3: R3.rows[0].dry, sc4: sc(R4.rows[1]) }; });
+  check(h.loaA === "req", "chung cư 7 tầng trên 2 tầng hầm → loa (G.1 mục 1) — " + h.loaA);
+  check(h.sc2 === "ok", "tầng hầm 2 tầng dưới chung cư: trong phạm vi QCVN 06 (≤ 3 tầng hầm) — " + h.sc2);
+  check(h.dryH2 === false && h.dryH3 === true && h.dryA3 === true, "hầm 2 × 3,5 = 7 m: không ống khô; 3 × 3,6 = 10,8 m: ống khô cho hầm và tòa phía trên — " + JSON.stringify(h));
+  check(h.sc4 === "bad", "4 tầng hầm dưới chung cư: vượt phạm vi QCVN 06 — " + h.sc4);
   errs.forEach(e => console.log("✗", e));
   console.log(`${ok.length}/${ok.length + errs.length} kiểm tra dự án nhiều khối đạt`);
   await b.close(); process.exit(errs.length ? 1 : 0);

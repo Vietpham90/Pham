@@ -149,7 +149,7 @@ node qcvn10/tools/smoke.js /tmp/q10.html
 - `test-chung-cu-kho.js` — 46 tình huống thiết kế (chung cư, gara xe máy, khách sạn có gara hầm, xưởng có phòng IT, máy biến áp, nhà kho).
 - `test-fuzz-giao-dien.js` — thao tác ngẫu nhiên trên mọi loại nhà và mọi ô nhập (số âm, chữ, số rất lớn…), bắt lỗi JavaScript và chữ “NaN/undefined”.
 - `test-nguong-tu-noi-dung.js` — kiểm thử độc lập: đọc ngưỡng từ bảng A.1, B.1, C.1, G.1 trong `noi-dung` rồi thử công cụ sát dưới và đúng ngưỡng (87 ô, 191 phép thử).
-- `test-nhieu-khoi.js` — dự án 3 tòa chung cư + tầng hầm gara: bơm 10 L/s do gara quyết định, 1/2/3 đám cháy, thêm, xóa, lưu khối (17 kiểm tra).
+- `test-nhieu-khoi.js` — dự án 3 tòa chung cư + tầng hầm gara: bơm 10 L/s do gara quyết định, 1/2/3 đám cháy, thêm, xóa, lưu khối (21 kiểm tra, gồm tầng hầm 2 – 4 tầng).
 - `test-q06.js` — phần ghép QCVN 06: kết quả giống hệt sổ tay QCVN 06 trên 400 đầu vào ngẫu nhiên; sprinkler được truyền đúng; nhóm F theo Bảng 6; số tầng nổi khi có bán hầm; gợi ý sprinkler (không áp dụng Bảng H.1) (`node qcvn10/tools/test-q06.js /tmp/q10.html /tmp/so-tay.html`).
 - `test-co-so.js` — 31 trường hợp Bảng D.1, F.1, C.1 cho cơ sở, khu.
 - `test-doi-chieu.js` — bảng số trong mã khớp bảng trong `noi-dung` (H.1 – H.4, H.6, H.7 và 69 dòng Bảng A.2 – A.4).

@@ -1337,6 +1337,9 @@ function q06Eval(t, v) {
   const garaNgam = ["de-xe", "gara-ck"].includes(t.id) && v.bas;
   const coHamXe = v.nb >= 1 && (v.pcar > 0 || v.parea > 0);
   if (garaNgam) r.out.forEach(sec => { sec.items = sec.items.filter(x => !/buồng thang L1|lỗ lấy sáng|bãi đỗ xe chữa cháy|[Ll]ối vào từ trên cao|[Đđ]ai ngăn cháy giữa các tầng|chia cắt mặt ngoài|Lối lên mái/.test(x.txt)); });
+  if (garaNgam && v.hostNbLim) r.out.forEach(sec => { const k = sec.items.findIndex(x => /^Vượt phạm vi điều chỉnh|^Trong phạm vi áp dụng/.test(x.txt)); if (k >= 0) sec.items[k] = v.nb <= v.hostNbLim.lim
+    ? { txt: `Tầng hầm thuộc nhà phía trên (${v.hostNbLim.it.n}): ${v.nb} tầng hầm ≤ ${v.hostNbLim.lim} — trong phạm vi áp dụng`, ref: "1.1.2", lv: "ok" }
+    : { txt: `Tầng hầm thuộc nhà phía trên (${v.hostNbLim.it.n}): ${v.nb} tầng hầm > ${v.hostNbLim.lim} — vượt phạm vi, bổ sung tài liệu chuẩn, luận chứng kỹ thuật`, ref: "1.1.2", lv: "bad" }; });
   if (garaNgam || coHamXe) r.out.push({ t: garaNgam ? "Gara ngầm (tầng hầm)" : "Phần để xe ô tô trong tầng hầm", items: [
     { txt: "Lối ra từ tầng hầm là lối ra thoát nạn khi **thoát trực tiếp ra ngoài** và **ngăn cách với buồng thang bộ chung** của nhà; hoặc đi qua buồng thang chung có lối riêng ra ngoài, ngăn bằng vách đặc ngăn cháy", ref: "3.2.2", lv: "warn" },
     { txt: "Đường xe chữa cháy nằm trong phạm vi **18 m** tính từ lối vào trên mặt đất của các khoang đệm thang máy chữa cháy hoặc buồng thang có họng chờ DN 65 của hệ thống ống khô", ref: "6.2.2", lv: "warn" },
@@ -1682,8 +1685,15 @@ function outdoorQT(t, v) {
   return { q: of.q, t: v.go ? 5 : small ? 1 : hrs, why: of.why };
 }
 function mkEval(V) {
+  const hams = V.parts.filter(x => x.ham);
+  const projNb = hams.reduce((m, x) => Math.max(m, Math.max(1, +x.n || 1)), 0);
+  const projDeep = hams.some(x => Math.max(1, +x.n || 1) * (+x.th || 3.3) > 9);
+  const host = V.parts.find(x => !x.ham && TI[x.id] && TI[x.id].og !== "F5" && TI[x.id].og !== "ham");
   const rows = V.parts.map((x, k) => {
-    const t = TI[x.id], v = mkVars(x), out = ctEvaluate(t, v), all = out.flatMap(s => s.items);
+    const t = TI[x.id], v = mkVars(x);
+    if (x.ham) { v.deep = v.nb * (+x.th || 3.3) > 9; if (host) v.hostNbLim = { it: TI[host.id], lim: 3 }; }
+    else { v.nb = Math.max(v.nb, projNb); v.deep = v.deep || projDeep; }
+    const out = ctEvaluate(t, v), all = out.flatMap(s => s.items);
     const lv = re => { const it = all.find(i => re.test(i.txt)); return it ? it.lv : "none"; };
     const jt = all.find(i => /^\*\*Số tia × lưu lượng\*\*/.test(i.txt));
     const jq = jt ? +jt.txt.match(/= \*\*([\d,.]+) L\/s\*\*/)[1].replace(/\./g, "").replace(",", ".") : 0;
@@ -1699,7 +1709,7 @@ function mkEval(V) {
   const tOut = take.length ? Math.max(...take.map(r => r.od.t)) : 0;
   const qKdc = h1 ? h1[1] * h1[3] : 0;
   const hydrMax = rows.reduce((m, r) => r.jq > m.q ? { q: r.jq, r } : m, { q: 0, r: null });
-  return { rows, pop, fires, h1, qOut: Math.max(qOut, qKdc), qKdc, tOut, take, hydrMax,
+  return { rows, pop, fires, h1, projNb, projDeep, qOut: Math.max(qOut, qKdc), qKdc, tOut, take, hydrMax,
     anySpr: rows.some(r => r.spr === "req"), anyHydr: rows.some(r => r.hydr === "req"), pump: rows.some(r => r.pump), two: Math.max(qOut, qKdc) >= 25 };
 }
 function mkResult() {
@@ -1715,6 +1725,7 @@ function mkResult() {
   if (R.pump) push("req", "Bơm chữa cháy **điều khiển bằng tay tại phòng bơm và tự động** (có khối thuộc diện)", "2.4.2");
   if (R.anySpr && R.anyHydr) push("req", "Có họng nước và sprinkler → **≥ 01 họng lấy nước hai cửa DN65** ở mặt ngoài, phía đường giao thông", "H.2.19");
   push("info", "Trạm bơm: bơm dự phòng (1 – 3 bơm chính: ≥ 1; ≥ 4: ≥ 2), ≥ 2 ống hút, hai nguồn điện độc lập. Lưu lượng sprinkler tính theo TCVN 7336 (QCVN 10 không quy định) và cộng vào bể khi dùng chung", "H.3.1; H.3.2; 2.5.2");
+  if (R.projNb) push("info", `Tầng hầm dự án: **${R.projNb} tầng**${R.projDeep ? ", sàn dưới cùng ước sâu **> 9 m**" : ""} — đã tính cho các khối trên mặt đất khi xét loa (≥ 2 tầng hầm), ống khô (hầm sâu > 9 m) và phạm vi QCVN 06. Độ sâu ước = số tầng hầm × cao tầng; nhập đúng cao tầng hầm`, "Bảng G.1 mục 1; 2.4.4");
   push("info", "Xét riêng từng khối khi các phần **ngăn cháy độc lập** và có **lối ra thoát nạn riêng**; phần ngầm và phần trên mặt đất cũng vậy. Không thỏa → xét như một nhà (tổng diện tích, khối tích)", "1.5.9; 1.4.26");
   const det = R.rows.map(r => `<details class="mkd"><summary>${esc(r.x.ten || r.t.n)} — chi tiết</summary>${itemsHTML(r.out)}${r.r6 ? items06HTML(r.r6.out) : ""}</details>`).join("");
   return tb + itemsHTML([{ t: "Tổng hợp dự án", items: it }]) + `<p class="label">Chi tiết từng khối (QCVN 10 + QCVN 06)</p>` + det +

@@ -101,7 +101,7 @@ const { chromium } = require("playwright");
       check(over <= 0, `${scheme} ${h}: không tràn ngang (${over}px)`);
     }
     const bg = await q.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    check(scheme === "dark" ? bg !== "rgb(251, 248, 243)" : bg === "rgb(251, 248, 243)", `${scheme}: nền ${bg}`);
+    check(scheme === "dark" ? bg !== "rgb(244, 236, 218)" : bg === "rgb(244, 236, 218)", `${scheme}: nền ${bg}`);
     if (shots) { await q.goto(file + "#cong-trinh"); await q.waitForTimeout(100); await q.screenshot({ path: `${shots}/ct-${scheme}.png` }); }
     await c.close();
   }

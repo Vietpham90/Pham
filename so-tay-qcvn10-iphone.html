@@ -321,6 +321,13 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .ref.r06 { cursor: default; color: var(--exit); }
 .tiles .t06 { text-decoration: none; color: inherit; }
 .tiles { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+.mkpart { display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 10px; padding: 10px; background: var(--bg); }
+.mkhead { display: flex; gap: 8px; align-items: center; } .mkname { flex: 1; min-width: 0; height: 38px; border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; font: inherit; font-weight: 700; font-size: 16px; background: var(--panel); color: var(--ink); }
+.tbl td.c-y { color: var(--fire); font-weight: 700; } .tbl td.c-t { color: var(--amber-ink); font-weight: 700; } .tbl td.c-n { color: var(--exit); }
+.tbl td small { color: var(--muted); font-weight: 400; }
+details.mkd { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; margin: 0 0 10px; } details.mkd summary { cursor: pointer; font-weight: 700; }
+details.mkd .ct-sec { border: 0; padding: 8px 0 0; margin: 0; }
+#mkform { grid-template-columns: minmax(0, 1fr); } .mkpart, .mkpart > *, .mkpart select { min-width: 0; max-width: 100%; }
 </style>
 <style>
 html { padding-top: env(safe-area-inset-top, 0px); -webkit-tap-highlight-color: transparent; }

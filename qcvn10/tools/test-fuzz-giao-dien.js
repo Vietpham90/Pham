@@ -30,6 +30,19 @@ const VALS = ["", "0", "-5", "abc", "1,5", "1.500", "2 000", "999999999", "0,000
     }
   }
   // các thẻ khác
+  // thẻ Nhiều khối: mọi ô của mọi khối
+  await p.evaluate(() => { location.hash = "nhieu-khoi"; }); await p.waitForTimeout(80);
+  for (let r = 0; r < 6; r++) {
+    const ids = await p.$$eval("#mkform input[data-mk]:not([type=checkbox]), #mk-pop", els => els.map(e => e.id));
+    for (const id of ids) { await p.fill("#" + id, VALS[Math.floor(rnd() * VALS.length)]); steps++; }
+    const boxes = await p.$$eval("#mkform input[type=checkbox]", els => els.map(e => e.id));
+    for (const id of boxes) if (rnd() < 0.4) { const el = await p.$("#" + id); if (el) { await el.click(); steps++; } }
+    const sels = await p.$$eval("#mkform select", els => els.map(e => [e.id, [...e.options].map(o => o.value)]));
+    for (const [id, opts] of sels) if (rnd() < 0.3 && await p.$("#" + id)) { await p.selectOption("#" + id, opts[Math.floor(rnd() * opts.length)]); steps++; }
+    const txt = await p.innerText("#mkres"); const bad = txt.match(/undefined|NaN|Infinity|\[object/);
+    if (bad) errs.push(`nhieu-khoi vòng ${r}: chữ lỗi "${bad[0]}" — …${txt.slice(Math.max(0, bad.index - 60), bad.index + 30).replace(/\n/g, " ")}`);
+    if (!/Tổng hợp dự án/.test(txt)) errs.push(`nhieu-khoi vòng ${r}: thiếu phần tổng hợp`);
+  }
   for (const [hash, ids] of [["gian-phong", ["#gp-x", "#gp-q"]], ["co-so", ["#csx-x"]], ["tinh-nuoc", ["#w-pop", "#w-ac"]], ["cong-truong", ["#cs-floors"]]]) {
     await p.evaluate(h => { location.hash = h; }, hash); await p.waitForTimeout(60);
     for (let r = 0; r < 20; r++) for (const id of ids) {

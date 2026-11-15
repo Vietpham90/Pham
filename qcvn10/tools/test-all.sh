@@ -6,6 +6,7 @@ T=${TMPDIR:-/tmp}
 python3 qcvn10/tools/build.py qcvn10/noi-dung "$T/q10.html" >/dev/null
 python3 tools/build.py noi-dung tools/template.html "$T/so-tay.html" >/dev/null
 for t in test-quy-tac test-chung-cu-kho test-co-so test-giao-dien; do node qcvn10/tools/$t.js "$T/q10.html" | tail -1; done
+node qcvn10/tools/test-nhieu-khoi.js "$T/q10.html" | tail -1
 node qcvn10/tools/test-q06.js "$T/q10.html" "$T/so-tay.html" | tail -1
 node qcvn10/tools/test-nguong-tu-noi-dung.js "$T/q10.html" qcvn10/noi-dung | tail -1
 node qcvn10/tools/test-doi-chieu.js "$T/q10.html" qcvn10/noi-dung | tail -1

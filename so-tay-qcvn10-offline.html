@@ -912,16 +912,26 @@ function ctEvaluate(t, v) {
   push(S3, "val", "Trụ nước cách mép đường **≤ 2,5 m**, cách tường nhà **≥ 1 m**; bán kính phục vụ **≤ 400 m**", "H.1.4.6; H.1.4.7");
   out.push(S3);
 
-  if (v.pcar > 0 || v.parea > 0) {
-    const S5 = { t: "Phần để xe ô tô trong nhà — Bảng A.3, G.1, H.5", items: [] };
+  let partSpr = false;
+  if (v.pcar > 0 || v.parea > 0 || v.pmoto > 0) {
+    const S5 = { t: "Phần để xe trong nhà — Bảng A.3, G.1, H.5", items: [] };
     const nhaO = ["nha-o-kd", "nha-o-sx"].includes(t.id);
-    if (nhaO) push(S5, "info", "Nhà ở riêng lẻ kết hợp SX, KD: **không áp dụng** Bảng A.3 mục 4.4", "Bảng A.3 mục 4.4");
+    if (v.pmoto > 0) {
+      const mo = v.pmoto >= 1000;
+      push(S5, mo ? "req" : "no", `**Báo cháy và chữa cháy tự động** cho phòng lưu giữ **xe máy** (phương tiện cơ giới đường bộ trừ ô tô) — ${fmtN(v.pmoto)} m² ${mo ? "≥" : "<"} 1 000 m²`, "Bảng A.3 mục 4.2");
+      if (mo) partSpr = true;
+      push(S5, "info", "Bảng H.5 CT2 chỉ quy định số lăng cho nhà để xe **ô tô**; khu để xe máy lấy số tia theo phần nhà", "Bảng H.5 CT2");
+    }
+    if (!(v.pcar > 0 || v.parea > 0)) { /* chỉ có xe máy */ }
+    else if (nhaO) push(S5, "info", "Nhà ở riêng lẻ kết hợp SX, KD: **không áp dụng** Bảng A.3 mục 4.4", "Bảng A.3 mục 4.4");
     else {
       push(S5, "req", "**Báo cháy tự động** cho phòng lưu giữ ô tô — không phụ thuộc diện tích", "Bảng A.3 mục 4.4");
       push(S5, v.pcar >= 3 ? "req" : "no", `**Chữa cháy tự động** cho phần để xe — ${v.pcar} xe ${v.pcar >= 3 ? "≥" : "<"} 3 xe ô tô`, "Bảng A.3 mục 4.4");
+      if (v.pcar >= 3) partSpr = true;
     }
-    if (v.parea) push(S5, v.parea >= 18000 ? "req" : "no", `**Loa thông báo** — nhà để xe kín (kể cả trong nhà có chức năng khác) ${fmtN(v.parea)} m² ${v.parea >= 18000 ? "≥" : "<"} 18 000 m²`, "Bảng G.1 mục 3");
-    if (v.parea > 0) {
+    const pa = (v.parea || 0) + (v.pmoto || 0);
+    if (pa) push(S5, pa >= 18000 ? "req" : "no", `**Loa thông báo** — nhà để xe ô tô, xe máy kín (kể cả trong nhà có chức năng khác) ${fmtN(pa)} m² ${pa >= 18000 ? "≥" : "<"} 18 000 m²`, "Bảng G.1 mục 3");
+    if (v.parea > 0 && !nhaO) {
       const hh = v.phh > 0 ? v.phh : 3.3, kv = v.parea * hh;
       const pj = kv < 500 ? null : kv <= 5000 ? [2, 2.5] : [2, 5];
       push(S5, "val", `**Họng nước khu để xe**: khoang ≈ ${fmtN(v.parea)} m² × ${fmtN(hh)} m${v.phh > 0 ? "" : " (ước)"} = ${fmtN(kv)} m³ → ` + (pj ? `**2 lăng × ${fmtN(pj[1])} L/s**` : "dưới 500 m³, Bảng H.5 CT2 không quy định") + " (khoang 500 – 5 000 m³: 2 × 2,5; > 5 000 m³: 2 × 5)", "Bảng H.5 CT2");
@@ -930,6 +940,7 @@ function ctEvaluate(t, v) {
         push(S5, "val", `**Lưu lượng thiết kế bơm họng nước = ${fmtN(Math.max(qa, qb))} L/s** — lấy phần lớn hơn: phần nhà ${fmtN(qa)} L/s, khu để xe ${fmtN(qb)} L/s${qb > qa ? " → **khu để xe quyết định**" : ""}`, "H.2.5");
       }
     }
+    if (partSpr && !spr.req && hydr.req) push(S5, "req", "Có họng nước và sprinkler (cho phần để xe) → ống nối từ trạm bơm đến **≥ 01 họng lấy nước hai cửa DN65** ở mặt ngoài tường, phía đường giao thông", "H.2.19");
     out.push(S5);
   }
   if (v.tmTr > 0 || v.tmHam > 0) {
@@ -967,7 +978,7 @@ function mixRule(mix) {
   return { tot, top: TI[top[0]], share, mixed: share <= 0.7, rows: rows.map(r => [TI[r[0]], +r[1], +r[1] / tot]) };
 }
 /* ---------- giao diện Tra theo công trình ---------- */
-const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
+const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, pmoto: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
 let ctV = Object.assign({}, DEF, store.get("q10-ct", {}));
 if (!TI[ctV.id]) ctV.id = DEF.id;
 if (!Array.isArray(ctV.mix) || ctV.mix.length !== 3 || !ctV.mix.every(r => Array.isArray(r) && TI[r[0]])) ctV.mix = JSON.parse(JSON.stringify(DEF.mix));
@@ -1000,7 +1011,7 @@ function renderCT() {
   if (need.includes("bacS") || f5) extra.push(selF("S", "Cấp kết cấu (S)", ["S0", "S1", "S2", "S3"]));
   if (f5) extra.push(selF("hang", "Hạng cháy nổ", ["A", "B", "C1", "C2", "C3", "C4", "D", "E"]));
   if (need.includes("gara")) extra.push(selF("gara", "Dạng nhà để xe", [["kin", "Dạng kín"], ["ho", "Dạng hở"]]));
-  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín", "m²")); extra.push(numF("phh", "Chiều cao tầng để xe", "m", "", "3,3")); }
+  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín", "m²")); extra.push(numF("phh", "Chiều cao tầng để xe", "m", "", "3,3")); extra.push(numF("pmoto", "Diện tích để xe máy kín", "m²")); }
   if (need.includes("ga")) extra.push(numF("ga", "Gian lớn nhất", "m²", "", "= tổng"));
   if (need.includes("tm")) { extra.push(numF("tmTr", "Gian thương mại trên mặt đất", "m²")); extra.push(numF("tmHam", "Gian thương mại tầng hầm", "m²")); }
   const checks = [];
@@ -1052,20 +1063,23 @@ function mixHTML() {
 }
 function ctResult() {
   const t = TI[ctV.id];
-  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
+  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
   if (v.n < 1 && !["ham"].includes(t.og)) v.n = 1;
   const out = ctEvaluate(t, v);
   const chips = [t.g, `${v.n} tầng`, `${fmtN(v.h)} m`, `${fmtN(v.a)} m²`, v.vol ? `${fmtN(v.vol)} m³` : "", v.nb ? `${v.nb} hầm` : "", `bậc ${v.bac}`].filter(Boolean);
   const req = out.reduce((s, x) => s + x.items.filter(i => i.lv === "req" || i.lv === "alt").length, 0);
   const all = out.flatMap(x => x.items);
   const tile = (lbl, re) => { const it = all.find(i => re.test(i.txt)); const k = !it ? "na" : it.lv === "req" ? "y" : it.lv === "alt" ? "t" : it.lv === "no" ? "n" : "na"; return `<div class="tile ${k}"><b>${{ y: "Có", t: "Có*", n: "Không", na: "—" }[k]}</b><span>${lbl}</span></div>`; };
-  const tiles = `<div class="tiles" id="ctsum">${tile("Báo cháy tự động", /^\*\*Hệ thống báo cháy/)}${tile("Chữa cháy tự động", /^\*\*Hệ thống chữa cháy tự động/)}${tile("Họng nước trong nhà", /^\*\*Hệ thống họng nước/)}${tile("Nước ngoài nhà riêng", /^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)}${tile("Đường ống khô", /^\*\*Đường ống khô/)}${tile("Loa thông báo", /^\*\*Loa thông báo/)}</div><p class="note">Có* — được thay bằng thiết bị báo cháy độc lập. “—” — không xét hoặc xem chi tiết.</p>`;
+  const partS = all.some(i => i.lv === "req" && /^\*\*(Chữa cháy tự động|Báo cháy và chữa cháy tự động)\*\*/.test(i.txt));
+  const sprMain = all.find(i => /^\*\*Hệ thống chữa cháy tự động/.test(i.txt));
+  const sprTile = sprMain && sprMain.lv === "no" && partS ? `<div class="tile t"><b>Một phần</b><span>Chữa cháy tự động</span></div>` : tile("Chữa cháy tự động", /^\*\*Hệ thống chữa cháy tự động/);
+  const tiles = `<div class="tiles" id="ctsum">${tile("Báo cháy tự động", /^\*\*Hệ thống báo cháy/)}${sprTile}${tile("Họng nước trong nhà", /^\*\*Hệ thống họng nước/)}${tile("Nước ngoài nhà riêng", /^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)}${all.some(i => /^\*\*Đường ống khô/.test(i.txt)) ? tile("Đường ống khô", /^\*\*Đường ống khô/) : `<div class="tile n"><b>Không</b><span>Đường ống khô</span></div>`}${tile("Loa thông báo", /^\*\*Loa thông báo/)}</div><p class="note">Có* — được thay bằng thiết bị báo cháy độc lập. Một phần — chỉ bắt buộc cho khu vực (để xe, thương mại…). “—” — không xét hoặc xem chi tiết.</p>`;
   return `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>${tiles}
   <div class="row-btns"><button class="btn2" id="ctcopy">Sao chép kết quả</button></div><p class="note" id="ctmsg" role="status"></p>` + itemsHTML(out) +
   `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;
 }
 function ctText() {
-  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
+  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
   const out = ctEvaluate(t, v);
   const lines = [`${t.n} — ${v.n} tầng, chiều cao PCCC ${fmtN(v.h)} m, ${fmtN(v.a)} m², ${fmtN(v.vol)} m³ (QCVN 10:2025/BCA)`];
   out.forEach(s => { lines.push("", s.t); s.items.forEach(i => lines.push(`- [${(LV[i.lv] || LV.val)[1] || "Giá trị"}] ${i.txt.replace(/\*\*/g, "")} (${i.ref})`)); });

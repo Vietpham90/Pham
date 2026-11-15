@@ -138,7 +138,7 @@ node qcvn10/tools/smoke.js /tmp/q10.html
 ```
 
 - `test-quy-tac.js` — 171 trường hợp có đáp án tính tay từ Bảng A.1, A.3, B.1, C.1, G.1, H.2 – H.6 (ngay trên và dưới từng ngưỡng).
-- `test-chung-cu-kho.js` — 38 tình huống thiết kế (chung cư, khách sạn có gara hầm, nhà kho, nhà xưởng).
+- `test-chung-cu-kho.js` — 41 tình huống thiết kế (chung cư, chung cư có gara xe máy, khách sạn có gara hầm, nhà kho, nhà xưởng).
 - `test-fuzz-giao-dien.js` — thao tác ngẫu nhiên trên mọi loại nhà và mọi ô nhập (số âm, chữ, số rất lớn…), bắt lỗi JavaScript và chữ “NaN/undefined”.
 - `test-co-so.js` — 31 trường hợp Bảng D.1, F.1, C.1 cho cơ sở, khu.
 - `test-doi-chieu.js` — bảng số trong mã khớp bảng trong `noi-dung` (H.1 – H.4, H.6, H.7 và 69 dòng Bảng A.2 – A.4).

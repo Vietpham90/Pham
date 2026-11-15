@@ -215,7 +215,7 @@ const C = [
       alarm: lv(find(/^\*\*Hệ thống báo cháy tự động/)), spr: lv(find(/^\*\*Hệ thống chữa cháy tự động/)), hydr: lv(find(/^\*\*Hệ thống họng nước/)),
       c1: lv(find(/^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)), g1: lv(find(/^\*\*Loa thông báo/)),
       dry: !!find(/^\*\*Đường ống khô/), addr: !!find(/^\*\*Báo cháy địa chỉ/),
-      pspr: lv(find(/^\*\*Chữa cháy tự động\*\* cho phần để xe/)), pg1: lv(find(/^\*\*Loa thông báo\*\* — nhà để xe kín/))
+      pspr: lv(find(/^\*\*Chữa cháy tự động\*\* cho phần để xe/)), pg1: lv(find(/^\*\*Loa thông báo\*\* — nhà để xe/))
     };
     const oq = find(/^\*\*Lưu lượng ngoài nhà (\d+)/); got.outQ = oq ? +oq.txt.match(/ngoài nhà (\d+)/)[1] : null;
     const jt = find(/^\*\*Số tia/); got.jets = jt ? [+jt.txt.match(/: (\d+) ×/)[1], +jt.txt.match(/× ([\d,]+) L\/s/)[1].replace(",", ".")] : (find(/được không đặt đường ống họng/) ? 0 : null);

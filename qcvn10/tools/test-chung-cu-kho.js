@@ -25,6 +25,12 @@ const C = [
     [/^\*\*Chữa cháy tự động\*\* gian thương mại tầng hầm/, "req"], [/^\*\*Báo cháy và chữa cháy tự động\*\* gian thương mại trên mặt đất/, "no"]]],
   ["Chung cư 3 tầng nông thôn, 2 000 m³", "chung-cu", { n: 3, h: 9, a: 600, vol: 2000, rural: true }, [[/^\*\*Lưu lượng ngoài nhà 5 L\/s/, "val"], [/^\*\*Thời gian chữa cháy 1 h/, "val"]]],
   ["Chung cư 20 tầng, hành lang ngắn ≤ 10 m", "chung-cu", { n: 20, h: 62, a: 16000, vol: 50000, hl: false }, [[/^\*\*Số tia × lưu lượng\*\*: 2 × 2,5/, "val"], [/từ một ống đứng/, "info"]]],
+  ["Chung cư 7 tầng < 28 m, sàn 3 000 m², tầng 1 gara xe máy 3 000 m²", "chung-cu", { n: 7, h: 24, a: 21000, vol: 69300, hl: true, pmoto: 3000 }, [
+    [/^\*\*Hệ thống báo cháy tự động/, "req"], [/^\*\*Hệ thống chữa cháy tự động/, "no"], [/phòng lưu giữ \*\*xe máy/, "req"], [/họng lấy nước hai cửa DN65/, "req"],
+    [/^\*\*Hệ thống họng nước/, "req"], [/^\*\*Số tia × lưu lượng\*\*: 2 × 2,5/, "val"], [/^\*\*Lưu lượng ngoài nhà 20 L\/s/, "val"], [/^\*\*Đường ống khô/, "không có"],
+    [/^\*\*Loa thông báo\*\* — nhà để xe/, "no"], [/^\*\*Loa thông báo và hướng dẫn/, "no"]]],
+  ["Chung cư 7 tầng, gara xe máy 900 m² — chưa bắt buộc", "chung-cu", { n: 7, h: 24, a: 21000, pmoto: 900 }, [[/phòng lưu giữ \*\*xe máy/, "no"], [/họng lấy nước hai cửa/, "không có"]]],
+  ["Chung cư 7 tầng, xe máy 10 000 + ô tô 8 000 m² — loa phần để xe", "chung-cu", { n: 7, h: 24, a: 30000, pmoto: 10000, parea: 8000, pcar: 200 }, [[/^\*\*Loa thông báo\*\* — nhà để xe/, "req"]]],
   // ---------- KHÁCH SẠN có gara hầm (tình huống hỏi đáp) ----------
   ["Khách sạn 14 tầng, 46 m, gara hầm 1 200 m² cao 3,3 m", "khach-san", { n: 14, h: 46, a: 18000, vol: 59400, nb: 1, pcar: 30, parea: 1200, phh: 3.3 }, [
     [/^\*\*Hệ thống chữa cháy tự động/, "req"], [/^\*\*Số tia × lưu lượng\*\*: 3 × 2,5/, "val"], [/Họng nước khu để xe.*2 lăng × 2,5/, "val"],

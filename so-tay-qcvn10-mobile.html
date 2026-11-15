@@ -954,13 +954,14 @@ function renderCT() {
     <div id="ctlist" class="picks">${ctList()}</div>
     <label class="fld"><span>Hoặc chọn</span><select id="ct-id" data-k="id">${T.map(x => `<option value="${x.id}"${x.id === t.id ? " selected" : ""}>${esc(x.n)}</option>`).join("")}</select></label>
     <div class="grid2">
-      ${numF("n", "Số tầng (1.4.24)", "tầng", "gồm tầng kỹ thuật, tum, bán hầm")}
+      ${numF("n", "Số tầng (1.4.24)", "tầng")}
       ${numF("h", "Chiều cao PCCC", "m")}
       ${numF("a", "Tổng diện tích sàn", "m²")}
       ${numF("vol", "Khối tích nhà", "m³")}
       ${selF("nb", "Số tầng hầm", [0, 1, 2, 3, 4, 5])}
       ${extra.join("")}
     </div>
+    <p class="note" style="margin:0">Số tầng gồm tầng kỹ thuật, tầng tum, tầng bán hầm; không gồm tầng áp mái (1.4.24).</p>
     <div class="checks">${checks.join("")}</div>
     <button class="btn1 jump" id="ctjump" type="button">Xem kết quả ↓</button>
   </div>

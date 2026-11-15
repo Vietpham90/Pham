@@ -91,6 +91,7 @@ Tra cứu trang bị phương tiện PCCC và CNCH: báo cháy, chữa cháy t�
 | `qcvn10/tools/` | Giao diện (`head.html`, `app.html`), script tạo bản, bộ kiểm thử |
 | `docs/qcvn10/` | Bản web cài được (PWA), chạy offline — trên GitHub Pages ở địa chỉ `…/qcvn10/` |
 | `so-tay-qcvn10-mobile.html` | Một tệp HTML, mở trực tiếp bằng trình duyệt điện thoại |
+| `so-tay-qcvn10-offline.html` | Một tệp HTML **chạy hoàn toàn không cần mạng**, đã nhúng phông chữ (570 KB) |
 
 Công cụ trong sổ tay:
 
@@ -98,7 +99,12 @@ Công cụ trong sổ tay:
 - **Gian phòng, hạng mục, thiết bị** — 69 dòng Bảng A.2, A.3, A.4 (phòng máy chủ, kho tiền, máy biến áp dầu, hầm cáp…): nhập quy mô → báo cháy, chữa cháy tự động kèm ghi chú.
 - **Tính nước** — khu dân cư (Bảng H.1), bãi công-ten-nơ; áp suất họng theo tia nước đặc (Bảng H.7); số bình chữa cháy cho công trình đang thi công (2.6.5).
 
-Tạo lại các bản sau khi sửa nội dung (chạy từ thư mục gốc repo), rồi tăng `VERSION` trong `docs/qcvn10/sw.js`:
+### Xem offline trên điện thoại
+
+- **Android**: tải `so-tay-qcvn10-offline.html` về máy → mở bằng **Chrome** (trình quản lý tệp → Mở bằng → Chrome). Dùng được khi không có mạng; dữ liệu nhập được nhớ trên máy.
+- **iPhone**: trình xem trước của ứng dụng Tệp không chạy JavaScript nên các công cụ tra sẽ không hoạt động. Dùng bản web: bật GitHub Pages (như hướng dẫn ở đầu tài liệu), mở `…/qcvn10/` bằng Safari khi có mạng một lần → **Chia sẻ → Thêm vào MH chính**. Từ đó mở offline được.
+
+Tạo lại các bản sau khi sửa nội dung (chạy từ thư mục gốc repo), rồi tăng `VERSION` trong `docs/qcvn10/sw.js`. Đặt biến `FONTS` tới thư mục phông fontsource để tạo cả bản offline:
 
 ```bash
 sh qcvn10/tools/build-all.sh
@@ -129,4 +135,5 @@ node qcvn10/tools/smoke.js /tmp/q10.html
 - `test-quy-tac.js` — 166 trường hợp có đáp án tính tay từ Bảng A.1, A.3, B.1, C.1, G.1, H.2 – H.6 (ngay trên và dưới từng ngưỡng).
 - `test-doi-chieu.js` — bảng số trong mã khớp bảng trong `noi-dung` (H.1 – H.4, H.6, H.7 và 69 dòng Bảng A.2 – A.4).
 - `test-tinh-chat.js` — đầu vào ngẫu nhiên; tăng số tầng, diện tích, chiều cao không bao giờ làm giảm yêu cầu.
+- `test-offline.js` — chặn mọi yêu cầu mạng, phông nhúng phải tải được và hiện đúng tiếng Việt (`node qcvn10/tools/test-offline.js so-tay-qcvn10-offline.html`).
 - `test-giao-dien.js` — nhập số kiểu Việt Nam, tìm kiếm không dấu, liên kết số điều, không tràn ngang ở 320 px, chế độ tối.

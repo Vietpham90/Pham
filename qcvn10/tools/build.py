@@ -4,7 +4,7 @@ import json, pathlib, sys
 here = pathlib.Path(__file__).parent
 src = pathlib.Path(sys.argv[1]); out = pathlib.Path(sys.argv[2])
 files = ["README.md", "01-quy-dinh-chung.md", "02-trang-bi.md", "03-phu-luc-a.md", "04-phu-luc-b-c.md",
-         "05-phu-luc-d-g.md", "06-h1-nuoc-ngoai-nha.md", "07-h2-hong-nuoc.md", "08-h3-h4-bom-loa.md", "09-chung-cu-kho-xuong.md"]
+         "05-phu-luc-d-g.md", "06-h1-nuoc-ngoai-nha.md", "07-h2-hong-nuoc.md", "08-h3-h4-bom-loa.md", "09-chung-cu-kho-xuong.md", "10-kho-xuong-qcvn06.md"]
 data = {f: (src / f).read_text() for f in files}
 js = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
 # Bộ quy tắc QCVN 06 lấy nguyên từ sổ tay QCVN 06 (tools/template.html), đặt trong vùng tên Q06

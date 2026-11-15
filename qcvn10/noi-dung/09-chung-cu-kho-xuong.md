@@ -47,6 +47,9 @@ Mọi ngưỡng trang bị của hai nhóm công trình hay gặp nhất, gom v�
 
 ## 9.4 Kho, xưởng — trình tự xét
 
+Phần kiến trúc theo QCVN 06 (khoang cháy, thoát nạn, khoảng cách) cho kho, xưởng: xem [Kho, xưởng — kiến trúc QCVN 06](10-kho-xuong-qcvn06.md).
+
+
 1. Xác định **hạng** A, B, C1 – C4, D, E của nhà và từng gian (QCVN 06; 1.5.2).
 2. Kho: hạng C trên **giá > 5,5 m** hoặc kho B, C **≥ 2 tầng** → báo cháy và chữa cháy tự động **không phụ thuộc diện tích** (Bảng A.1 mục 30, 31).
 3. Các trường hợp khác xét **từng gian** theo Bảng A.3 (mục 1 kho, mục 2 sản xuất) — ngưỡng tính theo **diện tích gian**.

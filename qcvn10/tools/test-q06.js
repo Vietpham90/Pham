@@ -61,6 +61,13 @@ const { chromium } = require("playwright");
     return { aBad: /buồng thang L1|bãi đỗ xe chữa cháy|ối vào từ trên cao/.test(a), aOk: ["3.2.2", "6.2.2", "D.2 h)", "D.14.3"].every(r => a.includes(r)), cOk: /Phần để xe ô tô trong tầng hầm/.test(c) || c.includes("D.2 h)") };
   });
   if (gn.aBad || !gn.aOk || !gn.cOk) errs.push("Gara ngầm QCVN 06: " + JSON.stringify(gn)); else ok++;
+  // 3f — nhà sản xuất hạng C1 → QCVN 06 Bảng H.9 giảm 25 % (gian C1 > 1/2 diện tích tầng)
+  const c1 = await p10.evaluate(() => {
+    const lim = hang => { const r = q06Eval(TI["san-xuat"], Object.assign({}, DEF, { n: 3, h: 12, a: 6000, dt1: 2000, hang })); const t = r.out.flatMap(s => s.items).find(i => /phương án đạt|Không có dòng/.test(i.txt)); return t ? t.txt : ""; };
+    return { c1: lim("C1"), c2: lim("C2") };
+  });
+  const num = s => { const m = s.replace(/\*\*/g, "").match(/I, II – S0 \(≤ ([\d.]+) m²\)/); return m ? +m[1].replace(/\./g, "") : null; };
+  if (!(num(c1.c1) && num(c1.c2) && num(c1.c1) === num(c1.c2) * 0.75)) errs.push("Hạng C1 phải giảm 25 % diện tích Bảng H.9: " + JSON.stringify(c1)); else ok++;
   // 4 — giao diện: bỏ chọn thì ẩn, ô tóm tắt, sao chép kèm QCVN 06
   await p10.goto("file://" + process.argv[2] + "#cong-trinh"); await p10.waitForTimeout(100);
   await p10.selectOption("#ct-id", "chung-cu"); await p10.waitForTimeout(60);

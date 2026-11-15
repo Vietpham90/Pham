@@ -310,6 +310,10 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .jump { justify-self: start; }
 .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 8px; }
 .tools .btn2 { min-height: 48px; border-radius: 12px; font-weight: 600; font-size: 14px; text-align: left; padding: 10px 12px; line-height: 1.3; }
+.precard { width: 100%; display: grid; gap: 3px; text-align: left; border: 2px solid var(--fire); background: var(--fire-bg); color: var(--ink); border-radius: 14px; padding: 12px 14px; margin: 0 0 12px; cursor: pointer; font: inherit; }
+.precard small { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--fire); }
+.precard b { font-size: 16px; } .precard span { font-size: 14px; font-family: var(--mono); }
+.precard i { font-style: normal; font-weight: 700; color: var(--fire); font-size: 13.5px; margin-top: 2px; }
 .pop { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
 .pop button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 7px 13px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; min-height: 36px; }
 .pop button:hover { border-color: var(--fire); color: var(--fire); }
@@ -364,7 +368,7 @@ img { max-width: 100%; }
     </div>
     <div class="search">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Tìm: karaoke, sprinkler, DN65, Bảng H.5…" aria-label="Tìm trong sổ tay">
+      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Tìm: chung cư 20 tầng 60m, sprinkler, DN65…" aria-label="Tìm trong sổ tay">
       <button class="clear" id="clearQ" aria-label="Xóa tìm kiếm" hidden>×</button>
     </div>
   </div>
@@ -518,7 +522,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v29 · cập nhật 15/11/2026</p>`;
+    <p class="ver">Phiên bản v30 · cập nhật 15/11/2026</p>`;
   window.scrollTo(0, 0);
 }
 function renderSection(id, openBlock) {
@@ -547,25 +551,105 @@ function renderSaved() {
 const MAP = { a:"aàáảãạăằắẳẵặâầấẩẫậ", e:"eèéẻẽẹêềếểễệ", i:"iìíỉĩị", o:"oòóỏõọôồốổỗộơờớởỡợ", u:"uùúủũụưừứửữự", y:"yỳýỷỹỵ", d:"dđ" };
 function buildRe(t) {
   const src = [...t].map(ch => { const k = ch.toLowerCase(); if (MAP[k]) return "[" + MAP[k] + MAP[k].toUpperCase() + "]"; return ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("");
-  return new RegExp(src, "gi");
+  // Chỉ tô từ đầu từ; từ ngắn (≤ 3 ký tự) phải trọn từ — tránh "cư" tô vào giữa "cửa"
+  const short = t.length <= 3 && !/\d/.test(t);
+  try { return new RegExp("(?<![\\p{L}\\p{N}])" + src + (short ? "(?![\\p{L}\\p{N}])" : ""), "giu"); } catch (e) { return new RegExp(src, "gi"); }
+}
+/* ---------- Tìm kiếm: tách thông số quy mô, sửa lỗi gõ, khớp theo từ, xếp hạng ---------- */
+function parseParams(q) {
+  let s = " " + norm(q).replace(/[,;]+(?=\s)/g, " ") + " "; const p = {};
+  const take = (re, f) => { s = s.replace(re, (...m) => { f(m); return " "; }); };
+  take(/\s(\d+)\s*(?:tang ham|ham)(?=\s)/g, m => { p.nb = Math.min(5, +m[1]); });
+  take(/\s([\d.,]+)\s*(?:m2|m²|m\^2)(?=\s)/g, m => { p.a = parseNum(m[1]); });
+  take(/\s([\d.,]+)\s*(?:m3|m³)(?=\s)/g, m => { p.vol = parseNum(m[1]); });
+  take(/\s(\d+)\s*(?:tang|t)(?=\s)/g, m => { p.n = +m[1]; });
+  take(/\s([\d.,]+)\s*m(?=\s)/g, m => { p.h = parseNum(m[1]); });
+  take(/\s(\d+)\s*(?:xe|cho do|cho)(?=\s)/g, m => { p.xe = +m[1]; });
+  take(/\s(\d+)\s*nguoi(?=\s)/g, m => { p.ppl = +m[1]; });
+  take(/\shang\s+(c1|c2|c3|c4|a|b|c|d|e)(?=\s)/g, m => { p.hang = m[1] === "c" ? "C2" : m[1].toUpperCase(); if (m[1] === "c") p.hangC = 1; });
+  take(/\sbac\s+(iv|v|i{1,3}|[1-5])(?=\s)/g, m => { const r = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V" }; p.bac = r[m[1]] || m[1].toUpperCase(); });
+  Object.keys(p).forEach(k => { if (p[k] === "" || Number.isNaN(p[k])) delete p[k]; });
+  return { p, rest: s.replace(/\s+/g, " ").trim() };
+}
+let VOCAB = null;
+function vocab() {
+  if (!VOCAB) { VOCAB = new Set(); ORDER.forEach(id => SECTIONS[id].blocks.forEach(b => b.text.replace(/[^a-z0-9.]+/g, " ").split(" ").forEach(w => { if (w.length >= 4) VOCAB.add(w); }))); T.forEach(t => norm(t.n + " " + t.k).replace(/[^a-z0-9.]+/g, " ").split(" ").forEach(w => { if (w.length >= 4) VOCAB.add(w); })); }
+  return VOCAB;
+}
+function lev(a, b, cap) {
+  if (Math.abs(a.length - b.length) > cap) return cap + 1;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  for (let i = 1; i <= a.length; i++) { const cur = [i]; let mn = i; for (let j = 1; j <= b.length; j++) { cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); mn = Math.min(mn, cur[j]); } if (mn > cap) return cap + 1; prev = cur; }
+  return prev[b.length];
+}
+function fixTerm(t) {
+  if (t.length < 5 || /\d/.test(t)) return t;
+  const V = vocab(); if (V.has(t) || [...V].some(w => w.startsWith(t))) return t;
+  const cap = t.length >= 8 ? 2 : 1; let best = null, bd = cap + 1;
+  for (const w of V) { const d = lev(t, w, cap); if (d < bd) { bd = d; best = w; } }
+  return best || t;
+}
+const blockW = b => b.w || (b.w = " " + b.text.replace(/[^a-z0-9.]+/g, " ") + " ");
+const termIn = (w, t) => (t.length <= 3 && !/\d/.test(t)) ? w.includes(" " + t + " ") : w.includes(" " + t);
+function blockScore(b, terms) {
+  const w = blockW(b), tt = " " + norm(b.title).replace(/[^a-z0-9.]+/g, " ") + " ", ph = " " + terms.join(" ");
+  let sc = 0;
+  if (terms.length > 1) { if (tt.includes(ph)) sc += 20; else if (w.includes(ph)) sc += 8; }
+  for (const t of terms) sc += tt.includes(" " + t + " ") ? 3 : termIn(tt, t) ? 1 : 0;
+  return sc;
+}
+const STOP_UNUSED = new Set(["nha", "cong", "trinh", "chua", "chay", "bao", "tu", "dong", "nuoc", "he", "thong", "phong", "va", "co", "cho", "theo", "trong", "ngoai", "hang", "tang", "dien", "tich", "cao", "khu", "vuc", "gian", "may", "bom", "hong", "o"]);
+// Khớp lỏng: chỉ nhận cụm tên loại nhà rõ ràng nằm trong câu tìm (tránh "biến" → "biển", "trụ" → "lưu trú")
+const ANCH = ["trung tam thuong mai", "rap chieu phim", "nha thi dau", "ham de xe", "nha de xe", "gara o to", "chung cu", "nha kho", "nha xuong", "nha may", "khach san", "nha nghi", "nha tro", "van phong", "nha hang", "quan an", "vu truong", "quan bar", "sieu thi", "benh vien", "phong kham", "truong hoc", "mam non", "nha tre", "ky tuc xa", "nha hat", "thu vien", "bao tang", "duong lao", "nha ga", "ben xe", "hon hop", "nha pho", "nha tho", "dang kiem", "karaoke", "gara", "garage", "tttm", "kho", "xuong", "bar", "rap"];
+function findTypesLoose(terms, n) {
+  const r = findTypes(terms, n); if (r.length || !terms.length) return r;
+  const q = (" " + terms.join(" ") + " ").replace(/ ong kho /g, " ");
+  for (const a of ANCH) if (q.includes(" " + a + " ")) { const x = findTypes(a.split(" "), n); if (x.length) return x; }
+  return [];
+}
+const PRE_LBL = { n: v => v + " tầng", h: v => fmtN(v) + " m", a: v => fmtN(v) + " m²", vol: v => fmtN(v) + " m³", nb: v => v + " hầm", xe: v => v + " xe", ppl: v => v + " người", hang: v => "hạng " + v, bac: v => "bậc " + v };
+function preHTML(t, p) {
+  const ks = Object.keys(PRE_LBL).filter(k => p[k] !== undefined); if (!t || !ks.length) return "";
+  const lbl = ks.map(k => PRE_LBL[k](p[k])).join(" · ") + (p.hangC ? " (hạng C tạm lấy C2 — chọn lại nếu khác)" : "");
+  return `<button class="precard" type="button" data-pre='${esc(JSON.stringify(Object.assign({ id: t.id }, p)))}'><small>Tra ngay với thông số đã gõ</small><b>${esc(t.n)}</b><span>${esc(lbl)}</span><i>Xem hệ thống phải trang bị →</i></button>`;
+}
+function applyPre(p) {
+  const t = TI[p.id]; if (!t) return;
+  Object.assign(ctV, { id: p.id, n: 1, h: 0, a: 0, vol: 0, nb: 0, dt1: 0, bas: false });
+  ["n", "h", "a", "vol", "nb", "ppl", "hang", "bac"].forEach(k => { if (p[k] !== undefined) ctV[k] = p[k]; });
+  if (p.nb) ctV.bas = ["de-xe"].includes(p.id) ? ctV.bas : (t.need || []).includes("bas") ? true : ctV.bas;
+  if (p.xe !== undefined) { if (["de-xe", "gara-ck"].includes(p.id)) ctV.cho = p.xe; else ctV.pcar = p.xe; }
+  if (p.h === undefined && p.n) ctV.h = Math.round(p.n * 3.3 * 10) / 10;
+  if (p.vol === undefined && p.a) ctV.vol = Math.round(p.a * 3.5);
+  store.set("q10-ct", ctV);
 }
 function renderSearch(term) {
   setNav(""); setHeader(null);
-  const terms = norm(term).split(/\s+/).filter(Boolean);
-  const res = [];
-  for (const id of ORDER) for (const b of SECTIONS[id].blocks) if (terms.every(t => b.text.includes(t))) res.push({ id, b, score: terms.filter(t => norm(b.title).includes(t)).length });
-  const types = findTypes(terms, 4);
+  const { p, rest } = parseParams(term);
+  const raw = rest.split(/\s+/).filter(Boolean);
+  const terms = raw.map(fixTerm), fixed = terms.join(" ") !== raw.join(" ");
+  const types = findTypesLoose(terms, 4);
+  let res = [], partial = false;
+  if (terms.length) {
+    for (const id of ORDER) for (const b of SECTIONS[id].blocks) if (terms.every(t => termIn(blockW(b), t))) res.push({ id, b, score: blockScore(b, terms) });
+    if (!res.length && terms.length > 1) {
+      for (const id of ORDER) for (const b of SECTIONS[id].blocks) { const k = terms.filter(t => termIn(blockW(b), t)).length; if (k >= Math.ceil(terms.length / 2)) res.push({ id, b, score: k * 10 + blockScore(b, terms) }); }
+      partial = res.length > 0;
+    }
+  }
   res.sort((a, b) => b.score - a.score);
-  const gps = GP.map((r, i) => [r, i]).filter(([r]) => wordMatch(r[0] + " " + r[2], terms)).sort((a, b) => phraseScore(b[0][2], terms) - phraseScore(a[0][2], terms)).slice(0, 4);
+  const gps = terms.length ? GP.map((r, i) => [r, i]).filter(([r]) => { const h = " " + norm(r[0] + " " + r[2]).replace(/[^a-z0-9.]+/g, " ") + " "; return terms.every(t => termIn(h, t)); }).sort((a, b) => phraseScore(b[0][2], terms) - phraseScore(a[0][2], terms)).slice(0, 4) : [];
+  const pre = preHTML(types[0], p);
+  const fixHtml = fixed ? `<p class="note">Đã sửa lỗi gõ: tìm “<b>${esc(terms.join(" "))}</b>”.</p>` : "";
   const gpHtml = gps.length ? `<p class="label">Gian phòng, hạng mục, thiết bị</p><div class="picks">${gps.map(([r, i]) => `<button class="pick" data-gp="${i}"><span>${esc(r[2])}</span><b>${esc(r[0])}</b></button>`).join("")}</div>` : "";
-  const typeHtml = gpHtml + (types.length ? `<p class="label">Tra theo công trình</p><div class="picks">${types.map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("")}</div>` : "");
+  const typeHtml = pre + fixHtml + gpHtml + (types.length ? `<p class="label">Tra theo công trình</p><div class="picks">${types.map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("")}</div>` : "");
   if (!res.length) {
-    view.innerHTML = typeHtml + `<div class="empty">Không thấy kết quả cho “${esc(term)}”.<br>Thử từ khóa ngắn hơn hoặc gợi ý:<div class="chips">${["sprinkler","báo cháy độc lập","DN65","bình chữa cháy","khách sạn","Bảng H.5","trụ nước","đường ống khô"].map(c => `<button data-chip="${c}">${c}</button>`).join("")}</div></div>`;
+    view.innerHTML = typeHtml + (pre || types.length ? "" : `<div class="empty">Không thấy kết quả cho “${esc(term)}”.<br>Thử từ khóa ngắn hơn hoặc gợi ý:<div class="chips">${["sprinkler", "báo cháy độc lập", "DN65", "bình chữa cháy", "chung cư 20 tầng", "kho 5000 m2", "Bảng A.3", "trụ nước"].map(c => `<button data-chip="${c}">${c}</button>`).join("")}</div></div>`);
     return;
   }
   const mk = s => { let h = esc(s); for (const t of terms) { if (t.length < 2) continue; h = h.replace(buildRe(t), m => `<mark>${m}</mark>`); } return h; };
-  view.innerHTML = typeHtml + `<p class="label">${res.length} kết quả</p><ul class="results">${res.slice(0, 60).map(({ id, b }) => {
-    const nraw = norm(b.raw); const pos = Math.max(0, nraw.indexOf(terms[0]) - 40);
+  view.innerHTML = typeHtml + `<p class="label">${res.length} ${partial ? "kết quả gần đúng (không chứa đủ mọi từ)" : "kết quả"}</p><ul class="results">${res.slice(0, 60).map(({ id, b }) => {
+    const nraw = norm(b.raw); const pos = Math.max(0, nraw.indexOf(terms.find(t => nraw.includes(t)) || terms[0]) - 40);
     const snip = (pos ? "…" : "") + b.raw.slice(pos, pos + 150) + "…";
     return `<li><button data-open="${b.id}"><span class="sec">${META[id].t}</span><span class="ttl">${mk(b.title)}</span><span class="snip">${mk(snip)}</span></button></li>`;
   }).join("")}</ul>`;
@@ -1522,8 +1606,8 @@ if (!Array.isArray(ctV.mix) || ctV.mix.length !== 3 || !ctV.mix.every(r => Array
 let ctQ = "";
 function ctList() {
   if (!ctQ.trim()) return "";
-  const k = norm(ctQ).split(/\s+/).filter(Boolean);
-  return findTypes(k, 8).map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("") || `<p class="note">Không thấy loại nhà phù hợp — chọn trong danh sách bên dưới.</p>`;
+  const pp = parseParams(ctQ), k = pp.rest.split(/\s+/).filter(Boolean).map(fixTerm), ty = findTypesLoose(k, 8);
+  return preHTML(ty[0], pp.p) + ty.map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("") || `<p class="note">Không thấy loại nhà phù hợp — chọn trong danh sách bên dưới.</p>`;
 }
 function numF(id, label, unit, hint, ph) {
   const val = ph && !+ctV[id] ? "" : fmtIn(ctV[id]);
@@ -2122,6 +2206,7 @@ document.addEventListener("click", e => {
   if (e.target.closest("#ctbar")) { const r = document.getElementById("ctres"); if (r) r.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
   if (e.target.id === "ctjump") { const r = document.getElementById("ctres"); if (r) r.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
   const gk = e.target.closest("[data-gp]"); if (gk) { gpV.k = +gk.dataset.gp; gpV.q = ""; q.value = ""; clearQ.hidden = true; store.set("q10-gp", gpV); if (location.hash !== "#gian-phong") location.hash = "gian-phong"; else renderGP(); window.scrollTo(0, 0); return; }
+  const pre = e.target.closest("[data-pre]"); if (pre) { applyPre(JSON.parse(pre.dataset.pre)); ctQ = ""; q.value = ""; clearQ.hidden = true; if (location.hash !== "#cong-trinh") location.hash = "cong-trinh"; else renderCT(); window.scrollTo(0, 0); return; }
   const pk = e.target.closest("[data-ct]"); if (pk) { ctV.id = pk.dataset.ct; ctQ = ""; q.value = ""; clearQ.hidden = true; store.set("q10-ct", ctV); if (location.hash !== "#cong-trinh") location.hash = "cong-trinh"; else renderCT(); window.scrollTo(0, 0); return; }
   const op = e.target.closest("[data-open]"); if (op) { e.preventDefault(); go(null, op.dataset.open); return; }
   const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); return; }

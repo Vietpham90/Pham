@@ -1,5 +1,5 @@
 // Offline cache for Sổ tay QCVN 10. Bump VERSION whenever index.html changes.
-const VERSION = "sotay-qcvn10-v29";
+const VERSION = "sotay-qcvn10-v30";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {

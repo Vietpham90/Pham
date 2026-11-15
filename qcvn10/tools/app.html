@@ -663,8 +663,31 @@ function mixRule(mix) {
   const share = +top[1] / tot;
   return { tot, top: TI[top[0]], share, mixed: share <= 0.7, rows: rows.map(r => [TI[r[0]], +r[1], +r[1] / tot]) };
 }
+/* ---------- QCVN 06:2022/BXD (SĐ1:2023): bộ quy tắc lấy từ sổ tay QCVN 06 ---------- */
+/*__Q06__*/
+// Loại nhà QCVN 10 → dòng tương ứng trong danh mục QCVN 06 (theo tên)
+const MAP06 = { "nha-o-kd": "Nhà ở riêng lẻ", "nha-o-sx": "Nhà ở riêng lẻ", "chung-cu": "Nhà chung cư", "ktx": "Ký túc xá, nhà ở tập thể", "mam-non": "Nhà trẻ",
+  "truong-hoc": "Trường tiểu học", "bao-tro": "Nhà dưỡng lão", "benh-vien": "Bệnh viện", "phong-kham": "Phòng khám", "duong-lao": "Nhà dưỡng lão",
+  "the-thao": "Nhà thi đấu", "nha-hat": "Nhà hát", "thu-vien": "Thư viện", "bao-tang": "Bảo tàng", "van-hoa": "Trung tâm hội nghị", "karaoke": "Karaoke",
+  "ton-giao": "Nhà hát", "cho-tttm": "Trung tâm thương mại", "sieu-thi": "Trung tâm thương mại", "nha-hang": "Nhà hàng", "vui-choi": "Khu vui chơi",
+  "cua-hang": "Trung tâm thương mại", "chat-long": "Trung tâm thương mại", "khach-san": "Khách sạn", "buu-dien": "Bưu điện", "van-phong": "Văn phòng",
+  "hon-hop": "Nhà chung cư", "ga-hk": "Nhà ga", "ga-ds": "Nhà ga", "ga-hh": "Nhà ga", "ga-cap-treo": "Nhà ga", "ben-xe": "Nhà ga", "dv-cang": "Nhà ga",
+  "kslk": "Văn phòng", "dang-kiem": "Gara có sửa chữa", "de-xe": "Gara để xe không sửa chữa", "gara-ck": "Gara để xe không sửa chữa",
+  "ky-thuat-mb": "Nhà sản xuất", "nong-san": "Nhà kho", "kho": "Nhà kho", "san-xuat": "Nhà sản xuất" };
+function q06Eval(t, v) {
+  const key = MAP06[t.id]; if (!key) return null;
+  const i = Q06.CT.findIndex(c => c.n.startsWith(key)); if (i < 0) return null;
+  const dt1 = v.dt1 > 0 ? v.dt1 : (v.a && v.n ? Math.round(v.a / v.n) : 0);
+  const sp = ctEvaluate(t, v).flatMap(s => s.items).some(x => /^\*\*Hệ thống chữa cháy tự động/.test(x.txt) && x.lv === "req");
+  const r = Q06.ctEvaluate({ i, h: v.h, n: v.n, nb: v.nb, a: dt1, p: v.ppl || "", v: v.vol || "", sp, deep: !!v.deep, hh: t.id === "hon-hop", hang: hangMain(v.hang || "C"), c1: false });
+  return { it: Q06.CT[i], dt1, sp, out: r.out };
+}
+const LV06 = { ok: ["ok", "Đạt"], warn: ["warn", "Lưu ý"], bad: ["bad", "Vượt / không đạt"] };
+function items06HTML(sections) {
+  return sections.filter(s => s.items.length).map(s => `<section class="ct-sec q06"><h2>${esc(s.t)}</h2><ul>${s.items.map(x => { const lv = LV06[x.lv]; return `<li class="lv-${lv ? lv[0] : "n"}">${lv ? `<span class="lv">${lv[1]}</span>` : ""}<span class="tx">${md(x.txt)}</span><span class="refs">${String(x.ref || "").split(/\s*,\s*(?![^(]*\))/).filter(Boolean).map(r => `<span class="ref r06">06 · ${esc(r)}</span>`).join("")}</span></li>`; }).join("")}</ul></section>`).join("");
+}
 /* ---------- giao diện Tra theo công trình ---------- */
-const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, pmoto: 0, srv: 0, mba: 0, mbaKv: 0, pdien: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
+const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, pmoto: 0, dt1: 0, show06: true, srv: 0, mba: 0, mbaKv: 0, pdien: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
 let ctV = Object.assign({}, DEF, store.get("q10-ct", {}));
 if (!TI[ctV.id]) ctV.id = DEF.id;
 if (!Array.isArray(ctV.mix) || ctV.mix.length !== 3 || !ctV.mix.every(r => Array.isArray(r) && TI[r[0]])) ctV.mix = JSON.parse(JSON.stringify(DEF.mix));
@@ -717,6 +740,7 @@ function renderCT() {
   if (t.og === "F5") { checks.push(chkF("w60", "Không có lỗ mở trên mái và nhà rộng > 60 m (Bảng H.4)")); checks.push(chkF("ceil10", "Gian cao ≤ 10 m, sprinkler liên động trung tâm báo cháy")); }
   if (f5) { checks.push(chkF("steel", "Kết cấu thép không bảo vệ / gỗ (H.2.3)")); checks.push(chkF("combust", "Vật liệu cháy bao quanh cấu trúc (bậc IV, S2, S3)")); }
   checks.push(chkF("deep", "Sàn hầm dưới cùng sâu > 9 m"));
+  if (MAP06[t.id]) checks.push(chkF("show06", "Kèm kiểm tra kiến trúc theo QCVN 06 (bậc chịu lửa, khoang cháy, thoát nạn, tiếp cận)"));
   if (t.og === "F13" || t.og === "F") checks.push(chkF("rural", "Khu vực nông thôn"));
   const mixHtml = t.id === "hon-hop" ? `<div class="mixbox"><p class="label" style="margin:0">Quy tắc 70 % (1.5.8) — diện tích sàn từng công năng</p>${(ctV.mix || []).map((r, i) => `<div class="grid2"><label class="fld"><span>Công năng ${i + 1}</span><select data-mix="${i}" data-mk="0">${T.filter(x => x.og !== "F5" && x.id !== "hon-hop" && x.og !== "ham").map(x => `<option value="${x.id}"${x.id === r[0] ? " selected" : ""}>${esc(x.n)}</option>`).join("")}</select></label><label class="fld"><span>Diện tích sàn</span><span class="inp"><input id="mix-a${i}" data-mix="${i}" data-mk="1" type="text" inputmode="decimal" autocomplete="off" value="${fmtIn(r[1])}"><i>m²</i></span></label></div>`).join("")}<p class="note" style="margin:0">Không tính diện tích kỹ thuật, PCCC, gian lánh nạn và đỗ xe.</p><div id="mixres">${mixHTML()}</div></div>` : "";
   view.innerHTML = `${ctTabs("cong-trinh")}
@@ -731,6 +755,7 @@ function renderCT() {
       ${numF("a", "Tổng diện tích sàn", "m²")}
       ${numF("vol", "Khối tích nhà", "m³")}
       ${selF("nb", "Số tầng hầm", [0, 1, 2, 3, 4, 5])}
+      ${MAP06[t.id] ? numF("dt1", "Diện tích 1 tầng lớn nhất", "m²", "", "= tổng / số tầng") : ""}
       ${extra.join("")}
     </div>
     ${mixHtml}
@@ -750,26 +775,37 @@ function mixHTML() {
 }
 function ctResult() {
   const t = TI[ctV.id];
-  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
+  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "dt1", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
   if (v.n < 1 && !["ham"].includes(t.og)) v.n = 1;
   const out = ctEvaluate(t, v);
   const chips = [t.g, `${v.n} tầng`, `${fmtN(v.h)} m`, `${fmtN(v.a)} m²`, v.vol ? `${fmtN(v.vol)} m³` : "", v.nb ? `${v.nb} hầm` : "", `bậc ${v.bac}`].filter(Boolean);
   const req = out.reduce((s, x) => s + x.items.filter(i => i.lv === "req" || i.lv === "alt").length, 0);
   const all = out.flatMap(x => x.items);
   const tile = (lbl, re) => { const it = all.find(i => re.test(i.txt)); const k = !it ? "na" : it.lv === "req" ? "y" : it.lv === "alt" ? "t" : it.lv === "no" ? "n" : "na"; return `<div class="tile ${k}"><b>${{ y: "Có", t: "Có*", n: "Không", na: "—" }[k]}</b><span>${lbl}</span></div>`; };
+  let t06 = "";
+  if (ctV.show06) { const r6 = q06Eval(t, v); if (r6) { const nb = r6.out.reduce((n, s) => n + s.items.filter(i => i.lv === "bad").length, 0); t06 = `<a class="tile ${nb ? "y" : "n"} t06" href="#q06" data-q06="1"><b>${nb ? nb + " vượt" : "Đạt"}</b><span>QCVN 06 kiến trúc ↓</span></a>`; } }
   const partS = all.some(i => i.lv === "req" && /^\*\*(Chữa cháy tự động|Báo cháy và chữa cháy tự động)\*\*/.test(i.txt));
   const sprMain = all.find(i => /^\*\*Hệ thống chữa cháy tự động/.test(i.txt));
   const sprTile = sprMain && sprMain.lv === "no" && partS ? `<div class="tile t"><b>Một phần</b><span>Chữa cháy tự động</span></div>` : tile("Chữa cháy tự động", /^\*\*Hệ thống chữa cháy tự động/);
-  const tiles = `<div class="tiles" id="ctsum">${tile("Báo cháy tự động", /^\*\*Hệ thống báo cháy/)}${sprTile}${tile("Họng nước trong nhà", /^\*\*Hệ thống họng nước/)}${tile("Nước ngoài nhà riêng", /^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)}${all.some(i => /^\*\*Đường ống khô/.test(i.txt)) ? tile("Đường ống khô", /^\*\*Đường ống khô/) : `<div class="tile n"><b>Không</b><span>Đường ống khô</span></div>`}${tile("Loa thông báo", /^\*\*Loa thông báo/)}</div><p class="note">Có* — được thay bằng thiết bị báo cháy độc lập. Một phần — chỉ bắt buộc cho khu vực (để xe, thương mại…). “—” — không xét hoặc xem chi tiết.</p>`;
+  const tiles = `<div class="tiles" id="ctsum">${tile("Báo cháy tự động", /^\*\*Hệ thống báo cháy/)}${sprTile}${tile("Họng nước trong nhà", /^\*\*Hệ thống họng nước/)}${tile("Nước ngoài nhà riêng", /^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)}${all.some(i => /^\*\*Đường ống khô/.test(i.txt)) ? tile("Đường ống khô", /^\*\*Đường ống khô/) : `<div class="tile n"><b>Không</b><span>Đường ống khô</span></div>`}${tile("Loa thông báo", /^\*\*Loa thông báo/)}${t06}</div><p class="note">Có* — được thay bằng thiết bị báo cháy độc lập. Một phần — chỉ bắt buộc cho khu vực (để xe, thương mại…). “—” — không xét hoặc xem chi tiết.</p>`;
   return `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>${tiles}
   <div class="row-btns"><button class="btn2" id="ctcopy">Sao chép kết quả</button></div><p class="note" id="ctmsg" role="status"></p>` + itemsHTML(out) +
+  q06Block(t, v) +
   `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;
 }
+function q06Block(t, v) {
+  if (!ctV.show06) return "";
+  const r = q06Eval(t, v); if (!r) return "";
+  const bad = r.out.reduce((n, s) => n + s.items.filter(i => i.lv === "bad").length, 0);
+  return `<div class="q06head" id="q06"><h2>Kiến trúc theo QCVN 06:2022/BXD + SĐ1:2023</h2><div class="ct-sum"><span class="chip">${esc(r.it.n)} · ${esc(r.it.g)}</span><span class="chip">${fmtN(r.dt1)} m²/tầng</span><span class="chip">${r.sp ? "có sprinkler (từ QCVN 10)" : "không sprinkler toàn nhà"}</span>${bad ? `<span class="chip hot">${bad} mục vượt / không đạt</span>` : ""}</div><p class="note">Sprinkler toàn nhà lấy theo kết quả QCVN 10 ở trên — ảnh hưởng diện tích khoang cháy (QCVN 06 H.4.1), khoảng cách lối ra, đai ngăn cháy. Số điều “06 · …” là điều của QCVN 06; tra nguyên văn trong sổ tay QCVN 06.</p></div>` + items06HTML(r.out);
+}
 function ctText() {
-  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
+  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "dt1", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
   const out = ctEvaluate(t, v);
   const lines = [`${t.n} — ${v.n} tầng, chiều cao PCCC ${fmtN(v.h)} m, ${fmtN(v.a)} m², ${fmtN(v.vol)} m³ (QCVN 10:2025/BCA)`];
   out.forEach(s => { lines.push("", s.t); s.items.forEach(i => lines.push(`- [${(LV[i.lv] || LV.val)[1] || "Giá trị"}] ${i.txt.replace(/\*\*/g, "")} (${i.ref})`)); });
+  const r6 = ctV.show06 ? q06Eval(t, v) : null;
+  if (r6) { lines.push("", "=== KIẾN TRÚC THEO QCVN 06:2022/BXD + SĐ1:2023 ==="); r6.out.forEach(s => { lines.push("", s.t); s.items.forEach(i => lines.push(`- ${LV06[i.lv] ? "[" + LV06[i.lv][1] + "] " : ""}${i.txt.replace(/\*\*/g, "")} (QCVN 06: ${i.ref})`)); }); }
   return lines.join("\n");
 }
 function ctSync(full) {
@@ -1109,6 +1145,7 @@ document.addEventListener("click", e => {
     const on = saved.includes(id); star.setAttribute("aria-pressed", on); star.setAttribute("aria-label", on ? "Bỏ lưu" : "Lưu mục này"); return; }
   const rf = e.target.closest("[data-ref]"); if (rf) { e.preventDefault(); q.value = resolveRef(rf.dataset.ref); clearQ.hidden = false; renderSearch(q.value); window.scrollTo(0, 0); return; }
   if (e.target.id === "ctcopy") { copyText(ctText(), "ctmsg"); return; }
+  const q6 = e.target.closest("[data-q06]"); if (q6) { e.preventDefault(); const el = document.getElementById("q06"); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
   if (e.target.id === "ctjump") { const r = document.getElementById("ctres"); if (r) r.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
   const gk = e.target.closest("[data-gp]"); if (gk) { gpV.k = +gk.dataset.gp; gpV.q = ""; q.value = ""; clearQ.hidden = true; store.set("q10-gp", gpV); if (location.hash !== "#gian-phong") location.hash = "gian-phong"; else renderGP(); window.scrollTo(0, 0); return; }
   const pk = e.target.closest("[data-ct]"); if (pk) { ctV.id = pk.dataset.ct; ctQ = ""; q.value = ""; clearQ.hidden = true; store.set("q10-ct", ctV); if (location.hash !== "#cong-trinh") location.hash = "cong-trinh"; else renderCT(); window.scrollTo(0, 0); return; }

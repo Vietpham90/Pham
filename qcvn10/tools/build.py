@@ -7,6 +7,12 @@ files = ["README.md", "01-quy-dinh-chung.md", "02-trang-bi.md", "03-phu-luc-a.md
          "05-phu-luc-d-g.md", "06-h1-nuoc-ngoai-nha.md", "07-h2-hong-nuoc.md", "08-h3-h4-bom-loa.md", "09-chung-cu-kho-xuong.md"]
 data = {f: (src / f).read_text() for f in files}
 js = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
-page = (here / "head.html").read_text() + "\n" + (here / "app.html").read_text().replace("__DATA__", js)
+# Bộ quy tắc QCVN 06 lấy nguyên từ sổ tay QCVN 06 (tools/template.html), đặt trong vùng tên Q06
+t06 = (here.parent.parent / "tools" / "template.html").read_text()
+q06 = t06[t06.index("const CT = ["):t06.index("let ctV = Object.assign(")]
+q06 = "const Q06 = (function () {\n" + q06 + "\nreturn { CT, ctEvaluate };\n})();"
+app = (here / "app.html").read_text()
+assert "/*__Q06__*/" in app
+page = (here / "head.html").read_text() + "\n" + app.replace("__DATA__", js).replace("/*__Q06__*/", q06.replace("</", "<\\/"))
 out.write_text(page)
 print(out, out.stat().st_size)

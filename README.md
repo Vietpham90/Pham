@@ -98,6 +98,7 @@ Tra cứu trang bị phương tiện PCCC và CNCH: báo cháy, chữa cháy t�
 Công cụ trong sổ tay:
 
 - **Tra theo công trình** — 42 loại nhà; nhập số tầng (1.4.24), chiều cao PCCC, diện tích sàn, khối tích → báo cháy (kể cả khi được dùng thiết bị báo cháy độc lập), chữa cháy tự động, họng nước (số tia × L/s theo Bảng H.5, H.6), lưu lượng ngoài nhà (Bảng H.2 – H.4), đường ống khô, loa, phá dỡ, mặt nạ — kèm số bảng, số điều bấm được.
+- **Kèm kiểm tra kiến trúc theo QCVN 06** trong cùng một lần nhập: phạm vi, bậc chịu lửa, khoang cháy, thoát nạn, ngăn cháy lan, tiếp cận chữa cháy. Bộ quy tắc lấy nguyên từ sổ tay QCVN 06 lúc dựng (`build.py` trích từ `tools/template.html`), sprinkler toàn nhà theo QCVN 10 được truyền sang QCVN 06.
 - **Nhà hỗn hợp**: kiểm tra quy tắc 70 % (1.5.8) từ diện tích từng công năng. **Phần để xe trong nhà** (Bảng A.3 mục 4.4, G.1 mục 3, H.5 CT2).
 - **Cơ sở, khu** — kho dầu, cảng hàng không, cảng biển, LNG, nhiệt điện, thủy điện, dệt, lọc dầu, chế biến khí, KCN, CCN: số xe, tàu, bơm chữa cháy (Bảng D.1), mặt nạ cách ly (F.1), cấp nước ngoài nhà (C.1).
 - **Gian phòng, hạng mục, thiết bị** — 69 dòng Bảng A.2, A.3, A.4 (phòng máy chủ, kho tiền, máy biến áp dầu, hầm cáp…): nhập quy mô → báo cháy, chữa cháy tự động kèm ghi chú.
@@ -140,6 +141,7 @@ node qcvn10/tools/smoke.js /tmp/q10.html
 - `test-quy-tac.js` — 171 trường hợp có đáp án tính tay từ Bảng A.1, A.3, B.1, C.1, G.1, H.2 – H.6 (ngay trên và dưới từng ngưỡng).
 - `test-chung-cu-kho.js` — 46 tình huống thiết kế (chung cư, gara xe máy, khách sạn có gara hầm, xưởng có phòng IT, máy biến áp, nhà kho).
 - `test-fuzz-giao-dien.js` — thao tác ngẫu nhiên trên mọi loại nhà và mọi ô nhập (số âm, chữ, số rất lớn…), bắt lỗi JavaScript và chữ “NaN/undefined”.
+- `test-q06.js` — phần ghép QCVN 06: kết quả giống hệt sổ tay QCVN 06 trên 400 đầu vào ngẫu nhiên; sprinkler được truyền đúng (`node qcvn10/tools/test-q06.js /tmp/q10.html /tmp/so-tay.html`).
 - `test-co-so.js` — 31 trường hợp Bảng D.1, F.1, C.1 cho cơ sở, khu.
 - `test-doi-chieu.js` — bảng số trong mã khớp bảng trong `noi-dung` (H.1 – H.4, H.6, H.7 và 69 dòng Bảng A.2 – A.4).
 - `test-tinh-chat.js` — đầu vào ngẫu nhiên; tăng số tầng, diện tích, chiều cao không bao giờ làm giảm yêu cầu.

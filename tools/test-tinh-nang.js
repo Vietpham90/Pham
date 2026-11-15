@@ -1,6 +1,7 @@
 const { chromium } = require('playwright');
+const OPEN_ALL = () => new MutationObserver(() => document.querySelectorAll('details.tnrow:not([open]), details.ct-d:not([open])').forEach(d => { if (!d.dataset.t) { d.dataset.t = 1; d.open = true; } })).observe(document, { childList: true, subtree: true });
 (async () => {
-  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } });
+  const b = await chromium.launch(); const p = await b.newPage({ viewport: { width: 390, height: 844 } }); await p.addInitScript(OPEN_ALL);
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   const f = 'file://' + process.argv[2]; const res = []; const ok = (name, cond, info) => res.push((cond ? 'ĐẠT  ' : 'LỖI  ') + name + (cond ? '' : ' → ' + JSON.stringify(info)));
   await p.goto(f + '#cong-trinh'); await p.waitForTimeout(300);

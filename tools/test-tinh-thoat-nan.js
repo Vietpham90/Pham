@@ -1,8 +1,9 @@
 const { chromium } = require('playwright');
+const OPEN_ALL = () => new MutationObserver(() => document.querySelectorAll('details.tnrow:not([open]), details.ct-d:not([open])').forEach(d => { if (!d.dataset.t) { d.dataset.t = 1; d.open = true; } })).observe(document, { childList: true, subtree: true });
 (async () => {
   const b = await chromium.launch(); const f = 'file://' + process.argv[2];
   const res = []; const ok = (name, cond, info) => res.push((cond ? 'ĐẠT  ' : 'LỖI  ') + name + (cond ? '' : ' → ' + String(JSON.stringify(info)).slice(0, 400)));
-  const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }); const p = await ctx.newPage(); p.setDefaultTimeout(4000);
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }); const p = await ctx.newPage(); p.setDefaultTimeout(4000); await p.addInitScript(OPEN_ALL); // các dòng nhập, mục chi tiết thu gọn: mở sẵn để kiểm thử nhập liệu
   const errs = []; p.on('pageerror', e => errs.push(e.message));
   await p.goto(f + '#tinh-thoat-nan'); await p.waitForTimeout(300);
   // 1. Tính toán có đáp án
@@ -119,6 +120,21 @@ const { chromium } = require('playwright');
   await p.selectOption('#gpk', '3'); await p.waitForTimeout(200);
   ok('Chọn gian thương mại → hiện ô lối đi ≥ 25 %', !!(await p.$('#gplane')) && !(await p.$('#gpad')));
   await p.goto(f + '#tinh-thoat-nan'); await p.waitForTimeout(200);
+  { const q = await (await b.newContext({ viewport: { width: 390, height: 844 } })).newPage(); await q.goto(f + '#tinh-thoat-nan'); await q.waitForTimeout(250);
+    await q.evaluate(() => localStorage.clear()); await q.reload(); await q.waitForTimeout(250);
+    ok('Mặc định các dòng nhập thu gọn, có tóm tắt "Tầng … · … người"', (await q.$$('details.tnrow[open]')).length === 0 && /Tầng 2-10/.test(await q.innerText('.parts')));
+    await q.click('details.tnrow:nth-child(3) > summary'); await q.waitForTimeout(150);
+    const a3 = await q.$('details.tnrow:nth-child(3) .tna'); await a3.click({ clickCount: 3 }); await q.keyboard.type('1200'); await q.waitForTimeout(150);
+    ok('Mở dòng, gõ diện tích 1200 → tóm tắt dòng cập nhật 200 người', /1\.200 m² · 200 người/.test(await q.innerText('details.tnrow:nth-child(3) > summary')), await q.innerText('details.tnrow:nth-child(3) > summary'));
+    await q.selectOption('details.tnrow:nth-child(3) .tnk', '2'); await q.waitForTimeout(200);
+    ok('Đổi loại không gian (vẽ lại form) → dòng đang sửa vẫn mở', (await q.$$('details.tnrow[open]')).length === 1 && await q.$eval('details.tnrow:nth-child(3)', d => d.open));
+    await q.click('#tnadd'); await q.waitForTimeout(200);
+    ok('Thêm dòng → dòng mới mở sẵn để nhập', await q.$eval('details.tnrow:last-child', d => d.open));
+    await q.goto(f + '#cong-trinh'); await q.waitForTimeout(250);
+    ok('Toàn nhà: mục chi tiết thu gọn, có đếm "mục · lưu ý"', (await q.$$('details.ct-d')).length >= 5 && /\d+ mục/.test(await q.innerText('details.ct-d summary')));
+    await q.click('[data-foldall]'); await q.waitForTimeout(100);
+    ok('Nút "Mở tất cả" mở mọi mục', (await q.$$('details.ct-d:not([open])')).length === 0 && (await q.innerText('[data-foldall]')) === 'Thu gọn');
+    await q.context().close(); }
   // 3. Dữ liệu hỏng
   await p.evaluate(() => localStorage.setItem('pccc-tn', JSON.stringify({ g: 'ZZ', bac: 9, h: 'abc', den: -3, rows: [null, 5, { f: null, k: 999, a: 'x', ex: -2 }] })));
   await p.reload(); await p.waitForTimeout(250);

@@ -1,8 +1,6 @@
 <title>Sổ tay PCCC QCVN 06</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#b42318">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap">
 <style>
 /* Layout: một cột kiểu ứng dụng điện thoại — thanh đầu dính có ô tìm, nội dung là các khối gập mở, thanh điều hướng dưới đáy. */
 :root {
@@ -11,8 +9,8 @@
   --fire: #b42318; --fire-bg: #fde4e1; --on-fire: #ffffff;
   --exit: #067647; --exit-bg: #dcf5e7;
   --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
-  --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Roboto Mono", monospace;
   --nav-h: 60px;
 }
 /* Nền màu be dùng cố định, không đổi theo chế độ tối của máy */
@@ -168,6 +166,32 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 .checks input { width: 20px; height: 20px; accent-color: var(--fire); flex: none; }
 .ct-sum { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 10px; }
 .chip { font-family: var(--mono); font-size: 12px; padding: 3px 8px; border-radius: 999px; background: var(--tint); color: var(--ink); }
+.tools { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 6px; }
+.tool { display: grid; grid-template-columns: 26px 1fr; column-gap: 10px; align-items: center; text-align: left; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); color: var(--ink); cursor: pointer; font-family: var(--sans); min-height: 64px; }
+.tool svg { grid-row: span 2; width: 26px; height: 26px; fill: none; stroke: var(--fire); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.tool b { font-size: 14.5px; line-height: 1.25; } .tool span { font-size: 12px; color: var(--muted); line-height: 1.3; }
+.tool.main { grid-column: 1 / -1; background: var(--fire); border-color: var(--fire); color: var(--on-fire); padding: 14px; }
+.tool.main svg { stroke: var(--on-fire); } .tool.main span { color: var(--on-fire); opacity: .88; } .tool.main b { font-size: 16px; }
+.tool:active { transform: scale(.98); }
+.tools .tool:last-child:nth-child(even) { grid-column: 1 / -1; }
+.fold-bar { display: flex; justify-content: space-between; align-items: center; margin: 14px 0 8px; }
+details.ct-d { padding: 0; }
+details.ct-d > summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 14px; }
+details.ct-d > summary::-webkit-details-marker { display: none; }
+details.ct-d > summary h2 { margin: 0; font-size: 15px; }
+details.ct-d > summary::after { content: ""; width: 8px; height: 8px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(45deg); margin: -4px 2px 0 0; flex: none; transition: transform .15s; }
+details.ct-d[open] > summary::after { transform: rotate(-135deg); margin-top: 4px; }
+details.ct-d .cnt { margin-left: auto; font-size: 12px; color: var(--muted); white-space: nowrap; }
+details.ct-d .cnt i { font-style: normal; font-weight: 700; } details.ct-d .cnt i.w { color: var(--amber-ink); } details.ct-d .cnt i.b { color: var(--fire); }
+details.ct-d > ul { padding: 0 14px 6px; }
+details.tnrow > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 2px 0; }
+details.tnrow > summary span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+details.tnrow:not([open]) { padding: 10px 12px; }
+details.tnrow > summary::-webkit-details-marker { display: none; }
+details.tnrow > summary b { font-size: 14px; } details.tnrow > summary span { font-size: 13px; color: var(--muted); }
+details.tnrow > summary::after { content: "Sửa"; margin-left: auto; font-size: 12.5px; font-weight: 600; color: var(--fire); }
+details.tnrow[open] > summary::after { content: "Thu gọn"; }
+details.tnrow[open] > summary { margin-bottom: 8px; }
 .ct-sec { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; margin: 0 0 10px; }
 .ct-sec h2 { font-size: 15px; margin: 0 0 6px; }
 .ct-sec ul { list-style: none; margin: 0; padding: 0; }
@@ -181,7 +205,7 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 @media (max-width: 360px) { .grid2 { grid-template-columns: 1fr; } }
 
 /* Mở rộng */
-.tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; background: var(--tint); padding: 4px; border-radius: 10px; margin: 0 0 12px; }
+.tabs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: var(--tint); padding: 4px; border-radius: 10px; margin: 0 0 12px; }
 .tabs button { border: 0; background: transparent; height: 36px; border-radius: 7px; font-weight: 600; font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; color: var(--muted); padding: 0 4px; font-family: var(--sans); min-width: 0; }
 .tabs button[aria-selected="true"] { background: var(--panel); color: var(--ink); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
 .refs { display: flex; flex-wrap: wrap; gap: 4px; }
@@ -442,7 +466,9 @@ function setHeader(title) {
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 
-const APP_VER = { so: "1.23", ngay: "15/11/2026", moi: [
+const APP_VER = { so: "1.24", ngay: "15/11/2026", moi: [
+  "Giao diện gọn hơn: trang chủ dạng ô công cụ; kết quả chi tiết thu gọn theo mục, có đếm số lưu ý; dòng nhập bảng thoát nạn thu gọn.",
+  "Mở nhanh hơn ~4 lần, không cần mạng: dùng phông chữ có sẵn của máy.",
   "Nền ứng dụng màu be, cố định cả khi điện thoại ở chế độ tối.",
   "Bỏ máy tính chiều cao PCCC — nhập tay chiều cao trong Tra theo công trình.",
   "Bảng G.9 đủ 14 mục (nhà để xe ô tô 2 người/ô để xe).",
@@ -452,9 +478,14 @@ const APP_VER = { so: "1.23", ngay: "15/11/2026", moi: [
 function renderHome() {
   setHeader(null); setNav("home");
   view.innerHTML = `
-    <p class="intro">Tra cứu yêu cầu kiến trúc – kết cấu PCCC. Gõ từ khóa ở ô tìm, hoặc chọn mục bên dưới. Có thể tìm không dấu.</p>
-    <button class="ct-cta" data-go="cong-trinh"><b>Tra theo công trình</b><span>Chọn loại công trình, nhập chiều cao PCCC, số tầng — nhận danh sách yêu cầu cần lưu ý kèm số điều.</span></button>
-    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="hon-hop">Nhà hỗn hợp</button><button class="btn2" data-go="gian-phong">Gian phòng</button><button class="btn2" data-go="tinh-thoat-nan">Tính thoát nạn</button><button class="btn2" data-go="so-do">Sơ đồ</button><button class="btn2" data-go="du-an">Dự án</button></div>
+    <div class="tools">
+      <button class="tool main" data-go="cong-trinh"><svg viewBox="0 0 24 24"><path d="M4 21V5l8-2v18M12 8l8 2v11M3 21h18M7 8h2M7 12h2M7 16h2M15 13h2M15 17h2"/></svg><b>Tra theo công trình</b><span>Nhập quy mô → yêu cầu kết cấu, kiến trúc</span></button>
+      <button class="tool" data-go="tinh-thoat-nan"><svg viewBox="0 0 24 24"><path d="M13 4h5v16h-5M4 20h9M9 12h7M13 9l3 3-3 3"/><circle cx="7" cy="6" r="1.6"/><path d="M7 8v4l-2 4M7 12l2 3"/></svg><b>Tính thoát nạn</b><span>Theo tầng, theo gian</span></button>
+      <button class="tool" data-go="gian-phong"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 12h8v8M14 20v-3"/></svg><b>Gian phòng</b><span>Lối ra, G.5, G.2b</span></button>
+      <button class="tool" data-go="hon-hop"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5-9-5zM3 13l9 5 9-5M3 17.5l9 5 9-5"/></svg><b>Nhà hỗn hợp</b><span>Nhiều công năng</span></button>
+      <button class="tool" data-go="so-do"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 15l5-5 4 4 3-3 6 6"/></svg><b>Sơ đồ</b><span>Hình minh họa</span></button>
+      <button class="tool" data-go="du-an"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><b>Dự án</b><span>Phiếu đã lưu</span></button>
+    </div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đã đối chiếu với bản hợp nhất QCVN 06:2022/BXD + Sửa đổi 1:2023. <strong>✱ SĐ1</strong> đánh dấu nội dung sửa đổi. Mỗi giá trị kèm số điều để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
@@ -979,7 +1010,7 @@ function ctResult() {
   const { it, out } = ctEvaluate(ctV);
   const lab = { ok: "Đạt", warn: "Lưu ý", bad: "Vượt / không đạt" };
   return `<div class="ct-sum"><span class="chip">${it.g}</span><span class="chip">${fmtIn(ctV.h || 0)} m</span><span class="chip">${ctV.n || 1} tầng nổi</span><span class="chip">${ctV.nb || 0} tầng hầm</span>${+ctV.a || +ctV.at ? `<span class="chip">${(+ctV.a || Math.round(+ctV.at / (+ctV.n || 1))).toLocaleString("vi-VN")} m²/tầng${+ctV.a ? "" : " (ước tính)"}</span>` : ""}${+ctV.v ? `<span class="chip">${(+ctV.v).toLocaleString("vi-VN")} m³</span>` : ""}${ctV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
-    `<div class="row-btns"><button class="btn1" data-report="ct">Tạo phiếu kiểm tra</button><button class="btn2" data-go="so-do">Sơ đồ minh họa</button></div>` + ctSummary(out) + itemsHTML(out) + itemsHTML([{ t: "Ngưỡng gần nhất — thay đổi khi điều chỉnh phương án", items: thresholdsCT(ctV) }]) +
+    `<div class="row-btns"><button class="btn1" data-report="ct">Tạo phiếu kiểm tra</button><button class="btn2" data-go="so-do">Sơ đồ minh họa</button></div>` + ctSummary(out) + `<div class="fold-bar"><p class="label" style="margin:0">Chi tiết theo mục</p><button class="link-btn" data-foldall>Mở tất cả</button></div>` + itemsHTML(out, true) + itemsHTML([{ t: "Ngưỡng gần nhất — thay đổi khi điều chỉnh phương án", items: thresholdsCT(ctV) }], true) +
     `<p class="disclaimer">Kết quả là danh sách nội dung cần lưu ý, suy ra từ các điều đã dẫn của QCVN 06:2022/BXD (SĐ1:2023). Kiểm tra lại nguyên văn và các chú thích trước khi dùng trong hồ sơ.</p>`;
 }
 function renderCT() {
@@ -1054,7 +1085,9 @@ function diagLink(ref) {
   refTokens(ref).forEach(r => DIAG_FOR.forEach(([re, id]) => { if (re.test(r.q)) ids.add(id); }));
   return [...ids].map(id => `<button class="ref dg" data-diag="${id}">Sơ đồ</button>`).join("");
 }
-function itemsHTML(sections) {
+function itemsHTML(sections, fold) {
+  if (fold) return sections.filter(s => s.items.length).map(s => { const w = s.items.filter(x => x.lv === "warn").length, b = s.items.filter(x => x.lv === "bad").length;
+    return `<details class="ct-sec ct-d"${b ? " open" : ""}><summary><h2>${esc(s.t)}</h2><span class="cnt">${s.items.length} mục${w ? ` · <i class="w">${w} lưu ý</i>` : ""}${b ? ` · <i class="b">${b} vượt</i>` : ""}</span></summary><ul>${s.items.map(x => `<li class="lv-${x.lv || "n"}">${x.lv ? `<span class="lv">${LV_LABEL[x.lv]}</span>` : ""}<span class="tx">${md(x.txt)}</span><span class="refs">${refHTML(x.ref)}${diagLink(x.ref)}</span></li>`).join("")}</ul></details>`; }).join("");
   return sections.filter(s => s.items.length).map(s => `<section class="ct-sec"><h2>${esc(s.t)}</h2><ul>${s.items.map(x => `<li class="lv-${x.lv || "n"}">${x.lv ? `<span class="lv">${LV_LABEL[x.lv]}</span>` : ""}<span class="tx">${md(x.txt)}</span><span class="refs">${refHTML(x.ref)}${diagLink(x.ref)}</span></li>`).join("")}</ul></section>`).join("");
 }
 
@@ -1171,9 +1204,9 @@ function mxResult() {
   const r = mxEvaluate(mxV);
   return `<div class="ct-sum"><span class="chip">Hỗn hợp</span><span class="chip">${fmtIn(mxV.h)} m</span><span class="chip">${mxV.n} tầng nổi</span><span class="chip">${mxV.nb} tầng hầm</span>${mxV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
     `<div class="row-btns"><button class="btn1" data-report="mx">Tạo phiếu kiểm tra</button></div>` +
-    itemsHTML(r.out) +
-    r.partSecs.map(({ p, it, secs }) => `<h3 class="part-h">Phần: ${esc(it.n)} <span>${it.g} · tầng ${p.from} → ${p.to}${p.a ? ` · ${(+p.a).toLocaleString("vi-VN")} m²` : ""}</span></h3>` + itemsHTML(secs)).join("") +
-    (r.common.length ? itemsHTML(r.common.map(s => ({ t: "Ngăn cháy lan (toàn nhà)", items: s.items }))) : "") +
+    `<div class="fold-bar"><p class="label" style="margin:0">Chi tiết theo mục</p><button class="link-btn" data-foldall>Mở tất cả</button></div>` + itemsHTML(r.out, true) +
+    r.partSecs.map(({ p, it, secs }) => `<h3 class="part-h">Phần: ${esc(it.n)} <span>${it.g} · tầng ${p.from} → ${p.to}${p.a ? ` · ${(+p.a).toLocaleString("vi-VN")} m²` : ""}</span></h3>` + itemsHTML(secs, true)).join("") +
+    (r.common.length ? itemsHTML(r.common.map(s => ({ t: "Ngăn cháy lan (toàn nhà)", items: s.items })), true) : "") +
     `<p class="disclaimer">Bậc chịu lửa, khoang cháy của từng phần được tính với chiều cao và số tầng của toàn nhà. Chiều cao từng phần ước tính theo tỷ lệ số tầng. Đối chiếu nguyên văn trước khi dùng trong hồ sơ.</p>`;
 }
 function mxSync(full) {
@@ -1783,6 +1816,12 @@ function tnEvaluate(v) {
   return { res, g, bac, S, h, mult, rate, maxP, gians, spaces };
 }
 const fmt2 = x => (Math.round(x * 100) / 100).toString().replace(".", ",");
+let tnOpen = new Set();
+function tnRowSum(r, isF5) {
+  const sp = G9[+r.k] || G9[0], P = g9P(r.k, r.a, r.p, r.xe);
+  const nm = isF5 ? (+r.k === 12 ? "Kho" : "Gian sản xuất") + (r.hg ? " " + r.hg : "") : sp[0].split(/[,:(]/)[0].trim();
+  return `<b>Tầng ${esc(String(r.f || "?"))}</b><span>${esc(nm)}${+r.a ? ` · ${(+r.a).toLocaleString("vi-VN")} m²` : ""} · ${P} người</span>`;
+}
 function renderTN() {
   setHeader("Bảng tính thoát nạn"); setNav("cong-trinh");
   const g = tnV.g, isF5 = g.startsWith("F5"), pubSp = !isF5 && g !== "F1.3";
@@ -1801,7 +1840,7 @@ function renderTN() {
     </div>
     <p class="note" style="margin:0">${isF5 ? "Nhà F5: mỗi dòng là một gian sản xuất, kho — kiểm tra riêng lối ra của gian (G.7) và khoảng cách (G.3, G.4); lối ra của tầng ra ngoài hoặc vào buồng thang kiểm tra theo G.8. " : ""}Mỗi dòng là một không gian. Các dòng cùng "Tầng" được cộng số người. Ghi tầng điển hình dạng "2-10", tầng hầm "-1" hoặc "B1". Số lối ra, chiều rộng, thang, khoảng cách lấy giá trị lớn nhất trong tầng.</p>
     <div class="parts">${tnV.rows.map((r, k) => `
-      <div class="part tnrow" data-k="${k}">
+      <details class="part tnrow" data-k="${k}"${tnOpen.has(k) ? " open" : ""}><summary class="tnsum">${tnRowSum(r, isF5)}</summary>
         <div class="tn-grid">
           <label class="fld"><span>Tầng</span><input class="tnf" type="text" value="${esc(String(r.f ?? ""))}"></label>
           <label class="fld" style="grid-column: span 2"><span>Không gian (G.9)</span><select class="tnk">${G9.map((x, i) => `<option value="${i}"${+r.k === i ? " selected" : ""}>${esc(x[0])} — ${g9Unit(x)}</option>`).join("")}</select></label>
@@ -1824,7 +1863,7 @@ function renderTN() {
           <label class="fld" style="grid-column: 1 / -1"><span>${isF5 ? "Cửa gian (Bảng G.4)" : "Vị trí điểm xa nhất"}</span><select class="tnpos"><option value="mid"${r.pos !== "dead" ? " selected" : ""}>${isF5 ? "Ở giữa hai lối ra" : "Giữa hai lối ra"}</option><option value="dead"${r.pos === "dead" ? " selected" : ""}>${isF5 ? "Vào hành lang cụt" : "Hành lang cụt"}</option></select></label>
         </div>
         <button class="link-btn" data-tndel="${k}">Xóa dòng</button>
-      </div>`).join("")}</div>
+      </details>`).join("")}</div>
     <div class="row-btns" style="margin:0"><button class="btn2" id="tnadd">+ Thêm dòng</button></div>
   </section>
   <div id="tnres">${tnResult()}</div>`;
@@ -1884,6 +1923,7 @@ function tnSync(full) {
     if (el.querySelector(".tnxe")) r.xe = numv(el.querySelector(".tnxe"));
     if (el.querySelector(".tnhg")) { r.hg = el.querySelector(".tnhg").value; r.ch = numv(el.querySelector(".tnch")); r.gex = numv(el.querySelector(".tngex")); r.gw = numv(el.querySelector(".tngw")); r.dc = numv(el.querySelector(".tndc")); } });
   store.set("pccc-tn", tnV);
+  document.querySelectorAll(".tnrow").forEach(el => { const r = tnV.rows[+el.dataset.k]; const sm = el.querySelector(".tnsum"); if (r && sm) sm.innerHTML = tnRowSum(r, tnV.g.startsWith("F5")); });
   if (full || oldG.startsWith("F5") !== tnV.g.startsWith("F5") || (oldG === "F1.3") !== (tnV.g === "F1.3")) renderTN(); else g("tnres").innerHTML = tnResult();
 }
 
@@ -1950,8 +1990,9 @@ document.addEventListener("click", e => {
   if (e.target.id === "dgclose" || e.target.id === "dgov") { closeDiag(); return; }
   const zb = e.target.closest("[data-zoom]"); if (zb) { openDiag.z = Math.min(3, Math.max(1, (openDiag.z || 1) + 0.5 * +zb.dataset.zoom)); openDiag(openDiag.cur); return; }
   if (e.target.closest("#dgov .ref")) closeDiag();
-  if (e.target.id === "tnadd") { tnSync(false); const last = tnV.rows[tnV.rows.length - 1]; tnV.rows.push({ f: "", k: 7, a: "", p: "", ex: last ? last.ex : 2, w: last ? last.w : "", st: last ? last.st : "", d: "", pos: "mid" }); store.set("pccc-tn", tnV); renderTN(); const rs = document.querySelectorAll(".tnrow .tnf"); if (rs.length) rs[rs.length - 1].focus(); return; }
-  const tdel = e.target.closest("[data-tndel]"); if (tdel) { tnSync(false); tnV.rows.splice(+tdel.dataset.tndel, 1); store.set("pccc-tn", tnV); renderTN(); return; }
+  if (e.target.id === "tnadd") { tnSync(false); const last = tnV.rows[tnV.rows.length - 1]; tnV.rows.push({ f: "", k: 7, a: "", p: "", ex: last ? last.ex : 2, w: last ? last.w : "", st: last ? last.st : "", d: "", pos: "mid" }); store.set("pccc-tn", tnV); tnOpen = new Set([tnV.rows.length - 1]); renderTN(); const rs = document.querySelectorAll(".tnrow .tnf"); if (rs.length) rs[rs.length - 1].focus(); return; }
+  const tdel = e.target.closest("[data-tndel]"); if (tdel) { tnSync(false); tnV.rows.splice(+tdel.dataset.tndel, 1); store.set("pccc-tn", tnV); tnOpen = new Set(); renderTN(); return; }
+  const fa = e.target.closest("[data-foldall]"); if (fa) { const ds = [...document.querySelectorAll("details.ct-d")]; const open = ds.some(d => !d.open); ds.forEach(d => d.open = open); fa.textContent = open ? "Thu gọn" : "Mở tất cả"; return; }
   if (e.target.id === "tncopy") { tnSync(false); copyText(tnTSV()); return; }
   const rpb = e.target.closest("[data-report]"); if (rpb) { const k = rpb.dataset.report; if (k === "ct") ctSync(false); if (k === "mx") mxSync(false); if (k === "gp") gpSync(false); if (k === "tn") tnSync(false); curReport = reportFrom(k); store.set("pccc-report-draft", curReport); go("phieu"); return; }
   if (e.target.id === "rpsave") { reportSync(); const i = projects.findIndex(p => p.id === curReport.id); const copy = JSON.parse(JSON.stringify(curReport)); if (i >= 0) projects[i] = copy; else projects.unshift(copy); store.set("pccc-projects", projects); document.getElementById("rpmsg").textContent = "Đã lưu vào Dự án trên thiết bị này."; return; }
@@ -1989,6 +2030,7 @@ document.addEventListener("input", e => {
   if (document.getElementById("gpg") && e.target.closest(".ct-form") && e.target.tagName === "INPUT" && e.target.type !== "checkbox") { gpSync(false); return; }
   if (e.target.classList && e.target.classList.contains("rpnote") || ["rpname", "rpauthor"].includes(e.target.id)) { reportSync(); return; }
 });
+document.addEventListener("toggle", e => { const d = e.target; if (d.classList && d.classList.contains("tnrow")) { const k = +d.dataset.k; if (d.open) tnOpen.add(k); else tnOpen.delete(k); } }, true);
 document.addEventListener("keydown", e => { if (e.key === "Escape") closeDiag(); });
 document.addEventListener("change", e => {
   if (!e.target.closest) return;

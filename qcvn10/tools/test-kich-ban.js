@@ -14,7 +14,10 @@ const C = [
   ["Bệnh viện 9 tầng 32 m → báo cháy địa chỉ, sprinkler, ống khô, nước ngoài nhà 30 L/s", "benh-vien", { n: 9, h: 32, a: 22500, vol: 80000, nb: 0 }, [
     [/Báo cháy địa chỉ/, "req"], [/^\*\*Hệ thống chữa cháy tự động/, "req"], [/Đường ống khô/, "req"], [/Lưu lượng ngoài nhà 30 L\/s/, "val"]]],
   ["Mầm non 2 tầng 150 cháu → báo cháy, họng nước; không sprinkler", "mam-non", { n: 2, h: 7, a: 1200, vol: 4500, nb: 0, kids: 150 }, [
-    [/^\*\*Hệ thống báo cháy tự động/, "req"], [/^\*\*Hệ thống họng nước/, "req"], [/^\*\*Hệ thống chữa cháy tự động/, "no"]]]
+    [/^\*\*Hệ thống báo cháy tự động/, "req"], [/^\*\*Hệ thống họng nước/, "req"], [/^\*\*Hệ thống chữa cháy tự động/, "no"]]],
+  ["Chung cư 30 tầng, hành lang > 10 m → H.5 tối thiểu 3 × 2,5 L/s", "chung-cu", { n: 30, h: 99, a: 30000, vol: 100000, nb: 0, hl: true }, [[/Số tia × lưu lượng\*\*: 3 × 2,5 L\/s.*chỉ quy định chung cư đến 25 tầng/, "val"]]],
+  ["Nhà để xe hở 5 tầng → báo cháy (≥ 4 tầng), không sprinkler", "de-xe", { n: 5, h: 15, a: 15000, vol: 50000, nb: 0, gara: "ho", cho: 500 }, [[/^\*\*Hệ thống báo cháy tự động\*\* — dạng hở/, "req"], [/^\*\*Hệ thống chữa cháy tự động\*\* — dạng hở/, "no"]]],
+  ["Khách sạn 3 tầng 900 m² → TBĐL, mặt nạ, không họng nước", "khach-san", { n: 3, h: 10, a: 900, vol: 3000, nb: 0 }, [[/^\*\*Hệ thống báo cháy tự động/, "alt"], [/Mặt nạ lọc độc/, "req"], [/^\*\*Hệ thống họng nước/, "no"]]]
 ];
 (async () => {
   const b = await chromium.launch(); const p = await b.newPage(); await p.goto("file://" + process.argv[2]);

@@ -12,4 +12,5 @@ if [ -n "$FONTS" ]; then
   cp so-tay-qcvn10-offline.html qcvn10/ios/SoTayPCCC/Web/index.html
   node qcvn10/tools/static.js so-tay-qcvn10-offline.html so-tay-qcvn10-iphone.html
 fi
+[ -n "$ARTIFACT" ] && cp "$TMP" "$ARTIFACT"   # bản đăng lên link Claude.ai
 echo "Nhớ tăng VERSION trong docs/qcvn10/sw.js"

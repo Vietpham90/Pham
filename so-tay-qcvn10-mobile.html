@@ -162,6 +162,7 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; justify-content: center; }
 .chips button { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
 
+.ver { margin: 6px 0 0; font-size: 12px; color: var(--muted); text-align: center; font-family: var(--mono); }
 .disclaimer { font-size: 12.5px; color: var(--amber-ink); background: var(--amber-bg); border-radius: 10px; padding: 10px 12px; margin: 16px 0 0; }
 .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
 .pager button { border: 1px solid var(--line); background: var(--panel); border-radius: 10px; padding: 10px 12px; text-align: left; cursor: pointer; font-size: 13px; min-height: 56px; }
@@ -482,7 +483,8 @@ function renderHome() {
     <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="nhieu-khoi">Dự án nhiều khối</button><button class="btn2" data-go="gian-phong">Gian phòng, thiết bị</button><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Điểm mới cần lưu ý</button>${/^https?:$/.test(location.protocol) && /\/qcvn10\//.test(location.pathname) ? '<a class="btn2" href="../" style="text-decoration:none;display:inline-flex;align-items:center">← Sổ tay QCVN 06</a>' : ""}</div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
-    <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>`;
+    <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
+    <p class="ver">Phiên bản v27 · cập nhật 15/11/2026</p>`;
   window.scrollTo(0, 0);
 }
 function renderSection(id, openBlock) {
@@ -813,7 +815,7 @@ function indoorJets(t, v) {
   }
   if (v.h > 50 && t.h5 !== "cc") return { n: 4, q: 2.5, why: "Phần nhà công cộng cao PCCC > 50 m: 4 tia × 2,5 L/s (H.2.2)", ref: "H.2.2" };
   if (t.h5 === "cc") {
-    if (v.n > 25) return { n: null, why: "Bảng H.5 chỉ quy định chung cư đến 25 tầng — đối chiếu nguyên văn và H.2.2", ref: "Bảng H.5" };
+    if (v.n > 25) return { n: v.hl ? 3 : 2, q: 2.5, why: `Bảng H.5 chỉ quy định chung cư đến 25 tầng — **tối thiểu** lấy theo dòng > 16 – ≤ 25 tầng, hành lang ${v.hl ? "> 10 m" : "≤ 10 m"}: ${v.hl ? 3 : 2} × 2,5 L/s; tăng hơn nếu cần, thống nhất với cơ quan thẩm duyệt`, ref: "Bảng H.5" };
     const k = v.n <= 16 ? (v.hl ? 2 : 1) : (v.hl ? 3 : 2);
     return { n: k, q: 2.5, why: `Chung cư ${v.n <= 16 ? "≤ 16" : "17 – 25"} tầng, hành lang chung ${v.hl ? "> 10 m" : "≤ 10 m"}: ${k} × 2,5 L/s (Bảng H.5 mục 1)`, ref: "Bảng H.5" };
   }

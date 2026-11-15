@@ -13,6 +13,10 @@ q06 = t06[t06.index("const CT = ["):t06.index("let ctV = Object.assign(")]
 q06 = "const Q06 = (function () {\n" + q06 + "\nreturn { CT, ctEvaluate };\n})();"
 app = (here / "app.html").read_text()
 assert "/*__Q06__*/" in app
+import datetime, re as _re
+sw = (here.parent.parent / "docs" / "qcvn10" / "sw.js").read_text()
+ver = _re.search(r'VERSION = "sotay-qcvn10-(v\d+)"', sw).group(1)
+app = app.replace("__VER__", ver).replace("__DATE__", datetime.date.today().strftime("%d/%m/%Y"))
 page = (here / "head.html").read_text() + "\n" + app.replace("__DATA__", js).replace("/*__Q06__*/", q06.replace("</", "<\\/"))
 out.write_text(page)
 print(out, out.stat().st_size)

@@ -19,6 +19,7 @@ const { chromium } = require("playwright"); const fs = require("fs"); const path
 <p class="intro">Bản đọc tĩnh, mở được trên iPhone không cần mạng. Bấm tên mục để nhảy tới. Các công cụ tra theo công trình và tính nước có ở bản web.</p>
 <p class="label" id="muc-luc">Mục lục</p><ul class="toc st">${toc}</ul>${secs}
 <p class="disclaimer">Đối chiếu QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Sổ tay không thay thế văn bản quy chuẩn.</p>
+${(document.querySelector("#view .ver") || { outerHTML: "" }).outerHTML}
 </div></main>`;
   });
   await b.close();

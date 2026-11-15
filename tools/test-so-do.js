@@ -13,6 +13,10 @@ const { chromium } = require('playwright');
   ok('Bấm chip "Tầng lánh nạn" cuộn tới sơ đồ', await p.evaluate(() => { const r = document.getElementById('dg-lanh-nan').getBoundingClientRect(); return r.top >= 0 && r.top < 400; }));
   await p.click('#dg-thang-may-cc svg'); await p.waitForTimeout(300);
   ok('Bấm sơ đồ mới → phóng to', await p.evaluate(() => { const o = document.getElementById('dgov'); return !!o && !o.hidden && !!o.querySelector('svg'); }));
+  const an = await p.evaluate(() => ({ flow: getComputedStyle(document.querySelector('.dgbox .flow')).animationName, flame: document.querySelectorAll('.dgbox .flame').length, sky: document.querySelectorAll('.dgbox .sky').length, legend: document.querySelectorAll('.dg-legend span').length }));
+  ok('Hiệu ứng: mũi tên thoát nạn chuyển động, có lửa, bầu trời, chú giải 6 mục', an.flow === 'dgflow' && an.flame >= 5 && an.sky >= 4 && an.legend === 6, an);
+  { const q = await (await b.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })).newPage(); await q.goto('file://' + process.argv[2] + '#so-do'); await q.waitForTimeout(300);
+    ok('Máy bật "Giảm chuyển động" → tắt hiệu ứng', await q.evaluate(() => getComputedStyle(document.querySelector('.dgbox .flow')).animationName === 'none')); await q.context().close(); }
   ok('Không tràn ngang', (await p.evaluate(() => document.documentElement.scrollWidth)) <= 390);
   ok('Không lỗi JS', errs.length === 0, errs);
   console.log(res.join('\n')); console.log(`${res.filter(r => r.startsWith('ĐẠT')).length}/${res.length}`); await b.close(); })();

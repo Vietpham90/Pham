@@ -58,13 +58,17 @@ def truck(x, y, s=1.0, facing=1):
     else:
         body = f'<rect class="truckcab" x="{x}" y="{y+1*s}" width="{cab}" height="{h-2*s}" rx="2"/><rect class="truck" x="{x+cab}" y="{y}" width="{w-cab}" height="{h}" rx="2"/>'
     ladder = f'<line class="ladder" x1="{x+6*s}" y1="{y+h/2}" x2="{x+w-cab-4*s}" y2="{y+h/2}"/>'
-    return body + ladder
+    bx = x + w - cab + 3 * s if facing > 0 else x + 3 * s
+    beacon = f'<rect class="beacon" x="{bx:.1f}" y="{y+h/2-2.5*s:.1f}" width="{cab-6*s:.1f}" height="{5*s:.1f}" rx="1"/>'
+    return body + ladder + beacon
 
 def truck_side(x, y, s=1.0):
     return (f'<rect class="truck" x="{x}" y="{y}" width="{40*s}" height="{14*s}" rx="2"/>'
             f'<rect class="truckcab" x="{x+40*s}" y="{y+3*s}" width="{12*s}" height="{11*s}" rx="2"/>'
             f'<line class="ladder" x1="{x+2*s}" y1="{y-3*s}" x2="{x+36*s}" y2="{y-3*s}"/>'
-            f'<circle class="wheel" cx="{x+9*s}" cy="{y+15*s}" r="{3.5*s}"/><circle class="wheel" cx="{x+44*s}" cy="{y+15*s}" r="{3.5*s}"/>')
+            f'<circle class="wheel" cx="{x+9*s}" cy="{y+15*s}" r="{3.5*s}"/><circle class="wheel" cx="{x+44*s}" cy="{y+15*s}" r="{3.5*s}"/>'
+            f'<rect class="beacon" x="{x+42*s:.1f}" y="{y+1*s:.1f}" width="{7*s:.1f}" height="{2.5*s:.1f}" rx="1"/>'
+            f'<rect class="win2" x="{x+44*s:.1f}" y="{y+5*s:.1f}" width="{6*s:.1f}" height="{4*s:.1f}" rx="1"/>')
 
 def road_h(x, y, w, h, center=True):
     s = f'<rect class="asphalt" x="{x}" y="{y}" width="{w}" height="{h}"/>'

@@ -1,0 +1,89 @@
+// Kiểm thử giao diện: nhập số kiểu Việt Nam, tràn ngang ở 320 px, chế độ tối, tìm kiếm, liên kết số điều, lưu mục.
+// Dùng: node qcvn10/tools/test-giao-dien.js /tmp/q10.html [thư-mục-ảnh]
+const { chromium } = require("playwright");
+(async () => {
+  const file = "file://" + process.argv[2], shots = process.argv[3];
+  const b = await chromium.launch(); const errs = []; const ok = [];
+  const check = (cond, msg) => (cond ? ok : errs).push(msg);
+  // 1. Nhập số
+  const p = await b.newPage({ viewport: { width: 390, height: 844 } }); p.on("pageerror", e => errs.push("pageerror " + e));
+  await p.goto(file + "#cong-trinh"); await p.waitForTimeout(100);
+  await p.selectOption("#ct-id", "chung-cu"); await p.waitForTimeout(50);
+  await p.fill("#ct-n", "5"); await p.fill("#ct-a", "1.500"); await p.fill("#ct-h", "16,5");
+  await p.waitForTimeout(50);
+  let txt = await p.innerText("#ctres");
+  check(txt.includes("1.500 m²") && txt.includes("16,5 m"), "nhập 1.500 và 16,5 hiểu đúng");
+  check(/Hệ thống báo cháy tự động — ≥ 5 tầng/.test(txt), "chung cư 5 tầng → báo cháy");
+  await p.fill("#ct-a", "1 200"); await p.waitForTimeout(50); txt = await p.innerText("#ctres");
+  check(txt.includes("1.200 m²"), "nhập 1 200 (có dấu cách)");
+  await p.fill("#ct-a", "-50"); await p.waitForTimeout(50); txt = await p.innerText("#ctres");
+  check(!txt.includes("-50"), "số âm bị chặn về 0");
+  await p.fill("#ct-a", "abc"); await p.waitForTimeout(50); txt = await p.innerText("#ctres");
+  check(txt.includes("0 m²"), "chữ không phải số → 0");
+  // 2. Ô nhập không mất tiêu điểm khi gõ
+  await p.fill("#ct-vol", ""); await p.click("#ct-vol"); await p.keyboard.type("12000"); await p.waitForTimeout(50);
+  check(await p.evaluate(() => document.activeElement.id) === "ct-vol" && await p.inputValue("#ct-vol") === "12000", "gõ liên tục không mất tiêu điểm");
+  // 3. Đổi loại nhà bằng ô gõ
+  await p.fill("#ctq", "karaoke"); await p.waitForTimeout(50);
+  await p.click("#ctlist .pick"); await p.waitForTimeout(80);
+  check(await p.inputValue("#ct-id") === "karaoke", "chọn loại nhà từ ô gõ");
+  check(await p.$("#ct-room") !== null, "karaoke có ô người trong phòng lớn nhất");
+  // 4. Lưu trạng thái qua tải lại
+  await p.reload(); await p.waitForTimeout(100);
+  check(await p.inputValue("#ct-id") === "karaoke", "nhớ loại nhà sau khi tải lại");
+  // 5. Tìm kiếm + liên kết số điều
+  await p.fill("#q", "dn65"); await p.waitForTimeout(250);
+  check(/kết quả/i.test(await p.innerText("#view")), "tìm không dấu 'dn65'");
+  await p.fill("#q", "khach san"); await p.waitForTimeout(250);
+  check(await p.$("#view .pick[data-ct='khach-san']") !== null, "tìm 'khach san' gợi ý tra công trình");
+  await p.click("#view .pick[data-ct='khach-san']"); await p.waitForTimeout(100);
+  check(await p.inputValue("#ct-id") === "khach-san" && (await p.evaluate(() => location.hash)) === "#cong-trinh", "bấm gợi ý mở Tra theo công trình");
+  await p.click("#ctres .ref >> nth=0"); await p.waitForTimeout(200);
+  check(/kết quả/i.test(await p.innerText("#view")), "bấm số điều → tìm thấy trong sổ tay");
+  const refs = await p.evaluate(() => {
+    const bad = [], all = new Set();
+    T.forEach(t => [{ n: 12, h: 40, a: 6000, vol: 30000, len: 600, ppl: 60 }, { n: 2, h: 6, a: 200, vol: 500, bas: true }].forEach(x => {
+      const v = Object.assign({}, DEF, x);
+      ctEvaluate(t, v).forEach(s => s.items.forEach(i => i.ref.split(/\s*;\s*/).forEach(r => all.add(r.replace(/\s+(mục|CT|chú thích|ghi chú|⁽).*$/i, "").trim()))));
+    }));
+    [...all].forEach(r => { if (!refFound(resolveRef(r))) bad.push(r); });
+    return { n: all.size, bad };
+  });
+  check(!refs.bad.length, `mọi số điều trong kết quả đều tìm thấy (${refs.n} mã)` + (refs.bad.length ? ": thiếu " + refs.bad.join(", ") : ""));
+  // 6. Lưu mục
+  await p.fill("#q", ""); await p.evaluate(() => { location.hash = "pl-a"; }); await p.waitForTimeout(150);
+  await p.click("details[open] .star"); await p.evaluate(() => { location.hash = "da-luu"; }); await p.waitForTimeout(100);
+  check((await p.$$("#view .results li")).length === 1, "lưu mục vào Đã lưu");
+  // 7. Tính nước
+  await p.evaluate(() => { location.hash = "tinh-nuoc"; }); await p.waitForTimeout(80);
+  await p.fill("#w-pop", "30.000"); await p.waitForTimeout(80);
+  const w = await p.innerText("#w-out");
+  check(w.includes("25 L/s") && w.includes("50 L/s"), "khu dân cư 30 000 người, ≥ 3 tầng → 2 × 25 = 50 L/s");
+  check(await p.evaluate(() => document.activeElement.id) === "w-pop", "ô dân số giữ tiêu điểm khi gõ");
+  await p.evaluate(() => { location.hash = "h7"; }); await p.waitForTimeout(80);
+  await p.selectOption("[data-h7=dn]", "65"); await p.selectOption("[data-h7=tip]", "19"); await p.selectOption("[data-h7=jet]", "16"); await p.selectOption("[data-h7=hose]", "20"); await p.waitForTimeout(60);
+  const h7 = await p.innerText("#view");
+  check(h7.includes("6,3 L/s") && h7.includes("0,28 MPa"), "H.7: DN65, lăng 19, tia 16 m, vòi 20 m → 6,3 L/s, 0,28 MPa");
+  await p.evaluate(() => { location.hash = "cong-truong"; }); await p.waitForTimeout(80);
+  await p.fill("#cs-floors", "1200; 450; 1000"); await p.waitForTimeout(60);
+  check((await p.innerText("#cs-out")).includes("6 bình"), "công trường 1200; 450; 1000 m² → 3 + 1 + 2 = 6 bình");
+  await p.uncheck("#cs-road"); await p.waitForTimeout(60);
+  check((await p.innerText("#cs-out")).includes("12 bình"), "không có đường xe → gấp đôi 12 bình");
+  await p.close();
+  // 8. Tràn ngang ở 320 px, sáng và tối
+  for (const scheme of ["light", "dark"]) {
+    const c = await b.newContext({ viewport: { width: 320, height: 640 }, colorScheme: scheme }); const q = await c.newPage();
+    for (const h of ["home", "cong-trinh", "tinh-nuoc", "h7", "cong-truong", "so-sanh", "pl-a", "h1", "h2"]) {
+      await q.goto(file + "#" + h); await q.waitForTimeout(80);
+      const over = await q.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      check(over <= 0, `${scheme} ${h}: không tràn ngang (${over}px)`);
+    }
+    const bg = await q.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    check(scheme === "dark" ? bg !== "rgb(251, 248, 243)" : bg === "rgb(251, 248, 243)", `${scheme}: nền ${bg}`);
+    if (shots) { await q.goto(file + "#cong-trinh"); await q.waitForTimeout(100); await q.screenshot({ path: `${shots}/ct-${scheme}.png` }); }
+    await c.close();
+  }
+  errs.forEach(e => console.log("✗", e));
+  console.log(`${ok.length}/${ok.length + errs.length} kiểm tra giao diện đạt`);
+  await b.close(); process.exit(errs.length ? 1 : 0);
+})();

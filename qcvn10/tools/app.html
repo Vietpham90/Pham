@@ -119,7 +119,7 @@ for (const [file, md] of Object.entries(DATA)) {
     if (/^## /.test(l)) { cur = { title: l.slice(3).trim(), lines: [] }; blocks.push(cur); continue; }
     (cur ? cur.lines : lead).push(l);
   }
-  blocks.forEach((b, k) => { b.id = id + "--" + k; b.raw = b.lines.join(" ").replace(/[|*`>#]/g, " ").replace(/\s+/g, " "); b.text = norm(b.title + " " + b.raw); });
+  blocks.forEach((b, k) => { b.id = id + "--" + k; b.raw = b.lines.filter(l => !/^\|\s*-/.test(l)).join(" ").replace(/[|*`>#]/g, " ").replace(/\s+/g, " "); b.text = norm(b.title + " " + b.raw); });
   SECTIONS[id] = { id, title: META[id].t, lead, blocks, leadText: norm(lead.join(" ")) };
 }
 
@@ -143,7 +143,7 @@ function renderHome() {
   view.innerHTML = `
     <p class="intro">Tra cứu trang bị phương tiện PCCC và CNCH theo QCVN 10:2025/BCA, hiệu lực từ 30/12/2025. Gõ từ khóa ở ô tìm (tìm được không dấu), hoặc chọn mục bên dưới.</p>
     <button class="ct-cta" data-go="cong-trinh"><b>Tra theo công trình</b><span>Chọn loại nhà, nhập số tầng, diện tích sàn, chiều cao PCCC — nhận danh sách hệ thống phải trang bị kèm số bảng, số điều.</span></button>
-    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Thay đổi so với TCVN 3890</button></div>
+    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Điểm mới cần lưu ý</button>${/^https?:$/.test(location.protocol) && /\/qcvn10\//.test(location.pathname) ? '<a class="btn2" href="../" style="text-decoration:none;display:inline-flex;align-items:center">← Sổ tay QCVN 06</a>' : ""}</div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>`;
@@ -643,6 +643,7 @@ function renderCT() {
       ${extra.join("")}
     </div>
     <div class="checks">${checks.join("")}</div>
+    <button class="btn1 jump" id="ctjump" type="button">Xem kết quả ↓</button>
   </div>
   <div id="ctres">${ctResult()}</div>`;
 }
@@ -653,7 +654,10 @@ function ctResult() {
   const out = ctEvaluate(t, v);
   const chips = [t.g, `${v.n} tầng`, `${fmtN(v.h)} m`, `${fmtN(v.a)} m²`, v.vol ? `${fmtN(v.vol)} m³` : "", v.nb ? `${v.nb} hầm` : "", `bậc ${v.bac}`].filter(Boolean);
   const req = out.reduce((s, x) => s + x.items.filter(i => i.lv === "req" || i.lv === "alt").length, 0);
-  return `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>
+  const all = out.flatMap(x => x.items);
+  const tile = (lbl, re) => { const it = all.find(i => re.test(i.txt)); const k = !it ? "na" : it.lv === "req" ? "y" : it.lv === "alt" ? "t" : it.lv === "no" ? "n" : "na"; return `<div class="tile ${k}"><b>${{ y: "Có", t: "Có*", n: "Không", na: "—" }[k]}</b><span>${lbl}</span></div>`; };
+  const tiles = `<div class="tiles" id="ctsum">${tile("Báo cháy tự động", /^\*\*Hệ thống báo cháy/)}${tile("Chữa cháy tự động", /^\*\*Hệ thống chữa cháy tự động/)}${tile("Họng nước trong nhà", /^\*\*Hệ thống họng nước/)}${tile("Nước ngoài nhà riêng", /^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)}${tile("Đường ống khô", /^\*\*Đường ống khô/)}${tile("Loa thông báo", /^\*\*Loa thông báo/)}</div><p class="note">Có* — được thay bằng thiết bị báo cháy độc lập. “—” — không xét hoặc xem chi tiết.</p>`;
+  return `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>${tiles}
   <div class="row-btns"><button class="btn2" id="ctcopy">Sao chép kết quả</button></div><p class="note" id="ctmsg" role="status"></p>` + itemsHTML(out) +
   `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;
 }
@@ -823,6 +827,7 @@ document.addEventListener("click", e => {
     const on = saved.includes(id); star.setAttribute("aria-pressed", on); star.setAttribute("aria-label", on ? "Bỏ lưu" : "Lưu mục này"); return; }
   const rf = e.target.closest("[data-ref]"); if (rf) { e.preventDefault(); q.value = resolveRef(rf.dataset.ref); clearQ.hidden = false; renderSearch(q.value); window.scrollTo(0, 0); return; }
   if (e.target.id === "ctcopy") { copyText(ctText(), "ctmsg"); return; }
+  if (e.target.id === "ctjump") { const r = document.getElementById("ctres"); if (r) r.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
   const pk = e.target.closest("[data-ct]"); if (pk) { ctV.id = pk.dataset.ct; ctQ = ""; q.value = ""; clearQ.hidden = true; store.set("q10-ct", ctV); if (location.hash !== "#cong-trinh") location.hash = "cong-trinh"; else renderCT(); window.scrollTo(0, 0); return; }
   const op = e.target.closest("[data-open]"); if (op) { e.preventDefault(); go(null, op.dataset.open); return; }
   const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); return; }

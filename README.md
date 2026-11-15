@@ -1,4 +1,9 @@
-# Sổ tay PCCC — QCVN 06:2022/BXD và Sửa đổi 1:2023
+# Sổ tay PCCC — QCVN 06:2022/BXD và QCVN 10:2025/BCA
+
+Repo gồm hai sổ tay:
+
+- **QCVN 06:2022/BXD + SĐ1:2023** — yêu cầu kiến trúc – kết cấu về an toàn cháy (phần đầu tài liệu này).
+- **QCVN 10:2025/BCA** — trang bị, bố trí phương tiện PCCC và CNCH (Thông tư 103/2025/TT-BCA, hiệu lực 30/12/2025). Xem mục [Sổ tay QCVN 10:2025/BCA](#sổ-tay-qcvn-102025bca) ở cuối.
 
 Sổ tay tra cứu các yêu cầu **kiến trúc – kết cấu** về an toàn cháy, đối chiếu với bản hợp nhất `QCVN-06_2022-SUA-DOI-1_2023_BXD.pdf`.
 
@@ -75,3 +80,52 @@ node tools/test-bam-sau-khi-go.js /tmp/so-tay.html
 ```bash
 node tools/test-do-ben.js /tmp/so-tay.html /tmp/anh
 ```
+
+## Sổ tay QCVN 10:2025/BCA
+
+Tra cứu trang bị phương tiện PCCC và CNCH: báo cháy, chữa cháy tự động (Phụ lục A), họng nước trong nhà (B), cấp nước ngoài nhà (C), xe – tàu – bơm (D), phá dỡ (E), mặt nạ (F), loa (G), thiết kế hệ thống nước và trạm bơm (H). Nội dung đối chiếu bản scan văn bản ban hành kèm Thông tư 103/2025/TT-BCA.
+
+| Thư mục / tệp | Nội dung |
+| --- | --- |
+| `qcvn10/noi-dung/` | Nội dung gốc Markdown (9 mục). **Sửa nội dung ở đây.** |
+| `qcvn10/tools/` | Giao diện (`head.html`, `app.html`), script tạo bản, bộ kiểm thử |
+| `docs/qcvn10/` | Bản web cài được (PWA), chạy offline — trên GitHub Pages ở địa chỉ `…/qcvn10/` |
+| `so-tay-qcvn10-mobile.html` | Một tệp HTML, mở trực tiếp bằng trình duyệt điện thoại |
+
+Công cụ trong sổ tay:
+
+- **Tra theo công trình** — 39 loại nhà; nhập số tầng (1.4.24), chiều cao PCCC, diện tích sàn, khối tích → báo cháy (kể cả khi được dùng thiết bị báo cháy độc lập), chữa cháy tự động, họng nước (số tia × L/s theo Bảng H.5, H.6), lưu lượng ngoài nhà (Bảng H.2 – H.4), đường ống khô, loa, phá dỡ, mặt nạ — kèm số bảng, số điều bấm được.
+- **Tính nước** — khu dân cư (Bảng H.1), bãi công-ten-nơ; áp suất họng theo tia nước đặc (Bảng H.7); số bình chữa cháy cho công trình đang thi công (2.6.5).
+
+Tạo lại các bản sau khi sửa nội dung (chạy từ thư mục gốc repo), rồi tăng `VERSION` trong `docs/qcvn10/sw.js`:
+
+```bash
+sh qcvn10/tools/build-all.sh
+```
+
+Kiểm thử (cần Node.js và Playwright), sau khi đã tạo `/tmp/q10.html`:
+
+```bash
+node qcvn10/tools/test-quy-tac.js /tmp/q10.html
+```
+
+```bash
+node qcvn10/tools/test-doi-chieu.js /tmp/q10.html qcvn10/noi-dung
+```
+
+```bash
+node qcvn10/tools/test-tinh-chat.js /tmp/q10.html 3000
+```
+
+```bash
+node qcvn10/tools/test-giao-dien.js /tmp/q10.html
+```
+
+```bash
+node qcvn10/tools/smoke.js /tmp/q10.html
+```
+
+- `test-quy-tac.js` — 160 trường hợp có đáp án tính tay từ Bảng A.1, A.3, B.1, C.1, G.1, H.2 – H.6 (ngay trên và dưới từng ngưỡng).
+- `test-doi-chieu.js` — bảng số trong mã khớp bảng trong `noi-dung` (H.1, H.2, H.3, H.4, H.6, H.7).
+- `test-tinh-chat.js` — đầu vào ngẫu nhiên; tăng số tầng, diện tích, chiều cao không bao giờ làm giảm yêu cầu.
+- `test-giao-dien.js` — nhập số kiểu Việt Nam, tìm kiếm không dấu, liên kết số điều, không tràn ngang ở 320 px, chế độ tối.

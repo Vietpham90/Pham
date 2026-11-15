@@ -671,7 +671,7 @@ const CT = [
   { n: "Thư viện", g: "F2.1", t: "H7A", tag: "thu-vien" },
   { n: "Bảo tàng, triển lãm", g: "F2.2", t: "H7B" },
   { n: "Khu vui chơi giải trí, thủy cung", g: "F2.2", t: "H7B" },
-  { n: "Trung tâm thương mại, siêu thị, cửa hàng", g: "F3.1", t: "H4" },
+  { n: "Trung tâm thương mại, siêu thị, chợ, cửa hàng", g: "F3.1", t: "H4" },
   { n: "Nhà hàng, ăn uống; hội nghị có ăn uống", g: "F3.2", t: "H2" },
   { n: "Nhà ga đường sắt, hàng không; bến xe khách", g: "F3.3", t: "H2", tag: "nha-ga" },
   { n: "Phòng khám đa khoa ngoại trú, thẩm mỹ viện", g: "F3.4", t: "H2", tag: "phong-kham" },
@@ -774,7 +774,7 @@ function ctEvaluate(v) {
   const lim = isF5 ? [50, 1] : g === "F3.3" ? [50, 3] : [150, 3];
   const belowF14 = g === "F1.4" && !inF14;
   if (belowF14) {}
-  else if (h > lim[0] || nb > lim[1]) add(s1, `Vượt phạm vi điều chỉnh (≤ ${lim[0]} m, ≤ ${lim[1]} tầng hầm). Phải bổ sung yêu cầu theo tài liệu chuẩn, luận chứng kỹ thuật.`, "1.1.2, 1.1.3, 1.1.10", "bad");
+  else if (h > lim[0] || nb > lim[1]) add(s1, `Vượt phạm vi điều chỉnh: ${[h > lim[0] ? `cao ${fmtIn(h)} m > ${lim[0]} m` : "", nb > lim[1] ? `${nb}${nb >= 4 ? "+" : ""} tầng hầm > ${lim[1]}` : ""].filter(Boolean).join("; ")} (giới hạn cho loại nhà này ≤ ${lim[0]} m, ≤ ${lim[1]} tầng hầm). Phải bổ sung yêu cầu theo tài liệu chuẩn, luận chứng kỹ thuật.`, "1.1.2, 1.1.3, 1.1.10", "bad");
   else add(s1, `Trong phạm vi áp dụng (giới hạn ${lim[0]} m, ${lim[1]} tầng hầm cho loại nhà này).`, "1.1.2", "ok");
   if (!isF5 && g !== "F1.4" && n < 7 && h < 25 && V && V < 5000) add(s1, `Nhà đứng độc lập dưới 7 tầng, dưới 25 m, khối tích ${fmtN(V)} m³ < 5 000 m³: nếu không tuân thủ được quy chuẩn, được áp dụng tài liệu chuẩn theo công năng cụ thể.`, "1.1.2 (đoạn cuối)", "");
   if (nb >= 4) add(s1, "Tầng hầm 4, 5 để xe: áp dụng thêm quy chuẩn gara ngầm.", "1.1.3 CHÚ THÍCH", "warn");
@@ -825,14 +825,24 @@ function ctEvaluate(v) {
         add(s2, `Theo ${name}, với chiều cao ${fmtIn(h)} m${n ? `, ${n} tầng` : ""}${A ? `, ${A.toLocaleString("vi-VN")} m²/tầng` : ""}: các phương án đạt — ` + ok.map(r => `**${r.b} – ${r.s}**${r.area === INF ? " (không hạn chế diện tích)" : r.area ? ` (≤ ${fmtA(r.area)})` : r.c ? ` (${r.c})` : ""}`).join("; ") + ".", name, "ok");
         if (forced) { minBac = forced[0]; add(s2, `Phương án theo bảng là bậc ${best.b}, ${best.s}, nhưng loại công trình này yêu cầu tối thiểu **bậc ${forced[0]}, ${forced[1]}**.`, forced[2], "warn"); }
         else add(s2, `Phương án bậc thấp nhất đạt: **bậc ${best.b}, ${best.s}**.` + (tb && tb.cap ? " Diện tích khoang cháy lấy theo Bảng H.2." : ""), name, "");
+        if (tb && tb.cap && !forced) {
+          const bb = best.b === "Không quy định" ? "V" : best.b.split(",").pop().trim(), ss = (best.s.match(/S\d/) || ["S0"])[0];
+          const r2 = HT.H2.rows.find(r => r.b === bb && r.s.includes(ss)) || HT.H2.rows.find(r => r.b === bb);
+          const ix = floorIdxH2(n);
+          if (r2) { let a2 = ix < 0 ? null : r2.f[ix]; const x2 = a2 && sp && ["I", "II"].includes(bb) && r2.s === "S0"; if (x2) a2 *= 2;
+            if (!a2) add(s2, `Bảng H.2 không có diện tích cho bậc ${bb}, ${r2.s} với ${n} tầng — chọn bậc chịu lửa cao hơn.`, "Bảng H.2", "warn");
+            else add(s2, `Diện tích tầng trong khoang cháy theo Bảng H.2 (bậc ${bb}, ${r2.s}, ${n} tầng${x2 ? ", đã nhân 2 do có chữa cháy tự động" : ""}): **≤ ${a2.toLocaleString("vi-VN")} m²**.` + (A ? (A > a2 ? ` Diện tích nhập ${A.toLocaleString("vi-VN")} m² **vượt** — chia khoang cháy hoặc nâng bậc chịu lửa.` : ` Diện tích nhập ${A.toLocaleString("vi-VN")} m² đạt.`) : ""), "Bảng H.2, H.2.12.2", A ? (A > a2 ? "bad" : "ok") : ""); }
+        }
       } else {
         if (!sp && !v._probe) { const alt = ctEvaluate(Object.assign({}, v, { sp: true, _probe: true })); const okAlt = alt.out[1] && alt.out[1].items.find(x => x.lv === "ok"); if (okAlt) add(s2, "Nếu trang bị **chữa cháy tự động toàn nhà**: " + okAlt.txt.replace(/^Theo [^:]+: /, ""), name + (it.t === "H9" ? ", H.4.1" : it.t === "H11" ? ", H.5.3" : ", H.2.12.2"), "warn"); }
+        if (tb && tb.cap) add(s2, `${name} cho phép chiều cao PCCC lớn nhất **${Math.max(...tb.rows.map(r => r.h))} m** (bậc ${tb.rows.find(r => r.h === Math.max(...tb.rows.map(x => x.h))).b}); nhà cao ${fmtIn(h)} m **vượt**. Giảm chiều cao, tách khoang cháy hoặc có luận chứng kỹ thuật.`, name, "bad"); else
         add(s2, `Không có dòng nào của ${name} đáp ứng chiều cao ${fmtIn(h)} m${A ? ` và diện tích ${A.toLocaleString("vi-VN")} m²` : ""}${n > 16 && it.t === "H2" ? " (Bảng H.2 chỉ đến 16 tầng)" : ""}. Phải chia khoang cháy, giảm chiều cao/diện tích, hoặc có luận chứng kỹ thuật.`, name, "bad");
       }
       if (tb && tb.x2) add(s2, sp ? "Đã tính tăng 2 lần diện tích cho nhà bậc I, II – S0 có chữa cháy tự động toàn nhà." : "Nhà bậc I, II – S0 có chữa cháy tự động toàn nhà được tăng diện tích khoang cháy tối đa 2 lần.", "H.2.12.2", "");
       if (isF5) add(s2, sp ? "Đã tính tăng 2 lần diện tích (trừ bậc IV, V) do có chữa cháy tự động." : "Có chữa cháy tự động toàn nhà: tăng 2 lần diện tích (trừ bậc IV, V).", it.t === "H9" ? "H.4.1" : "H.5.3", "");
     }
     if (minBac && BANG4[minBac]) add(s2, `GHCL tối thiểu bậc ${minBac} (Bảng 4): ${BANG4[minBac]}.`, "Bảng 4", "");
+    if ((it.tag === "the-thao" || /Nhà hát|câu lạc bộ/.test(it.n)) && ["I", "II", "III"].includes(minBac || "I")) add(s2, "Kết cấu chịu lực mái (giàn, dầm và kết cấu đỡ mái) trên sân khấu và các gian phòng của nhà hát, câu lạc bộ, công trình thể thao: **≥ R 45**.", "H.2.6.4", "");
   }
   if (nb >= 1) add(s2, "Sàn, trần tầng hầm bằng vật liệu không cháy, ≥ REI 90 (nhà bậc I – III).", "Bảng 4 CT1", "");
   if (nb >= 2 && (isF13 || v.hh)) add(s2, "Nhà F1.3 / nhà hỗn hợp có 2 – 3 tầng hầm: kết cấu chịu lực tầng hầm ≥ R 120.", "Bảng 4 CT3", "warn");
@@ -956,9 +966,9 @@ function ctList() {
 }
 /* Tóm tắt yêu cầu chính: chọn các mục then chốt từ kết quả chi tiết, chia nhóm kết cấu / kiến trúc */
 const CT_KEYS = [
-  ["kc", "Bậc chịu lửa", (x, s) => s === "Bậc chịu lửa và khoang cháy" && /Phương án bậc thấp nhất đạt|yêu cầu tối thiểu \*\*bậc|bậc chịu lửa \*\*I\*\*|Không có dòng nào|: tra Bảng H\./.test(x.txt)],
+  ["kc", "Bậc chịu lửa", (x, s) => s === "Bậc chịu lửa và khoang cháy" && /Phương án bậc thấp nhất đạt|yêu cầu tối thiểu \*\*bậc|bậc chịu lửa \*\*I\*\*|Không có dòng nào|: tra Bảng H\.|cho phép chiều cao PCCC lớn nhất/.test(x.txt)],
   ["kc", "Giới hạn chịu lửa kết cấu", x => /^Bảng 4$/.test(x.ref) || /GHCL theo Bảng A\.1/.test(x.txt)],
-  ["kc", "Diện tích tầng, khoang cháy", (x, s) => s === "Bậc chịu lửa và khoang cháy" && /các phương án đạt|Diện tích 1 tầng \/ khoang cháy/.test(x.txt)],
+  ["kc", "Diện tích tầng, khoang cháy", (x, s) => s === "Bậc chịu lửa và khoang cháy" && /Diện tích tầng trong khoang cháy|các phương án đạt|Diện tích 1 tầng \/ khoang cháy/.test(x.txt)],
   ["kc", "Tầng hầm", x => /Bảng 4 CT/.test(x.ref), true],
   ["kt", "Số lối ra thoát nạn", x => /3\.2\.6\.1/.test(x.ref)],
   ["kt", "Buồng thang bộ", x => /3\.4\.1[13]/.test(x.ref), true],
@@ -1095,7 +1105,7 @@ function mxEvaluate(m) {
   // bậc chịu lửa chung = yêu cầu cao nhất giữa các phần
   const rank = { "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5 };
   const topTo = Math.max(...parts.map(p => +p.to));
-  const per = parts.map(p => ({ p, r: ctEvaluate({ i: p.i, h: H, n: N, nb: NB, a: p.a, p: p.p, sp, hh: true, deep: m.deep, hang: p.hang || "C", v: m.v, de: +p.from >= 1 && +p.to < topTo && H > 50 }) }));
+  const per = parts.map(p => ({ p, r: ctEvaluate({ i: p.i, h: H, n: N, nb: NB, a: p.a, p: p.p, sp, hh: true, deep: m.deep, hang: p.hang || "C", v: m.v, de: +p.to >= 1 && +p.to < topTo && H > 50 }) }));
   const bacs = per.filter(x => +x.p.to > 0).map(x => x.r.minBac).filter(Boolean);
   if (bacs.length) { const strict = bacs.sort((a, b) => rank[a] - rank[b])[0]; add(s0, `Bậc chịu lửa của nhà lấy theo yêu cầu cao nhất giữa các phần: **bậc ${strict}**${H > 50 ? " (nhà trên 50 m: bậc I, GHCL theo Bảng A.1)" : ""}.`, H > 50 ? "A.2.1, Bảng A.1" : "2.5.3, Phụ lục H", "warn"); }
   if (H > 50) {

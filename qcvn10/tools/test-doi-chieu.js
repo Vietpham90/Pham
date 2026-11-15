@@ -63,6 +63,21 @@ const num = c => c === "—" ? null : +c.replace(/⁽.*$/, "").replace(",", ".")
   const missing = Object.keys(mdRows).filter(k => !GP.some(r => r[0] === k));
   missing.forEach(k => err.push(`${k}: có trong md nhưng thiếu trong GP`));
   console.log(`Bảng A.2 – A.4: so ${nGP} dòng`);
+  // QCVN 13: Bảng 4, 5, 6, 7 trong mã ↔ mục 11-gara-qcvn13.md
+  const G = await p.evaluate(() => ({ KIN: G13_KIN, HO: G13_HO, NGAM: G13_NGAM, B7: G13_B7 }));
+  const t13 = tables("11-gara-qcvn13.md");
+  const nn = c => c === "—" ? null : +c.replace(/\*\*/g, "").replace(/[ .]/g, "").replace(" m²", "").replace(/[^\d]/g, "");
+  const bacs = c => c.split(/,\s*/).map(x => x.trim());
+  const b4 = t13.find(t => t[0].join("|").startsWith("Bậc chịu lửa|Cấp S|Số tầng ngầm"));
+  b4.slice(1).forEach((r, i) => { const j = G.NGAM[i]; if (!j || r[0] !== j[0] || r[1] !== j[1] || +r[2] !== j[2] || nn(r[3]) !== j[3]) err.push(`QCVN 13 Bảng 4 dòng ${i}: md ${r.join(" | ")} ≠ js ${j}`); });
+  const b56 = t13.filter(t => t[0].join("|").startsWith("Bậc chịu lửa|Cấp S|Số tầng tối đa"));
+  [["Bảng 5", b56[0], G.KIN], ["Bảng 6", b56[1], G.HO]].forEach(([nm, tb, J]) => tb.slice(1).forEach((r, i) => { const j = J[i];
+    const sOk = r[1] === "Không quy định" ? j[1].length === 4 : bacs(r[1]).join() === j[1].join();
+    if (!j || bacs(r[0]).join() !== j[0].join() || !sOk || +r[2] !== j[2] || nn(r[3]) !== j[3] || nn(r[4]) !== j[4]) err.push(`QCVN 13 ${nm} dòng ${i}: md ${r.join(" | ")} ≠ js ${JSON.stringify(j)}`); }));
+  const b7 = t13.find(t => t[0].join("|").startsWith("Bậc chịu lửa|Cấp S|≤ 5"));
+  b7.slice(1).forEach((r, i) => { const j = G.B7[i]; const sOk = r[1] === "Không quy định" ? j[1].length === 4 : bacs(r[1]).join() === j[1].join();
+    if (!j || bacs(r[0]).join() !== j[0].join() || !sOk || r.slice(2).some((c, k) => nn(c) !== j[2][k])) err.push(`QCVN 13 Bảng 7 dòng ${i}: md ${r.join(" | ")} ≠ js ${JSON.stringify(j)}`); });
+  console.log(`QCVN 13: so Bảng 4 (${b4.length - 1}), Bảng 5 (${b56[0].length - 1}), Bảng 6 (${b56[1].length - 1}), Bảng 7 (${b7.length - 1}) dòng`);
   err.forEach(e => console.log("✗", e));
   console.log(err.length ? `${err.length} chỗ lệch` : "Bảng trong mã khớp bảng trong noi-dung (H.1, H.2, H.3, H.4, H.6, H.7)");
   await b.close(); process.exit(err.length ? 1 : 0);

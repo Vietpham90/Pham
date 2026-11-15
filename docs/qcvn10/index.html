@@ -1420,6 +1420,13 @@ function q13Eval(t, v) {
     spr = A1 >= lim; sprWhy = `gara 1 tầng bậc ${bac}${lo ? "" : ", " + S}: ${fmtN(A1)} m² ${spr ? "≥" : "<"} ${fmtN(lim)} m²`;
   }
   P(spr ? "req" : "no", `**Chữa cháy tự động** (gian lưu giữ ô tô) — ${sprWhy}`, g.kind === "ho" ? "2.3.5.2" : v.ngan ? "2.3.5.4" : "2.3.5.2");
+  // So với QCVN 10:2025 — hai quy chuẩn cùng áp dụng thì theo yêu cầu chặt hơn
+  if (["de-xe", "gara-ck"].includes(t.id)) {
+    const s10it = ctEvaluate(t, v).flatMap(x => x.items).find(i => /^\*\*Hệ thống chữa cháy tự động/.test(i.txt));
+    const s10 = s10it && s10it.lv === "req";
+    if (s10 && !spr) P("bad", `**QCVN 10:2025 yêu cầu chữa cháy tự động** (${s10it.txt.replace(/^\*\*[^*]+\*\* — /, "").replace(/\*\*/g, "")}) — chặt hơn QCVN 13, **phải trang bị**`, "QCVN 10 Bảng A.1 mục " + t.a1);
+    if (!s10 && spr) P("info", "QCVN 10:2025 không bắt buộc với quy mô này, nhưng **QCVN 13 yêu cầu** — vẫn phải trang bị", "2.3.5.2");
+  }
   if (!spr && g.kind === "kin" && !v.ngan) P("req", "**Phát hiện cháy tự động** cho gara kín 1 tầng dưới ngưỡng chữa cháy tự động; gian phụ trợ (trừ vệ sinh, buồng thông gió)", "2.3.5.3");
   // loại hệ thống báo cháy
   let typ = null;

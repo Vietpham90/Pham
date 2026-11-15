@@ -19,6 +19,8 @@ const C = [
   ["Kín nổi 2 tầng, 80 chỗ → loại 1", "de-xe", { n: 2, dt1: 2000, cho: 80, bac: "I", S: "S0" }, [[/Hệ thống báo cháy loại 1/, "req"]]],
   ["Kín 1 tầng IV S1 2 500 m² → sprinkler (≥ 2 000)", "de-xe", { n: 1, dt1: 2500, bac: "IV", S: "S1" }, [[/Diện tích 1 tầng 2\.500 m² ≤ \*\*3\.600/, "ok"], [/^\*\*Chữa cháy tự động\*\*.*2\.500 m² ≥ 2\.000/, "req"]]],
   ["Kín 1 tầng I 6 500 m² → phát hiện cháy", "de-xe", { n: 1, dt1: 6500, bac: "I", S: "S0" }, [[/^\*\*Chữa cháy tự động\*\*/, "no"], [/Phát hiện cháy tự động/, "req"]]],
+  ["Kín 1 tầng bậc II S1 4 000 m² → QCVN 10 chặt hơn (3 600)", "de-xe", { n: 1, dt1: 4000, a: 4000, bac: "II", S: "S1" }, [[/^\*\*Chữa cháy tự động\*\*/, "no"], [/QCVN 10:2025 yêu cầu chữa cháy tự động/, "bad"]]],
+  ["Kín 1 tầng bậc I S0 6 500 m² → cả hai không bắt buộc", "de-xe", { n: 1, dt1: 6500, a: 6500, bac: "I", S: "S0" }, [[/QCVN 10:2025 yêu cầu/, "không có"]]],
   ["Kín 1 tầng I 7 000 m² → sprinkler", "de-xe", { n: 1, dt1: 7000, bac: "I", S: "S0" }, [[/^\*\*Chữa cháy tự động\*\*/, "req"]]],
   ["Kín IV S0 2 tầng → chỉ cho 1 tầng", "de-xe", { n: 2, dt1: 1000, bac: "IV", S: "S0" }, [[/Số tầng 2 > 1/, "bad"], [/chỉ cho gara \*\*1 tầng/, "bad"]]],
   ["Hở 4 tầng I S0 6 000 m² → vượt 5 200", "de-xe", { n: 4, dt1: 6000, gara: "ho", bac: "I", S: "S0", vol: 79200 }, [

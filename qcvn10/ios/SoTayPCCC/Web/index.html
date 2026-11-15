@@ -1310,7 +1310,9 @@ const MAP06 = { "nha-o-kd": "Nhà ở riêng lẻ", "nha-o-sx": "Nhà ở riêng
   "kslk": "Văn phòng", "dang-kiem": "Gara có sửa chữa", "de-xe": "Gara để xe không sửa chữa", "gara-ck": "Gara để xe không sửa chữa",
   "ky-thuat-mb": "Nhà sản xuất", "nong-san": "Nhà kho", "kho": "Nhà kho", "san-xuat": "Nhà sản xuất" };
 function q06Eval(t, v) {
-  const key = MAP06[t.id]; if (!key) return null;
+  let key = MAP06[t.id], via = "";
+  if (t.id === "hon-hop") { const m = mixRule(v.mix || ctV.mix); if (m && MAP06[m.top.id]) { key = MAP06[m.top.id]; via = m.top.n; } }
+  if (!key) return null;
   const i = Q06.CT.findIndex(c => c.n.startsWith(key)); if (i < 0) return null;
   const dt1 = v.dt1 > 0 ? v.dt1 : (v.a && v.n ? Math.round(v.a / v.n) : 0);
   const sp = ctEvaluate(t, v).flatMap(s => s.items).some(x => /^\*\*Hệ thống chữa cháy tự động/.test(x.txt) && x.lv === "req");
@@ -1324,7 +1326,7 @@ function q06Eval(t, v) {
     const fixed = r.out.flatMap(s => s.items).filter(x => x.lv === "bad").filter(x => !r2.out.flatMap(s => s.items).some(y => y.lv === "bad" && y.ref === x.ref));
     alt = { before: nBad(r.out), after: nBad(r2.out), fixed: fixed.map(x => x.ref), ok2: r2.out.flatMap(s => s.items).find(x => x.lv === "ok" && /phương án đạt/.test(x.txt)) };
   }
-  return { it: Q06.CT[i], dt1, sp, n06, out: r.out, alt };
+  return { it: Q06.CT[i], dt1, sp, n06, out: r.out, alt, via };
 }
 const LV06 = { ok: ["ok", "Đạt"], warn: ["warn", "Lưu ý"], bad: ["bad", "Vượt / không đạt"] };
 function items06HTML(sections) {
@@ -1442,7 +1444,7 @@ function q06Block(t, v) {
   if (!ctV.show06) return "";
   const r = q06Eval(t, v); if (!r) return "";
   const bad = r.out.reduce((n, s) => n + s.items.filter(i => i.lv === "bad").length, 0);
-  return `<div class="q06head" id="q06"><h2>Kiến trúc theo QCVN 06:2022/BXD + SĐ1:2023</h2><div class="ct-sum"><span class="chip">${esc(r.it.n)} · ${esc(r.it.g)}</span><span class="chip">${r.n06} tầng nổi</span><span class="chip">${fmtN(r.dt1)} m²/tầng</span><span class="chip">${r.sp ? "có sprinkler (từ QCVN 10)" : "không sprinkler toàn nhà"}</span>${bad ? `<span class="chip hot">${bad} mục vượt / không đạt</span>` : ""}</div>${r.alt ? `<p class="mixout ${r.alt.after < r.alt.before ? "ok" : "warn"}">${r.alt.after < r.alt.before ? `Nếu <b>lắp sprinkler toàn nhà</b> (dù QCVN 10 chưa bắt buộc): số mục vượt giảm từ ${r.alt.before} còn ${r.alt.after}${r.alt.ok2 ? " — " + md(r.alt.ok2.txt) : ""}. Cách khác: chia khoang cháy hoặc giảm diện tích tầng.` : `Lắp sprinkler toàn nhà cũng không làm hết các mục vượt${r.out.some(x => x.items.some(i => i.lv === "bad" && i.ref === "Bảng H.1")) ? " (QCVN 06 chỉ cho tăng diện tích khoang cháy khi có chữa cháy tự động với Bảng H.2 – H.4, **không áp dụng Bảng H.1** nhà chung cư)" : ""} — cần **chia khoang cháy**, đổi bậc chịu lửa hoặc giảm diện tích, chiều cao.`.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")}</p>` : ""}<p class="note">Sprinkler toàn nhà lấy theo kết quả QCVN 10 ở trên — ảnh hưởng diện tích khoang cháy (QCVN 06 cho tăng 2 lần với Bảng H.2 – H.4 và nhà sản xuất, kho; không áp dụng Bảng H.1), khoảng cách lối ra, đai ngăn cháy. Số điều “06 · …” là điều của QCVN 06; tra nguyên văn trong sổ tay QCVN 06.</p></div>` + items06HTML(r.out);
+  return `<div class="q06head" id="q06"><h2>Kiến trúc theo QCVN 06:2022/BXD + SĐ1:2023</h2>${r.via ? `<p class="note">Nhà hỗn hợp: xét khoang cháy theo công năng chiếm diện tích lớn nhất trong bảng 70 % — <b>${esc(r.via)}</b>; các phần khác nhóm công năng ngăn cách theo QCVN 06 điều 4.5 (≥ EI 45 với bậc I – III) và kiểm tra riêng.</p>` : ""}<div class="ct-sum"><span class="chip">${esc(r.it.n)} · ${esc(r.it.g)}</span><span class="chip">${r.n06} tầng nổi</span><span class="chip">${fmtN(r.dt1)} m²/tầng</span><span class="chip">${r.sp ? "có sprinkler (từ QCVN 10)" : "không sprinkler toàn nhà"}</span>${bad ? `<span class="chip hot">${bad} mục vượt / không đạt</span>` : ""}</div>${r.alt ? `<p class="mixout ${r.alt.after < r.alt.before ? "ok" : "warn"}">${r.alt.after < r.alt.before ? `Nếu <b>lắp sprinkler toàn nhà</b> (dù QCVN 10 chưa bắt buộc): số mục vượt giảm từ ${r.alt.before} còn ${r.alt.after}${r.alt.ok2 ? " — " + md(r.alt.ok2.txt) : ""}. Cách khác: chia khoang cháy hoặc giảm diện tích tầng.` : `Lắp sprinkler toàn nhà cũng không làm hết các mục vượt${r.out.some(x => x.items.some(i => i.lv === "bad" && i.ref === "Bảng H.1")) ? " (QCVN 06 chỉ cho tăng diện tích khoang cháy khi có chữa cháy tự động với Bảng H.2 – H.4, **không áp dụng Bảng H.1** nhà chung cư)" : ""} — cần **chia khoang cháy**, đổi bậc chịu lửa hoặc giảm diện tích, chiều cao.`.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")}</p>` : ""}<p class="note">Sprinkler toàn nhà lấy theo kết quả QCVN 10 ở trên — ảnh hưởng diện tích khoang cháy (QCVN 06 cho tăng 2 lần với Bảng H.2 – H.4 và nhà sản xuất, kho; không áp dụng Bảng H.1), khoảng cách lối ra, đai ngăn cháy. Số điều “06 · …” là điều của QCVN 06; tra nguyên văn trong sổ tay QCVN 06.</p></div>` + items06HTML(r.out);
 }
 function ctText() {
   const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "dt1", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;

@@ -47,6 +47,12 @@ const { chromium } = require("playwright");
   if (g.sp || !g.bad.includes("Bảng H.1") || !g.alt || g.alt.after !== g.alt.before) errs.push("Chung cư 7 tầng 3 000 m²/tầng: phải báo vượt Bảng H.1 và sprinkler KHÔNG làm hết vượt — " + JSON.stringify(g)); else ok++;
   const g2 = await p10.evaluate(() => { const r = q06Eval(TI["ktx"], Object.assign({}, DEF, { n: 4, h: 13, a: 24000, dt1: 6000 })); return { sp: r.sp, alt: r.alt }; });
   if (g2.sp || !g2.alt || !(g2.alt.after < g2.alt.before)) errs.push("Ký túc xá 4 tầng 6 000 m²/tầng: sprinkler phải làm đạt Bảng H.2 — " + JSON.stringify(g2)); else ok++;
+  // 3d — nhà hỗn hợp: theo công năng lớn nhất trong bảng 70 %
+  const hh = await p10.evaluate(() => {
+    const f = mix => q06Eval(TI["hon-hop"], Object.assign({}, DEF, { n: 7, h: 24, a: 21000, mix })).it.g;
+    return [f([["van-phong", 12000], ["cua-hang", 0], ["chung-cu", 6000]]), f([["van-phong", 6000], ["cua-hang", 0], ["chung-cu", 12000]]), f([["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]])];
+  });
+  if (JSON.stringify(hh) !== JSON.stringify(["F4.3", "F1.3", "F1.3"])) errs.push("Nhà hỗn hợp chọn sai dòng QCVN 06: " + JSON.stringify(hh)); else ok++;
   // 4 — giao diện: bỏ chọn thì ẩn, ô tóm tắt, sao chép kèm QCVN 06
   await p10.goto("file://" + process.argv[2] + "#cong-trinh"); await p10.waitForTimeout(100);
   await p10.selectOption("#ct-id", "chung-cu"); await p10.waitForTimeout(60);

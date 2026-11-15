@@ -1,4 +1,4 @@
-# Sổ tay PCCC — QCVN 06:2022/BXD và QCVN 10:2025/BCA
+# Sổ tay PCCC — QCVN 06:2022/BXD, QCVN 10:2025/BCA, QCVN 13:2018/BXD
 
 Repo gồm hai sổ tay:
 
@@ -99,6 +99,8 @@ Công cụ trong sổ tay:
 
 - **Tra theo công trình** — 42 loại nhà; nhập số tầng (1.4.24), chiều cao PCCC, diện tích sàn, khối tích → báo cháy (kể cả khi được dùng thiết bị báo cháy độc lập), chữa cháy tự động, họng nước (số tia × L/s theo Bảng H.5, H.6), lưu lượng ngoài nhà (Bảng H.2 – H.4), đường ống khô, loa, phá dỡ, mặt nạ — kèm số bảng, số điều bấm được.
 - **Dự án nhiều khối** — nhập nhiều tòa, khối đế, tầng hầm chung; mỗi khối tra riêng (1.5.9), tổng hợp lưu lượng bơm họng nước (H.2.5), nước ngoài nhà theo số đám cháy (Bảng H.1, H.1.2 CT1), trụ, chế độ bơm cho cả dự án.
+- **Gara ô tô theo QCVN 13:2018/BXD** — khi loại nhà là gara, hoặc nhà có phần để xe ô tô: loại gara, khoang cháy (Bảng 4 – 6), chữa cháy, phát hiện cháy, loại hệ thống báo cháy 1 – 5 (Bảng 8), họng nước, ống khô, nước ngoài nhà (Bảng 7), hút khói, áp suất dương, thoát nạn (Bảng 3), đường dốc (Bảng 2), thang máy chữa cháy. Văn bản gốc: `qcvn10/QCVN-13_2018_BXD.pdf`.
+- **Tìm theo tên gọi thông dụng** (“gara ngầm”, “nhà trọ”, “quán bar”, “xưởng”…) có xếp hạng.
 - **Kèm kiểm tra kiến trúc theo QCVN 06** trong cùng một lần nhập: phạm vi, bậc chịu lửa, khoang cháy, thoát nạn, ngăn cháy lan, tiếp cận chữa cháy. Bộ quy tắc lấy nguyên từ sổ tay QCVN 06 lúc dựng (`build.py` trích từ `tools/template.html`), sprinkler toàn nhà theo QCVN 10 được truyền sang QCVN 06.
 - **Nhà hỗn hợp**: kiểm tra quy tắc 70 % (1.5.8) từ diện tích từng công năng. **Phần để xe trong nhà** (Bảng A.3 mục 4.4, G.1 mục 3, H.5 CT2).
 - **Cơ sở, khu** — kho dầu, cảng hàng không, cảng biển, LNG, nhiệt điện, thủy điện, dệt, lọc dầu, chế biến khí, KCN, CCN: số xe, tàu, bơm chữa cháy (Bảng D.1), mặt nạ cách ly (F.1), cấp nước ngoài nhà (C.1).
@@ -150,10 +152,12 @@ node qcvn10/tools/smoke.js /tmp/q10.html
 - `test-fuzz-giao-dien.js` — thao tác ngẫu nhiên trên mọi loại nhà và mọi ô nhập (số âm, chữ, số rất lớn…), bắt lỗi JavaScript và chữ “NaN/undefined”.
 - `test-nguong-tu-noi-dung.js` — kiểm thử độc lập: đọc ngưỡng từ bảng A.1, B.1, C.1, G.1 trong `noi-dung` rồi thử công cụ sát dưới và đúng ngưỡng (87 ô, 191 phép thử).
 - `test-nhieu-khoi.js` — dự án 3 tòa chung cư + tầng hầm gara: bơm 10 L/s do gara quyết định, 1/2/3 đám cháy, thêm, xóa, lưu khối (21 kiểm tra, gồm tầng hầm 2 – 4 tầng).
+- `test-q13.js` — 20 tình huống gara theo QCVN 13 (ngầm, kín, hở, cơ khí, dạng ngăn, trong nhà khác).
+- `test-tim-ten.js` — 49 tên gọi thông dụng phải ra đúng loại công trình đứng đầu.
 - `test-q06.js` — phần ghép QCVN 06: kết quả giống hệt sổ tay QCVN 06 trên 400 đầu vào ngẫu nhiên; sprinkler được truyền đúng; nhóm F theo Bảng 6; số tầng nổi khi có bán hầm; gợi ý sprinkler (không áp dụng Bảng H.1) (`node qcvn10/tools/test-q06.js /tmp/q10.html /tmp/so-tay.html`).
 - `test-co-so.js` — 31 trường hợp Bảng D.1, F.1, C.1 cho cơ sở, khu.
 - `test-doi-chieu.js` — bảng số trong mã khớp bảng trong `noi-dung` (H.1 – H.4, H.6, H.7 và 69 dòng Bảng A.2 – A.4).
 - `test-tinh-chat.js` — đầu vào ngẫu nhiên; tăng số tầng, diện tích, chiều cao không bao giờ làm giảm yêu cầu.
-- `doi-chieu-ocr.py` — mọi con số trong `noi-dung` phải có trong văn bản OCR của bản scan QCVN 10; mục `10-…` (lấy từ QCVN 06) đối chiếu với văn bản QCVN 06 (tham số thứ 3: `pdftotext` của tệp PDF QCVN 06 trong repo) (0 số lệch; các ô OCR không đọc được đã đối chiếu bằng ảnh và ghi trong script).
+- `doi-chieu-ocr.py` — mọi con số trong `noi-dung` phải có trong văn bản OCR của bản scan QCVN 10; mục `10-…` (QCVN 06) đối chiếu văn bản QCVN 06, mục `11-…` (QCVN 13) đối chiếu văn bản QCVN 13 (`pdftotext` các tệp PDF trong repo) (0 số lệch; các ô OCR không đọc được đã đối chiếu bằng ảnh và ghi trong script).
 - `test-offline.js` — chặn mọi yêu cầu mạng, phông nhúng phải tải được và hiện đúng tiếng Việt (`node qcvn10/tools/test-offline.js so-tay-qcvn10-offline.html`).
 - `test-giao-dien.js` — nhập số kiểu Việt Nam, tìm kiếm không dấu, liên kết số điều, không tràn ngang ở 320 px, chế độ tối.

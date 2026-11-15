@@ -116,6 +116,12 @@ const C = [
   // mục 22 – 24
   ["ga-hk", { n: 1, h: 8, a: 400 }, { alarm: "no", c1: "req", g1: "req" }],
   ["ga-hk", { n: 2, h: 12, a: 10000 }, { spr: "req" }],
+  ["ga-cap-treo", { n: 1, h: 8, a: 2000 }, { alarm: "req", c1: "none", g1: "no" }],
+  ["ga-hh", { n: 1, h: 8, a: 2000 }, { c1: "req", g1: "no" }],
+  ["ga-ds", { n: 1, h: 8, a: 300 }, { alarm: "no", c1: "req", g1: "req" }],
+  ["gara-ck", { n: 6, h: 18, a: 140 }, { hydr: "no" }],
+  ["gara-ck", { n: 6, h: 18, a: 150 }, { hydr: "req" }],
+  ["gara-ck", { n: 6, h: 18, a: 5000, gara: "ho" }, { hydr: "no" }],
   ["kslk", { n: 5, h: 30, a: 200 }, { alarm: "req", spr: "req" }],
   ["dang-kiem", { n: 1, h: 6, a: 600 }, { alarm: "req", spr: "no" }],
   // mục 25 nhà để xe

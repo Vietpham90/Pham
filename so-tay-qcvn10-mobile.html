@@ -638,6 +638,7 @@ const B1 = {
   "1.11": v => ({ req: v.n >= 6 || v.a >= 1500, why: "≥ 6 tầng hoặc ≥ 1 500 m²" }),
   "1.12": v => ({ req: v.n >= 6 || v.a >= 1500, why: "≥ 6 tầng hoặc ≥ 1 500 m²" }),
   "2": v => v.hang === "E" ? { req: false, why: "hạng E: Bảng B.1 mục 2 chỉ quy định hạng A, B, C, D" } : { req: v.a >= 500, why: "hạng A, B, C, D: ≥ 500 m²" },
+  "3ck": v => v.gara === "ho" ? { req: false, why: "gara ô tô cơ khí dạng hở: loại trừ khỏi mục 3.2" } : { req: v.a >= 150, why: "dạng kín: ≥ 150 m² (3.1)" },
   "3": v => v.gara === "ho" ? { req: v.a >= 1000, why: "dạng hở: ≥ 1 000 m² (3.2)" } : { req: v.a >= 150, why: "dạng kín: ≥ 150 m² (3.1)" },
   "4": v => ({ req: v.len >= 500, why: "chiều dài ≥ 500 m" }),
   "5": v => ({ req: v.a >= 1000, why: "≥ 1 000 m²" })
@@ -673,13 +674,15 @@ const T = [
   { id: "buu-dien", n: "Bưu điện, bưu cục, bưu chính viễn thông", k: "buu dien vien thong", g: "F3.5", a1: "19", b1: "1.8", h5: "cong", og: "F", g1: "cc" },
   { id: "van-phong", n: "Trụ sở, văn phòng làm việc, nghiên cứu", k: "van phong tru so office", g: "F4.3", a1: "20", b1: "1.8", h5: "hc", og: "F", e1: 1, g1: "cc", cs: 1 },
   { id: "hon-hop", n: "Nhà hỗn hợp, chung cư mục đích hỗn hợp", k: "hon hop mixed use", g: "F1.3+", a1: "21", b1: "1.2", h5: "cong", og: "F", g1: "cc", cs: 1, need: ["kara"] },
-  { id: "ga-hk", n: "Nhà ga cảng hàng không", k: "san bay nha ga", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "all", pump: 1 },
-  { id: "ga-ds", n: "Nhà ga, đề-pô đường sắt, đường sắt đô thị; ga cáp treo", k: "ga tau metro depot cap treo", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "all", pump: 1 },
+  { id: "ga-hk", n: "Nhà ga hành khách cảng hàng không", k: "san bay nha ga hanh khach", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "all", pump: 1 },
+  { id: "ga-ds", n: "Nhà ga hành khách, đề-pô đường sắt, đường sắt đô thị", k: "ga tau metro depot hanh khach", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "all", pump: 1 },
+  { id: "ga-hh", n: "Nhà ga hàng hóa cảng hàng không, đường sắt", k: "ga hang hoa cargo", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "cc", pump: 1 },
+  { id: "ga-cap-treo", n: "Nhà ga cáp treo", k: "cap treo", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", e1: 1, g1: "cc", pump: 1 },
   { id: "ben-xe", n: "Bến xe khách, trạm dừng nghỉ, cảng cạn, dịch vụ cảng, bến", k: "ben xe tram dung nghi cang", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "td", e1: 1, g1: "cc", pump: 1 },
   { id: "kslk", n: "Đài kiểm soát không lưu", k: "khong luu", g: "F4.3", a1: "23", b1: "1.12", h5: "cong", og: "F", g1: "cc" },
   { id: "dang-kiem", n: "Xưởng kiểm định, trung tâm đăng kiểm", k: "dang kiem", g: "F5.1", a1: "24", b1: "1.5", h5: "cong", og: "F" },
   { id: "de-xe", n: "Nhà để xe ô tô, xe máy; trưng bày ô tô, xe máy", k: "garage gara bai do xe parking", g: "F5.2", a1: "25", b1: "3", h5: "xe", og: "F5", g1: "xe", need: ["gara", "bacS", "cho", "kv"] },
-  { id: "gara-ck", n: "Gara ô tô cơ khí", k: "gara co khi tu dong robot", g: "F5.2", a1: "26", b1: null, h5: "xe", og: "F5", need: ["cho"] },
+  { id: "gara-ck", n: "Gara ô tô cơ khí", k: "gara co khi tu dong robot", g: "F5.2", a1: "26", b1: "3ck", h5: "xe", og: "F5", need: ["cho", "gara"] },
   { id: "ky-thuat-mb", n: "Nhà kỹ thuật máy bay", k: "hangar may bay", g: "F5.1", a1: "27", b1: "5", h5: "f5", og: "F5", c1: "all", need: ["bacS", "hang"] },
   { id: "ham", n: "Hầm giao thông đường bộ (hầm ô tô)", k: "ham duong bo tunnel", g: "—", a1: "28", b1: "4", h5: "ham", og: "ham", c1: "ham", g1: "ham", need: ["len"] },
   { id: "nong-san", n: "Nhà chế biến, lưu trữ nông sản dạng hạt", k: "kho lua gao ngu coc", g: "F5", a1: "29", b1: "2", h5: "f5", og: "F5", e1: 1, need: ["bacS", "hang", "open"] },
@@ -836,7 +839,7 @@ function ctEvaluate(t, v) {
   if (!t.b1) hydr = { req: false, why: "loại nhà không có trong Bảng B.1 — xác định theo nhà có công năng tương tự (1.5.7)" };
   else hydr = B1[t.b1](v);
   if (t.id === "hon-hop" && v.kara) hydr = { req: true, why: "nhà hỗn hợp có karaoke, vũ trường từ tầng 3 → cho toàn bộ nhà (Bảng B.1 CT1)" };
-  push(S2, hydr.req ? "req" : (t.b1 ? "no" : "info"), "**Hệ thống họng nước chữa cháy trong nhà** — " + hydr.why + (t.b1w ? " (nhà dưỡng lão: áp dụng mục 1.4 như nhà điều dưỡng — đối chiếu)" : ""), t.b1 ? "Bảng B.1 mục " + t.b1 : "1.5.7");
+  push(S2, hydr.req ? "req" : (t.b1 ? "no" : "info"), "**Hệ thống họng nước chữa cháy trong nhà** — " + hydr.why + (t.b1w ? " (nhà dưỡng lão: áp dụng mục 1.4 như nhà điều dưỡng — đối chiếu)" : ""), t.b1 ? "Bảng B.1 mục " + t.b1.replace("ck", "") : "1.5.7");
   if (hydr.req || spr.req) {
     const j = indoorJets(t, v);
     if (j.n) {
@@ -930,10 +933,10 @@ function renderCT() {
   if (f5) extra.push(selF("hang", "Hạng nguy hiểm cháy nổ", ["A", "B", "C1", "C2", "C3", "C4", "D", "E"]));
   if (need.includes("gara")) extra.push(selF("gara", "Dạng nhà để xe", [["kin", "Dạng kín"], ["ho", "Dạng hở"]]));
   const checks = [];
-  if (need.includes("bas") || need.includes("gara")) checks.push(chkF("bas", t.a1 === "sx" || t.a1 === "kho" ? "Gian bố trí tại tầng hầm, bán hầm" : "Bố trí tại tầng hầm, tầng bán hầm"));
+  if (need.includes("bas") || t.a1 === "25") checks.push(chkF("bas", t.a1 === "sx" || t.a1 === "kho" ? "Gian bố trí tại tầng hầm, bán hầm" : "Bố trí tại tầng hầm, tầng bán hầm"));
   if (need.includes("hl")) checks.push(chkF("hl", "Hành lang chung dài > 10 m"));
-  if (need.includes("gara") && ctV.gara === "ho") checks.push(chkF("open12", "Có điểm cách cạnh để hở > 12 m"));
-  if (need.includes("gara")) { checks.push(chkF("xm", "Chỉ lưu giữ, trưng bày xe máy")); checks.push(chkF("ngan", "Dạng ngăn (vách ngăn cháy loại 1, lối ra ngoài trời từng ngăn), mỗi ngăn ≤ 2 xe")); }
+  if (t.a1 === "25" && ctV.gara === "ho") checks.push(chkF("open12", "Có điểm cách cạnh để hở > 12 m"));
+  if (t.a1 === "25") { checks.push(chkF("xm", "Chỉ lưu giữ, trưng bày xe máy")); checks.push(chkF("ngan", "Dạng ngăn (vách ngăn cháy loại 1, lối ra ngoài trời từng ngăn), mỗi ngăn ≤ 2 xe")); }
   if (need.includes("gia")) checks.push(chkF("gia", "Hàng xếp trên giá đỡ cao > 5,5 m"));
   if (need.includes("khoSp")) { checks.push(chkF("special", "Kho cao su, hạt nhựa, diêm, pháo hoa, len, lông thú, chất cháy < 3 kg/m³")); checks.push(chkF("lanh", "Kho lạnh")); }
   if (need.includes("sxSp")) checks.push(chkF("special", "SX chất lỏng dễ cháy, phòng sơn, tổng hợp cao su, gia nhiệt dầu…"));

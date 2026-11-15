@@ -24,6 +24,14 @@
 </nav>
 
 <script>
+function mauGet() { try { return localStorage.getItem("q10-mau") || "be"; } catch (e) { return "be"; } }
+function mauSet(m) {
+  if (m === "be") delete document.documentElement.dataset.mau; else document.documentElement.dataset.mau = m;
+  try { localStorage.setItem("q10-mau", m); } catch (e) {}
+  document.querySelectorAll(".mau button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mau === m));
+}
+mauSet(mauGet());
+document.addEventListener("click", e => { const b = e.target.closest && e.target.closest(".mau button"); if (b) mauSet(b.dataset.mau); });
 const DATA = __DATA__;
 
 const META = {
@@ -150,6 +158,7 @@ function renderHome() {
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
+    <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
     <p class="ver">Phiên bản __VER__ · cập nhật __DATE__</p>`;
   window.scrollTo(0, 0);
 }

@@ -100,8 +100,15 @@ const { chromium } = require("playwright");
       const over = await q.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       check(over <= 0, `${scheme} ${h}: không tràn ngang (${over}px)`);
     }
+    await q.goto(file + "#home"); await q.waitForTimeout(80);
     const bg = await q.evaluate(() => getComputedStyle(document.body).backgroundColor);
-    check(scheme === "dark" ? bg !== "rgb(244, 236, 218)" : bg === "rgb(244, 236, 218)", `${scheme}: nền ${bg}`);
+    check(bg === "rgb(244, 236, 218)", `${scheme}: mặc định nền be (${bg})`);
+    await q.click('.mau button[data-mau="may"]'); await q.waitForTimeout(50);
+    const bg2 = await q.evaluate(() => getComputedStyle(document.body).backgroundColor);
+    check(scheme === "dark" ? bg2 !== "rgb(244, 236, 218)" : bg2 === "rgb(244, 236, 218)", `${scheme}: "Theo máy" → ${bg2}`);
+    await q.reload(); await q.waitForTimeout(80);
+    check(await q.evaluate(() => document.documentElement.dataset.mau) === "may", `${scheme}: nhớ lựa chọn màu nền`);
+    await q.click('.mau button[data-mau="be"]'); await q.waitForTimeout(50);
     if (shots) { await q.goto(file + "#cong-trinh"); await q.waitForTimeout(100); await q.screenshot({ path: `${shots}/ct-${scheme}.png` }); }
     await c.close();
   }

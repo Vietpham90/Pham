@@ -939,6 +939,25 @@ function ctEvaluate(t, v) {
     push(S6, "info", "Gian kinh doanh **hàng dễ cháy** hoặc **chất lỏng cháy** (trừ can, bình ≤ 20 lít) → báo cháy và chữa cháy tự động không phụ thuộc quy mô", "Bảng A.3 mục 5.11; Bảng A.1 mục 17");
     out.push(S6);
   }
+  if (v.srv > 0 || v.mba > 0 || v.pdien > 0) {
+    const S7 = { t: "Phòng kỹ thuật trong nhà — Bảng A.3, A.4, Bảng 2", items: [] };
+    if (v.srv > 0) {
+      const ok = v.srv >= 24;
+      push(S7, ok ? "req" : "no", `**Báo cháy và chữa cháy tự động** cho phòng máy chủ chuyên dụng — ${fmtN(v.srv)} m² ${ok ? "≥" : "<"} 24 m²`, "Bảng A.3 mục 5.9");
+      if (ok) push(S7, "info", "Chọn chất chữa cháy **hạn chế hư hại thiết bị** và hiệu quả với đám cháy loại **E** (thiết bị mang điện): khí CO₂ (+++), khí Freon như HFC-227ea, FK-5-1-12 (++), sol-khí (++); nước phun tia không thích hợp. Khí nguy hiểm cho người → tính thời gian thoát nạn trước khi xả", "Bảng 2; 1.5.5; 2.5.3");
+    }
+    if (v.mba > 0) {
+      const big = v.mba >= 63 || v.mbaKv >= 110;
+      push(S7, "req", `**Báo cháy tự động** cho phòng máy biến áp — không phụ thuộc công suất`, "Bảng A.4 mục 5");
+      push(S7, big ? "req" : "no", `**Chữa cháy tự động** cho máy biến áp ${fmtN(v.mba)} MVA${v.mbaKv ? ", " + fmtN(v.mbaKv) + " kV" : ""} — bắt buộc khi **≥ 63 MVA** hoặc **≥ 110 kV**`, "Bảng A.4 mục 5");
+      if (!big) push(S7, "info", "Phòng máy biến áp vẫn là một gian phòng: nếu không ngăn bằng tường REI 45 / vách EI 45 (bậc I – III) thì thuộc gian lớn bao quanh và theo yêu cầu của gian đó (1.5.10)", "1.5.10");
+    }
+    if (v.pdien > 0) {
+      push(S7, alarm.req ? "req" : "info", alarm.req ? `**Báo cháy tự động** cho phòng điện tổng ${fmtN(v.pdien)} m² — nhà thuộc diện báo cháy, phòng điện không thuộc khu vực loại trừ` : "Phòng điện tổng: QCVN 10 không có dòng riêng (Bảng A.3 mục 6 chỉ cho trạm biến áp **không người trực**); xét theo hạng của phòng", alarm.req ? "1.5.11" : "Bảng A.3 mục 6; 1.5.7");
+      push(S7, "info", `Chữa cháy cho phòng điện: ${v.pdien <= 10 ? "≤ 10 m² → được dùng **bình bột tự kích hoạt loại treo**" : v.pdien <= 100 ? "≤ 100 m², không thường xuyên có người → được dùng **bình khí, sol-khí tự kích hoạt** thay hệ thống (liên động báo cháy)" : "> 100 m² → dùng bình tự kích hoạt thì phải chia khu ≤ 100 m² bằng tường REI 45 / vách EI 45"}; chất chữa cháy phù hợp đám cháy loại **E**`, v.pdien <= 10 ? "2.5.4; Bảng 2" : "2.5.5; Bảng 2");
+    }
+    out.push(S7);
+  }
   const S4 = { t: "Phương tiện khác — Phần 2, Phụ lục E, F, G", items: [] };
   push(S4, "req", "**Bình chữa cháy** xách tay hoặc có bánh xe cho **mọi khu vực**, kể cả nơi có hệ thống chữa cháy — chọn, tính, bố trí theo **điểm 6, 7 TCVN 7435-1**; bảo dưỡng **6 tháng/lần**", "2.6.1; 1.5.13");
   push(S4, "req", "**Chiếu sáng sự cố, chỉ dẫn thoát nạn** — theo **TCVN 13456**", "2.2.1");
@@ -967,7 +986,7 @@ function mixRule(mix) {
   return { tot, top: TI[top[0]], share, mixed: share <= 0.7, rows: rows.map(r => [TI[r[0]], +r[1], +r[1] / tot]) };
 }
 /* ---------- giao diện Tra theo công trình ---------- */
-const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, pmoto: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
+const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, pmoto: 0, srv: 0, mba: 0, mbaKv: 0, pdien: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
 let ctV = Object.assign({}, DEF, store.get("q10-ct", {}));
 if (!TI[ctV.id]) ctV.id = DEF.id;
 if (!Array.isArray(ctV.mix) || ctV.mix.length !== 3 || !ctV.mix.every(r => Array.isArray(r) && TI[r[0]])) ctV.mix = JSON.parse(JSON.stringify(DEF.mix));
@@ -1003,6 +1022,7 @@ function renderCT() {
   if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín", "m²")); extra.push(numF("phh", "Chiều cao tầng để xe", "m", "", "3,3")); extra.push(numF("pmoto", "Diện tích để xe máy kín", "m²")); }
   if (need.includes("ga")) extra.push(numF("ga", "Gian lớn nhất", "m²", "", "= tổng"));
   if (need.includes("tm")) { extra.push(numF("tmTr", "Gian thương mại trên mặt đất", "m²")); extra.push(numF("tmHam", "Gian thương mại tầng hầm", "m²")); }
+  if (t.og !== "ham") { extra.push(numF("srv", "Phòng máy chủ, IT", "m²")); extra.push(numF("pdien", "Phòng điện tổng, tủ phân phối", "m²")); extra.push(numF("mba", "Máy biến áp trong nhà", "MVA")); extra.push(numF("mbaKv", "Điện áp máy biến áp", "kV")); }
   const checks = [];
   if (need.includes("bas") || t.a1 === "25") checks.push(chkF("bas", t.a1 === "sx" || t.a1 === "kho" ? "Gian bố trí tại tầng hầm, bán hầm" : "Bố trí tại tầng hầm, tầng bán hầm"));
   if (need.includes("hl")) checks.push(chkF("hl", "Hành lang chung dài > 10 m"));
@@ -1052,7 +1072,7 @@ function mixHTML() {
 }
 function ctResult() {
   const t = TI[ctV.id];
-  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
+  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
   if (v.n < 1 && !["ham"].includes(t.og)) v.n = 1;
   const out = ctEvaluate(t, v);
   const chips = [t.g, `${v.n} tầng`, `${fmtN(v.h)} m`, `${fmtN(v.a)} m²`, v.vol ? `${fmtN(v.vol)} m³` : "", v.nb ? `${v.nb} hầm` : "", `bậc ${v.bac}`].filter(Boolean);
@@ -1068,7 +1088,7 @@ function ctResult() {
   `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;
 }
 function ctText() {
-  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
+  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
   const out = ctEvaluate(t, v);
   const lines = [`${t.n} — ${v.n} tầng, chiều cao PCCC ${fmtN(v.h)} m, ${fmtN(v.a)} m², ${fmtN(v.vol)} m³ (QCVN 10:2025/BCA)`];
   out.forEach(s => { lines.push("", s.t); s.items.forEach(i => lines.push(`- [${(LV[i.lv] || LV.val)[1] || "Giá trị"}] ${i.txt.replace(/\*\*/g, "")} (${i.ref})`)); });

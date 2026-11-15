@@ -41,6 +41,16 @@ const C = [
   ["Gara hầm 120 m² cao 3 m — dưới 500 m³", "van-phong", { n: 6, h: 20, a: 3000, vol: 9000, pcar: 4, parea: 120, phh: 3 }, [[/dưới 500 m³/, "val"]]],
   ["Bến xe khách 2 tầng 3 000 m² — không bắt buộc bơm tay + tự động", "ben-xe", { n: 2, h: 9, a: 3000 }, [[/điều khiển bằng tay tại phòng bơm/, "không có"], [/^\*\*Hệ thống họng nước/, "req"]]],
   ["Nhà dịch vụ cảng biển 2 tầng 3 000 m² — bắt buộc bơm tay + tự động", "dv-cang", { n: 2, h: 9, a: 3000 }, [[/điều khiển bằng tay tại phòng bơm/, "req"]]],
+  // ---------- XƯỞNG 8 TẦNG có phòng kỹ thuật (tình huống hỏi đáp) ----------
+  ["Xưởng C2 8 tầng 29 m, 10 800 m², phòng IT 40 m², MBA 2,5 MVA 22 kV, phòng điện 60 m²", "san-xuat", { n: 8, h: 29, a: 10800, ga: 1350, vol: 38880, hang: "C2", srv: 40, mba: 2.5, mbaKv: 22, pdien: 60 }, [
+    [/^\*\*Hệ thống báo cháy tự động/, "req"], [/^\*\*Hệ thống chữa cháy tự động/, "req"], [/^\*\*Đường ống khô/, "req"], [/điều khiển bằng tay tại phòng bơm/, "req"],
+    [/phòng máy chủ chuyên dụng/, "req"], [/hạn chế hư hại thiết bị/, "info"], [/^\*\*Báo cháy tự động\*\* cho phòng máy biến áp/, "req"],
+    [/^\*\*Chữa cháy tự động\*\* cho máy biến áp/, "no"], [/^\*\*Báo cháy tự động\*\* cho phòng điện tổng/, "req"], [/bình khí, sol-khí tự kích hoạt/, "info"],
+    [/^\*\*Lưu lượng ngoài nhà 20 L\/s/, "val"], [/^\*\*Số tia × lưu lượng\*\*: 2 × 2,5/, "val"]]],
+  ["MBA 63 MVA trong nhà — chữa cháy tự động", "san-xuat", { n: 2, h: 10, a: 3000, hang: "D", mba: 63 }, [[/^\*\*Chữa cháy tự động\*\* cho máy biến áp/, "req"]]],
+  ["MBA 40 MVA 110 kV trong nhà — chữa cháy tự động", "van-phong", { n: 6, h: 20, a: 3000, mba: 40, mbaKv: 110 }, [[/^\*\*Chữa cháy tự động\*\* cho máy biến áp/, "req"]]],
+  ["Phòng máy chủ 20 m² — chưa bắt buộc", "van-phong", { n: 6, h: 20, a: 3000, srv: 20 }, [[/phòng máy chủ chuyên dụng/, "no"]]],
+  ["Phòng điện 8 m² — bình bột tự kích hoạt", "van-phong", { n: 6, h: 20, a: 3000, pdien: 8 }, [[/bình bột tự kích hoạt loại treo/, "info"]]],
   // ---------- NHÀ KHO ----------
   ["Kho C2 1 tầng 6 000 m², gian lớn nhất 900 m²", "kho", { n: 1, h: 12, a: 6000, ga: 900, vol: 72000, hang: "C2" }, [
     [/^\*\*Hệ thống báo cháy tự động/, "no"], [/^\*\*Hệ thống chữa cháy tự động/, "no"], [/gian lớn nhất 900/, "info"], [/^\*\*Hệ thống họng nước/, "req"],

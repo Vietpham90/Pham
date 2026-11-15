@@ -41,6 +41,28 @@ const num = c => c === "—" ? null : +c.replace(/⁽.*$/, "").replace(",", ".")
         const ps = pc.split("/").map(x => num(x.trim()));
         if (!j || num(qc) !== j[0] || ps.some((x, m) => x !== j[m + 1])) err.push(`H.7 DN${dn} ${tip}mm ${r[0]} m: md ${qc} ${pc} ≠ js ${j}`); }); });
   }
+  // Bảng A.2, A.3, A.4 ↔ danh mục gian phòng GP
+  const GP = await p.evaluate(() => GP);
+  const L = fs.readFileSync(path.join(dir, "03-phu-luc-a.md"), "utf8").split("\n");
+  let tb = null; const mdRows = {};
+  for (const l of L) {
+    const h = l.match(/^## 3\.(\d+) Bảng (A\.\d)/); if (h) { tb = h[2]; continue; }
+    if (/^## /.test(l)) { tb = null; continue; }
+    if (!tb || tb === "A.1" || !/^\| \d/.test(l)) continue;
+    const c = l.replace(/^\||\|$/g, "").split("|").map(x => x.trim());
+    mdRows[tb + " " + c[0]] = [c[2], c[3]];
+  }
+  const th = cell => { const t = cell.replace(/\*\*/g, ""); if (/^—/.test(t)) return null; if (/Không phụ thuộc/.test(t)) return 0; const m = t.match(/≥ ([\d ]+)/); return m ? +m[1].replace(/ /g, "") : "?"; };
+  let nGP = 0;
+  for (const r of GP) {
+    const md = mdRows[r[0]]; if (!md) { err.push(`${r[0]}: không có trong 03-phu-luc-a.md`); continue; }
+    nGP++;
+    if (th(md[0]) !== r[3]) err.push(`${r[0]} báo cháy: md "${md[0]}" ≠ js ${r[3]}`);
+    if (th(md[1]) !== r[4]) err.push(`${r[0]} chữa cháy: md "${md[1]}" ≠ js ${r[4]}`);
+  }
+  const missing = Object.keys(mdRows).filter(k => !GP.some(r => r[0] === k));
+  missing.forEach(k => err.push(`${k}: có trong md nhưng thiếu trong GP`));
+  console.log(`Bảng A.2 – A.4: so ${nGP} dòng`);
   err.forEach(e => console.log("✗", e));
   console.log(err.length ? `${err.length} chỗ lệch` : "Bảng trong mã khớp bảng trong noi-dung (H.1, H.2, H.3, H.4, H.6, H.7)");
   await b.close(); process.exit(err.length ? 1 : 0);

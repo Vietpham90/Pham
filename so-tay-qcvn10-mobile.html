@@ -457,7 +457,7 @@ function renderHome() {
   view.innerHTML = `
     <p class="intro">Tra cứu trang bị phương tiện PCCC và CNCH theo QCVN 10:2025/BCA, hiệu lực từ 30/12/2025. Gõ từ khóa ở ô tìm (tìm được không dấu), hoặc chọn mục bên dưới.</p>
     <button class="ct-cta" data-go="cong-trinh"><b>Tra theo công trình</b><span>Chọn loại nhà, nhập số tầng, diện tích sàn, chiều cao PCCC — nhận danh sách hệ thống phải trang bị kèm số bảng, số điều.</span></button>
-    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Điểm mới cần lưu ý</button>${/^https?:$/.test(location.protocol) && /\/qcvn10\//.test(location.pathname) ? '<a class="btn2" href="../" style="text-decoration:none;display:inline-flex;align-items:center">← Sổ tay QCVN 06</a>' : ""}</div>
+    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="gian-phong">Gian phòng, thiết bị</button><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Điểm mới cần lưu ý</button>${/^https?:$/.test(location.protocol) && /\/qcvn10\//.test(location.pathname) ? '<a class="btn2" href="../" style="text-decoration:none;display:inline-flex;align-items:center">← Sổ tay QCVN 06</a>' : ""}</div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>`;
@@ -496,9 +496,11 @@ function renderSearch(term) {
   const terms = norm(term).split(/\s+/).filter(Boolean);
   const res = [];
   for (const id of ORDER) for (const b of SECTIONS[id].blocks) if (terms.every(t => b.text.includes(t))) res.push({ id, b, score: terms.filter(t => norm(b.title).includes(t)).length });
-  const types = T.filter(t => terms.every(x => norm(t.n + " " + (t.k || "")).includes(x))).slice(0, 4);
+  const types = T.filter(t => wordMatch(t.n + " " + (t.k || ""), terms)).slice(0, 4);
   res.sort((a, b) => b.score - a.score);
-  const typeHtml = types.length ? `<p class="label">Tra theo công trình</p><div class="picks">${types.map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("")}</div>` : "";
+  const gps = GP.map((r, i) => [r, i]).filter(([r]) => wordMatch(r[0] + " " + r[2], terms)).sort((a, b) => phraseScore(b[0][2], terms) - phraseScore(a[0][2], terms)).slice(0, 4);
+  const gpHtml = gps.length ? `<p class="label">Gian phòng, hạng mục, thiết bị</p><div class="picks">${gps.map(([r, i]) => `<button class="pick" data-gp="${i}"><span>${esc(r[2])}</span><b>${esc(r[0])}</b></button>`).join("")}</div>` : "";
+  const typeHtml = gpHtml + (types.length ? `<p class="label">Tra theo công trình</p><div class="picks">${types.map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("")}</div>` : "");
   if (!res.length) {
     view.innerHTML = typeHtml + `<div class="empty">Không thấy kết quả cho “${esc(term)}”.<br>Thử từ khóa ngắn hơn hoặc gợi ý:<div class="chips">${["sprinkler","báo cháy độc lập","DN65","bình chữa cháy","khách sạn","Bảng H.5","trụ nước","đường ống khô"].map(c => `<button data-chip="${c}">${c}</button>`).join("")}</div></div>`;
     return;
@@ -903,7 +905,7 @@ let ctQ = "";
 function ctList() {
   if (!ctQ.trim()) return "";
   const k = norm(ctQ).split(/\s+/).filter(Boolean);
-  return T.filter(t => k.every(x => norm(t.n + " " + t.k + " " + t.g).includes(x))).slice(0, 8).map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("") || `<p class="note">Không thấy loại nhà phù hợp — chọn trong danh sách bên dưới.</p>`;
+  return T.filter(t => wordMatch(t.n + " " + t.k + " " + t.g, k)).slice(0, 8).map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("") || `<p class="note">Không thấy loại nhà phù hợp — chọn trong danh sách bên dưới.</p>`;
 }
 function numF(id, label, unit, hint) {
   return `<label class="fld"><span>${label}</span><span class="inp"><input id="ct-${id}" data-k="${id}" type="text" inputmode="decimal" autocomplete="off" value="${fmtIn(ctV[id])}"><i>${unit}</i></span>${hint ? `<em class="hint2">${hint}</em>` : ""}</label>`;
@@ -942,7 +944,7 @@ function renderCT() {
   if (f5) { checks.push(chkF("steel", "Kết cấu thép không bảo vệ / gỗ (H.2.3)")); checks.push(chkF("combust", "Vật liệu cháy bao quanh cấu trúc (bậc IV, S2, S3)")); }
   checks.push(chkF("deep", "Sàn hầm dưới cùng sâu > 9 m"));
   if (t.og === "F13" || t.og === "F") checks.push(chkF("rural", "Khu vực nông thôn"));
-  view.innerHTML = `
+  view.innerHTML = `${ctTabs("cong-trinh")}
   <div class="quick ct-form">
     <label class="fld wide"><span>Loại nhà, công trình</span>
       <input id="ctq" type="search" autocomplete="off" placeholder="Gõ để đổi: chung cư, karaoke, kho, gara…" value="${esc(ctQ)}"></label>
@@ -991,6 +993,131 @@ function ctSync(full) {
   });
   store.set("q10-ct", ctV);
   if (full) renderCT(); else document.getElementById("ctres").innerHTML = ctResult();
+}
+
+
+/* ---------- Gian phòng, hạng mục, thiết bị: Bảng A.2, A.3, A.4 ----------
+   [mã, nhóm, tên, báo cháy, chữa cháy, đơn vị]; null = không bắt buộc (—), 0 = không phụ thuộc quy mô, số = ngưỡng "từ … trở lên" */
+const GP = [
+  ["A.3 1.1", "Kho", "Kho hạng A, B", 0, 300],
+  ["A.3 1.2", "Kho", "Kho cao su, hạt nhựa, diêm, kim loại kiềm, pháo hoa, len, lông thú, chất cháy < 3 kg/m³", 0, 100],
+  ["A.3 1.3", "Kho", "Hàng không cháy trong bao bì dễ cháy (1 – 180 MJ/m²)", 300, null],
+  ["A.3 1.4.1", "Kho", "Kho hạng C1 — tầng hầm, bán hầm", 0, 100],
+  ["A.3 1.4.2", "Kho", "Kho hạng C1 — trên mặt đất", 300, 300],
+  ["A.3 1.5.1", "Kho", "Kho hạng C2, C3 — tầng hầm, bán hầm", 300, 300],
+  ["A.3 1.5.2", "Kho", "Kho hạng C2, C3 — trên mặt đất", 1000, 1000],
+  ["A.3 1.6", "Kho", "Kho lạnh", 300, null],
+  ["A.3 2.1", "Sản xuất", "Sản xuất hạng A, B", 0, 300],
+  ["A.3 2.2.1", "Sản xuất", "Sản xuất hạng C1 — tầng hầm, bán hầm", 0, 0],
+  ["A.3 2.2.2", "Sản xuất", "Sản xuất hạng C1 — trên mặt đất", 0, 300],
+  ["A.3 2.3.1.1", "Sản xuất", "Sản xuất C2, C3 — hầm, không có lối ra ngoài trực tiếp", 0, 300],
+  ["A.3 2.3.1.2", "Sản xuất", "Sản xuất C2, C3 — hầm, có lối ra ngoài trực tiếp", null, 700],
+  ["A.3 2.3.2", "Sản xuất", "Sản xuất C2, C3 — trên mặt đất", 300, 1000],
+  ["A.3 2.4", "Sản xuất", "SX chất lỏng dễ cháy, huyền phù bột nhôm, phòng sơn, tổng hợp cao su, máy nén tuabin khí, gia nhiệt dầu", 0, 0],
+  ["A.3 3.1", "Thông tin liên lạc", "Thiết bị phân tách, phụ trợ đài phát sóng ≥ 150 kW, trạm thu ≥ 20 máy, vệ tinh > 1 kW, tổng đài liên tỉnh…", 0, null],
+  ["A.3 3.2", "Thông tin liên lạc", "Xưởng kỹ thuật trạm khuếch đại, chuyển tiếp không giám sát, không người trực buổi tối", 0, 0],
+  ["A.3 3.3", "Thông tin liên lạc", "Trạm gốc thông tin di động, trạm chuyển tiếp không giám sát", 0, 24],
+  ["A.3 3.4.1", "Thông tin liên lạc", "Tổng đài số, máy tính, điện báo bưu điện tỉnh — nhà < 40 000 m³", 0, null],
+  ["A.3 3.4.2", "Thông tin liên lạc", "Tổng đài số, máy tính, điện báo bưu điện tỉnh — nhà ≥ 40 000 m³", 0, 24],
+  ["A.3 3.5.1", "Thông tin liên lạc", "Tổng đài chuyển mạch điện tử, trung tâm truyền thông tài liệu < 10 000 số/kênh", 0, null],
+  ["A.3 3.5.2", "Thông tin liên lạc", "Tổng đài chuyển mạch điện tử, trung tâm truyền thông tài liệu ≥ 10 000 số/kênh", 0, 0],
+  ["A.3 3.6.1", "Thông tin liên lạc", "Phòng thiết bị chia, kết nối điều khiển tổng đài < 10 000 kênh", 0, null],
+  ["A.3 3.6.2", "Thông tin liên lạc", "Phòng thiết bị chia, kết nối điều khiển tổng đài ≥ 10 000 kênh", 0, 24],
+  ["A.3 3.7", "Thông tin liên lạc", "Xử lý, phân loại, lưu trữ, chuyển phát bưu kiện, thư, báo chí", 0, 500],
+  ["A.3 4.1", "Giao thông vận tải", "Phòng máy, sửa chữa toa tàu, động cơ hạng ≥ C3 (tàu hỏa, tàu điện, tàu thủy)", 300, 1000],
+  ["A.3 4.2", "Giao thông vận tải", "Sửa chữa, bảo dưỡng, lưu giữ phương tiện cơ giới đường bộ (trừ ô tô)", 1000, 1000],
+  ["A.3 4.3", "Giao thông vận tải", "Sửa chữa, bảo dưỡng ô tô", 300, 700],
+  ["A.3 4.4", "Giao thông vận tải", "Lưu giữ ô tô trong nhà công năng khác (trừ nhà ở riêng lẻ kết hợp SX, KD)", 0, 3, "xe"],
+  ["A.3 4.5", "Giao thông vận tải", "Tháo lắp, sản xuất, sửa chữa động cơ máy bay, trực thăng", 0, 0],
+  ["A.3 4.6", "Giao thông vận tải", "Phòng bơm chữa cháy, thông gió, kho của hầm giao thông đường bộ", 0, null],
+  ["A.3 5.1.1", "Công cộng", "Lưu trữ thư viện < 250 000 đơn vị", 300, null],
+  ["A.3 5.1.2", "Công cộng", "Lưu trữ thư viện ≥ 250 000 đơn vị", 0, 0],
+  ["A.3 5.2", "Công cộng", "Phòng trưng bày, triển lãm (không áp dụng phòng tạm thời)", 500, 1000],
+  ["A.3 5.3", "Công cộng", "Bảo quản, trưng bày tác phẩm, vật phẩm giá trị của viện bảo tàng", 0, 0],
+  ["A.3 5.4.1", "Công cộng", "Khán phòng ≥ 400 chỗ và sân khấu ≥ 100 m²", 0, 0],
+  ["A.3 5.4.2", "Công cộng", "Khán phòng ≥ 700 chỗ ngồi", 0, 0],
+  ["A.3 5.4.3", "Công cộng", "Kho đồ trang trí, đồ dùng, đạo cụ sân khấu", 100, 300],
+  ["A.3 5.5", "Công cộng", "Trường quay", 300, 1000],
+  ["A.3 5.6", "Công cộng", "Kho tiền trong ngân hàng, kho bạc", 0, 30],
+  ["A.3 5.7.1", "Công cộng", "Bảo quản hành lý, kho vật liệu dễ cháy ở nhà ga — tầng hầm", 0, 0],
+  ["A.3 5.7.2", "Công cộng", "Bảo quản hành lý, kho vật liệu dễ cháy ở nhà ga — trên mặt đất", 300, 300],
+  ["A.3 5.8.1", "Công cộng", "Bảo quản vật liệu cháy trong công trình thể thao có mái ≥ 800 chỗ", 100, 100],
+  ["A.3 5.8.2", "Công cộng", "Bảo quản vật liệu cháy dưới khán đài, hoặc sân ngoài trời > 3 000 chỗ", 100, 100],
+  ["A.3 5.9", "Công cộng", "Phòng máy chủ chuyên dụng", 24, 24],
+  ["A.3 5.10.1", "Công cộng", "Gian thương mại trong tòa nhà công năng khác — tầng hầm", 0, 200],
+  ["A.3 5.10.2", "Công cộng", "Gian thương mại trong tòa nhà công năng khác — trên mặt đất", 500, 500],
+  ["A.3 5.11", "Công cộng", "Gian kinh doanh chất lỏng cháy, dễ cháy (trừ can, bình ≤ 20 lít)", 0, 0],
+  ["A.3 6", "Điện", "Phòng điều khiển, phân phối điện, ắc quy trạm biến áp không người trực", 0, null],
+  ["A.2 1", "Hạng mục cáp", "Hạng mục cáp nhà máy điện", 0, 0],
+  ["A.2 2", "Hạng mục cáp", "Hạng mục cáp trạm biến áp ≥ 500 kV", 0, 0],
+  ["A.2 3.1", "Hạng mục cáp", "Hạng mục cáp trạm 110 – 220 kV, máy biến áp < 63 MVA", 0, null],
+  ["A.2 3.2", "Hạng mục cáp", "Hạng mục cáp trạm 110 – 220 kV, máy biến áp ≥ 63 MVA", 0, 0],
+  ["A.2 4", "Hạng mục cáp", "Hạng mục cáp trạm biến áp không người trực", 0, 0],
+  ["A.2 5.1", "Hạng mục cáp", "Hầm cáp ≥ 220 V trong nhà, khối tích 10 – 100 m³", 5, null, "sợi"],
+  ["A.2 5.2", "Hạng mục cáp", "Hầm cáp ≥ 220 V trong nhà, khối tích > 100 m³", 5, 12, "sợi"],
+  ["A.2 6", "Hạng mục", "Băng tải kín vận chuyển nguyên vật liệu dễ cháy", 25, 25, "m"],
+  ["A.2 7.1", "Hạng mục", "Trên trần giả / dưới sàn nâng ≥ 0,35 m: ống bọc vật liệu Ch2 – Ch4", 0, null],
+  ["A.2 7.2", "Hạng mục", "Trên trần giả / dưới sàn nâng ≥ 0,35 m: máng cáp ≥ 220 V, chất cháy ≥ 0,0015 m³/m", 0, null],
+  ["A.2 8", "Hạng mục cáp", "Hầm cáp của hầm giao thông đường bộ ≥ 500 m", 0, null],
+  ["A.4 1", "Thiết bị", "Buồng sơn dùng chất lỏng dễ cháy, chất lỏng cháy", null, 0],
+  ["A.4 2", "Thiết bị", "Tháp thu hồi chất thải dễ cháy (bụi, than, mùn)", null, 0],
+  ["A.4 3.1", "Thiết bị", "Máy biến áp dầu 110 kV trong gian phòng trạm biến áp", 0, 63, "MVA"],
+  ["A.4 3.2", "Thiết bị", "Máy biến áp dầu 110 kV trong nhà máy điện", 63, 63, "MVA"],
+  ["A.4 3.3", "Thiết bị", "Máy biến áp dầu 220 kV", 0, 200, "MVA"],
+  ["A.4 3.4", "Thiết bị", "Máy biến áp dầu ≥ 500 kV", 0, 0],
+  ["A.4 4", "Thiết bị", "Máy biến áp của trạm biến áp không người trực", 0, 125, "MVA"],
+  ["A.4 5", "Thiết bị", "Máy biến áp trong gian phòng nhà công năng khác (≥ 110 kV: không phụ thuộc công suất)", 0, 63, "MVA"],
+  ["A.4 6", "Thiết bị", "Trạm điện thử nghiệm máy phát diesel, xăng trên xe ô tô, rơ moóc", null, 0]
+];
+let gpV = Object.assign({ k: 50, x: 30, q: "" }, store.get("q10-gp", {}));
+if (!GP[gpV.k]) gpV.k = 0;
+function gpEval(row, x) {
+  const u = row[5] || "m²";
+  const one = (th, name) => th === null ? { lv: "no", txt: `**${name}** — không bắt buộc (—)` }
+    : th === 0 ? { lv: "req", txt: `**${name}** — không phụ thuộc quy mô` }
+    : x >= th ? { lv: "req", txt: `**${name}** — ${fmtN(x)} ${u} ≥ ${fmtN(th)} ${u}` }
+    : { lv: "no", txt: `**${name}** — ${fmtN(x)} ${u} < ${fmtN(th)} ${u} (ngưỡng ${fmtN(th)} ${u})` };
+  const tb = row[0].split(" ")[0], mm = row[0].split(" ")[1];
+  const ref = `Bảng ${tb} mục ${mm}`;
+  const a = one(row[3], "Hệ thống báo cháy tự động"); a.ref = ref;
+  const s = one(row[4], "Hệ thống chữa cháy tự động"); s.ref = ref;
+  const items = [a, s];
+  if (row[0] === "A.4 5" && x < 63) items.push({ lv: "info", txt: "Máy biến áp điện áp **≥ 110 kV** → chữa cháy tự động không phụ thuộc công suất", ref });
+  if (tb === "A.4" && (row[4] === 0 || (row[4] && x >= row[4])) && ["A.4 1", "A.4 2"].includes(row[0])) items.push({ lv: "info", txt: "Được dùng **thiết bị chữa cháy tự động** thay hệ thống", ref: "Bảng A.4 ghi chú ⁽¹⁾" });
+  if (["A.3 3.5.1", "A.3 3.5.2"].includes(row[0])) items.push({ lv: "info", txt: "Được không lắp chữa cháy tự động cho toàn gian khi có báo cháy và mọi thiết bị điện, điện tử được bảo vệ bằng thiết bị chữa cháy tự động; hệ thống chọn loại không gây hư hỏng khi kích hoạt sai", ref: "Bảng A.3 ghi chú ⁽¹⁾⁽²⁾" });
+  if (["A.3 5.4.1", "A.3 5.4.2"].includes(row[0])) items.push({ lv: "info", txt: "Sân khấu **≥ 100 m²** → ngăn cháy sân khấu – khán giả bằng **màn nước drencher** hoặc màn ngăn cháy **≥ EI 60**", ref: "Bảng A.3 ghi chú ⁽⁴⁾" });
+  if (row[0] === "A.3 6") items.push({ lv: "info", txt: "Trung tâm báo cháy truyền tín hiệu về **trung tâm điều khiển từ xa**", ref: "Bảng A.3 ghi chú ⁽⁵⁾" });
+  if (tb === "A.2" && row[0] !== "A.2 6") items.push({ lv: "info", txt: "Được không trang bị khi cáp luồn ống hoặc bọc vật liệu không cháy / Ch1, hoặc là cáp chiếu sáng, thông tin" + (row[0].startsWith("A.2 7") ? "; mục 7 chỉ áp dụng cho hành lang thoát nạn, hội trường, tiền sảnh, gian ≥ 50 người, gian F1.1, F4.1, karaoke" : ""), ref: "Bảng A.2 ghi chú ⁽²⁾⁽³⁾" });
+  if (tb === "A.3" && row[1] !== "Điện") items.push({ lv: "info", txt: "Gian SX, kho, phòng thí nghiệm, xưởng **> 50 m²** trong nhà F1 – F4 → xét như gian F5. Kết cấu bao che yếu hơn REI 45 / EI 45 (bậc I – III) → xét theo gian phòng", ref: "Bảng A.3 chú thích; 1.5.10" });
+  return items;
+}
+/* Khớp theo đầu từ (tránh "chủ" khớp "chữa"); cụm nguyên văn được xếp trước */
+function wordMatch(hay, terms) { const h = " " + norm(hay).replace(/[^a-z0-9.]+/g, " ") + " "; return terms.every(x => h.includes(" " + x)); }
+function phraseScore(hay, terms) { return norm(hay).includes(terms.join(" ")) ? 1 : 0; }
+function gpList() {
+  const k = norm(gpV.q || "").split(/\s+/).filter(Boolean);
+  if (!k.length) return GP.map((r, i) => [r, i]);
+  return GP.map((r, i) => [r, i]).filter(([r]) => wordMatch(r[0] + " " + r[1] + " " + r[2], k)).sort((a, b) => phraseScore(b[0][2], k) - phraseScore(a[0][2], k));
+}
+function renderGP() {
+  setHeader("Gian phòng, hạng mục, thiết bị"); setNav("cong-trinh");
+  const row = GP[gpV.k], u = row[5] || "m²";
+  const opts = gpList();
+  view.innerHTML = `${ctTabs("gian-phong")}
+  <div class="quick ct-form">
+    <label class="fld"><span>Lọc danh mục (Bảng A.2, A.3, A.4)</span><input id="gp-q" type="search" autocomplete="off" placeholder="Gõ: máy chủ, kho tiền, máy biến áp, gara…" value="${esc(gpV.q || "")}"></label>
+    <label class="fld"><span>Gian phòng / hạng mục / thiết bị (${opts.length})</span><select id="gp-k">${opts.map(([r, i]) => `<option value="${i}"${i === gpV.k ? " selected" : ""}>${esc(r[0])} · ${esc(r[2])}</option>`).join("")}</select></label>
+    <label class="fld"><span>Quy mô</span><span class="inp"><input id="gp-x" type="text" inputmode="decimal" autocomplete="off" value="${fmtIn(gpV.x)}"><i>${u}</i></span></label>
+  </div>
+  <div id="gpres">${gpResult()}</div>`;
+}
+function gpResult() {
+  const row = GP[gpV.k];
+  return `<div class="ct-sum"><span class="chip">${esc(row[0])}</span><span class="chip">${esc(row[1])}</span></div>` + itemsHTML([{ t: row[2], items: gpEval(row, +gpV.x || 0) }]) +
+    `<p class="disclaimer">Ngưỡng “từ … trở lên” lấy nguyên Bảng ${esc(row[0].split(" ")[0])}. Khu vực ướt, vệ sinh, buồng thang, khoang đệm, gian hạng E và C4 (trừ trong nhà F1.1, F1.2, F2.1, F4.1, F4.2) được loại trừ (1.5.11).</p>`;
+}
+function ctTabs(active) {
+  return `<div class="seg tabs" role="tablist" style="grid-template-columns:repeat(2,1fr)">${[["cong-trinh", "Toàn nhà (A.1, B, C…)"], ["gian-phong", "Gian phòng (A.2 – A.4)"]].map(([id, l]) => `<button role="tab" data-go="${id}" aria-selected="${id === active}">${l}</button>`).join("")}</div>`;
 }
 
 /* ---------- Tính nước ---------- */
@@ -1113,6 +1240,7 @@ function route() {
   if (q.value.trim()) return renderSearch(q.value.trim());
   if (!h || h === "home") return renderHome();
   if (h === "cong-trinh") return renderCT();
+  if (h === "gian-phong") return renderGP();
   if (h === "tinh-nuoc") return renderWater();
   if (h === "h7") return renderH7();
   if (h === "cong-truong") return renderCS();
@@ -1142,6 +1270,7 @@ document.addEventListener("click", e => {
   const rf = e.target.closest("[data-ref]"); if (rf) { e.preventDefault(); q.value = resolveRef(rf.dataset.ref); clearQ.hidden = false; renderSearch(q.value); window.scrollTo(0, 0); return; }
   if (e.target.id === "ctcopy") { copyText(ctText(), "ctmsg"); return; }
   if (e.target.id === "ctjump") { const r = document.getElementById("ctres"); if (r) r.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
+  const gk = e.target.closest("[data-gp]"); if (gk) { gpV.k = +gk.dataset.gp; gpV.q = ""; q.value = ""; clearQ.hidden = true; store.set("q10-gp", gpV); if (location.hash !== "#gian-phong") location.hash = "gian-phong"; else renderGP(); window.scrollTo(0, 0); return; }
   const pk = e.target.closest("[data-ct]"); if (pk) { ctV.id = pk.dataset.ct; ctQ = ""; q.value = ""; clearQ.hidden = true; store.set("q10-ct", ctV); if (location.hash !== "#cong-trinh") location.hash = "cong-trinh"; else renderCT(); window.scrollTo(0, 0); return; }
   const op = e.target.closest("[data-open]"); if (op) { e.preventDefault(); go(null, op.dataset.open); return; }
   const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); return; }
@@ -1154,6 +1283,8 @@ document.addEventListener("input", e => {
   if (el.id === "ctq") { ctQ = el.value; document.getElementById("ctlist").innerHTML = ctList(); return; }
   if (el.dataset && el.dataset.k && el.tagName === "INPUT" && el.type !== "checkbox") { ctSync(false); return; }
   if (el.dataset && el.dataset.w) { const n = parseNum(el.value); wV[el.dataset.w] = n === "" ? 0 : Math.max(0, n); store.set("q10-w", wV); const pos = el.selectionStart; renderWater(); const ne = document.getElementById(el.id); if (ne) { ne.focus(); try { ne.setSelectionRange(pos, pos); } catch (x) {} } return; }
+  if (el.id === "gp-q") { gpV.q = el.value; const o = gpList(); if (o.length && !o.some(([, i]) => i === gpV.k)) gpV.k = o[0][1]; store.set("q10-gp", gpV); document.getElementById("gp-k").innerHTML = o.map(([r, i]) => `<option value="${i}"${i === gpV.k ? " selected" : ""}>${esc(r[0])} · ${esc(r[2])}</option>`).join(""); document.getElementById("gp-x").nextElementSibling.textContent = GP[gpV.k][5] || "m²"; document.getElementById("gpres").innerHTML = gpResult(); return; }
+  if (el.id === "gp-x") { const n = parseNum(el.value); gpV.x = n === "" ? 0 : Math.max(0, n); store.set("q10-gp", gpV); document.getElementById("gpres").innerHTML = gpResult(); return; }
   if (el.id === "cs-floors") { csV.floors = el.value; store.set("q10-cs", csV); const r = csCalc(csV); document.getElementById("cs-out").innerHTML = r.fl.map((a, i) => `<dt>Tầng ${i + 1}: ${fmtN(a)} m²</dt><dd>${r.per[i]} bình</dd>`).join("") + `<dt><b>Tổng</b></dt><dd>${r.tot} bình</dd>`; return; }
 });
 document.addEventListener("change", e => {
@@ -1161,6 +1292,7 @@ document.addEventListener("change", e => {
   if (el.dataset && el.dataset.k && (el.tagName === "SELECT" || el.type === "checkbox")) { ctSync(el.dataset.k === "id" || el.dataset.k === "gara" || el.dataset.k === "hang"); return; }
   if (el.dataset && el.dataset.w && el.tagName === "SELECT") { wV[el.dataset.w] = el.value === "1"; store.set("q10-w", wV); renderWater(); return; }
   if (el.dataset && el.dataset.h7) { h7V[el.dataset.h7] = el.value; store.set("q10-h7", h7V); renderH7(); return; }
+  if (el.id === "gp-k") { gpV.k = +el.value; store.set("q10-gp", gpV); renderGP(); return; }
   if (el.id === "cs-road") { csV.road = el.checked; store.set("q10-cs", csV); renderCS(); return; }
 });
 let tmr;

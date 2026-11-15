@@ -69,11 +69,24 @@ const { chromium } = require("playwright");
   check((await p.innerText("#cs-out")).includes("6 bình"), "công trường 1200; 450; 1000 m² → 3 + 1 + 2 = 6 bình");
   await p.uncheck("#cs-road"); await p.waitForTimeout(60);
   check((await p.innerText("#cs-out")).includes("12 bình"), "không có đường xe → gấp đôi 12 bình");
+  // 7b. Gian phòng
+  await p.evaluate(() => { location.hash = "gian-phong"; }); await p.waitForTimeout(80);
+  await p.fill("#gp-q", "máy chủ"); await p.waitForTimeout(60);
+  await p.fill("#gp-x", "30"); await p.waitForTimeout(60);
+  let g = await p.innerText("#gpres");
+  check(/Phòng máy chủ/.test(g) && (g.match(/Phải trang bị/g) || []).length === 2, "phòng máy chủ 30 m² → báo cháy và chữa cháy");
+  await p.fill("#gp-x", "20"); await p.waitForTimeout(60); g = await p.innerText("#gpres");
+  check(!/Phải trang bị/.test(g), "phòng máy chủ 20 m² → không bắt buộc");
+  await p.fill("#gp-q", "may bien ap 220"); await p.waitForTimeout(60);
+  check((await p.innerText("#gp-k")).includes("220 kV") && (await p.innerText("#view")).includes("MVA"), "lọc không dấu 'may bien ap 220', đơn vị MVA");
+  await p.fill("#q", "kho tien"); await p.waitForTimeout(250);
+  await p.click("#view .pick[data-gp]"); await p.waitForTimeout(100);
+  check((await p.evaluate(() => location.hash)) === "#gian-phong" && (await p.innerText("#gpres")).includes("Kho tiền"), "tìm 'kho tien' → mở gian phòng kho tiền");
   await p.close();
   // 8. Tràn ngang ở 320 px, sáng và tối
   for (const scheme of ["light", "dark"]) {
     const c = await b.newContext({ viewport: { width: 320, height: 640 }, colorScheme: scheme }); const q = await c.newPage();
-    for (const h of ["home", "cong-trinh", "tinh-nuoc", "h7", "cong-truong", "so-sanh", "pl-a", "h1", "h2"]) {
+    for (const h of ["home", "cong-trinh", "tinh-nuoc", "h7", "cong-truong", "so-sanh", "gian-phong", "pl-a", "h1", "h2"]) {
       await q.goto(file + "#" + h); await q.waitForTimeout(80);
       const over = await q.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       check(over <= 0, `${scheme} ${h}: không tràn ngang (${over}px)`);

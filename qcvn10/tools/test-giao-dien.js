@@ -91,6 +91,22 @@ const { chromium } = require("playwright");
   check((await p.innerText("#mixres")).includes("> 70 %"), "70,0x % → áp dụng theo công năng chiếm ưu thế");
   await p.click("#mixres [data-ct]"); await p.waitForTimeout(80);
   check(await p.inputValue("#ct-id") === "chung-cu", "bấm nút chuyển sang tra chung cư");
+  // 7d. Nút loại hay tra, mục tùy chọn thu gọn, thanh kết quả nổi
+  await p.evaluate(() => { location.hash = "home"; }); await p.waitForTimeout(80);
+  await p.click('.pop button[data-ct="kho"]'); await p.waitForTimeout(120);
+  check(await p.inputValue("#ct-id") === "kho" && (await p.evaluate(() => location.hash)) === "#cong-trinh", "trang chủ: bấm 'Nhà kho' → tra công trình kho");
+  await p.click('.pop button[data-ct="chung-cu"]'); await p.waitForTimeout(120);
+  check(await p.inputValue("#ct-id") === "chung-cu" && await p.$('.pop button[data-ct="chung-cu"][aria-pressed="true"]') !== null, "trong form: bấm 'Chung cư' → đổi loại, nút được đánh dấu");
+  await p.evaluate(() => { ["pcar", "parea", "phh", "pmoto", "tmTr", "tmHam", "srv", "pdien", "mba", "mbaKv"].forEach(k => ctV[k] = 0); ctAdvOpen = false; renderCT(); }); await p.waitForTimeout(60);
+  check(await p.$eval("details.adv", d => !d.open), "mục để xe, phòng kỹ thuật thu gọn khi chưa nhập");
+  await p.click("details.adv > summary"); await p.fill("#ct-pcar", "120"); await p.waitForTimeout(60);
+  await p.selectOption("#ct-nb", "2"); await p.waitForTimeout(80);
+  check(await p.$eval("details.adv", d => d.open) && (await p.innerText("details.adv > summary")).includes("1 ô đã nhập"), "đã nhập → mục mở sẵn, ghi số ô đã nhập");
+  await p.evaluate(() => window.scrollTo(0, 0)); await p.waitForTimeout(80);
+  const barTxt = await p.$eval("#ctbar", b => b.hidden ? "" : b.innerText);
+  check(/\d+\s*mục phải trang bị/.test(barTxt), "thanh 'Xem kết quả' nổi khi đang ở form: " + barTxt.replace(/\s+/g, " "));
+  await p.click("#ctbar"); await p.waitForTimeout(700);
+  check(await p.$eval("#ctbar", b => b.hidden), "bấm thanh → cuộn tới kết quả, thanh ẩn");
   await p.close();
   // 8. Tràn ngang ở 320 px, sáng và tối
   for (const scheme of ["light", "dark"]) {

@@ -14,6 +14,7 @@ const VALS = ["", "0", "-5", "abc", "1,5", "1.500", "2 000", "999999999", "0,000
   for (const t of types) {
     await p.selectOption("#ct-id", t); await p.waitForTimeout(20);
     for (let r = 0; r < rounds; r++) {
+      await p.$$eval("details.adv", d => d.forEach(x => { x.open = true; }));
       const inputs = await p.$$eval(".ct-form input[data-k]:not([type=checkbox]), .ct-form input[data-mix]", els => els.map(e => e.id));
       for (const id of inputs) { await p.fill("#" + id, VALS[Math.floor(rnd() * VALS.length)]); steps++; }
       const boxes = await p.$$eval(".ct-form input[type=checkbox]", els => els.map(e => e.id));

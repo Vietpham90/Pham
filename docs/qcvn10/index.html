@@ -308,6 +308,23 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .tile.t { border-color: var(--amber); background: var(--amber-bg); } .tile.t b { color: var(--amber-ink); }
 .tile.n b { color: var(--exit); }
 .jump { justify-self: start; }
+.tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 8px; }
+.tools .btn2 { min-height: 48px; border-radius: 12px; font-weight: 600; font-size: 14px; text-align: left; padding: 10px 12px; line-height: 1.3; }
+.pop { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.pop button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 7px 13px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; min-height: 36px; }
+.pop button:hover { border-color: var(--fire); color: var(--fire); }
+.pop button[aria-pressed=true] { background: var(--fire); border-color: var(--fire); color: var(--on-fire); }
+.ct-form .pop { margin: 0; }
+.adv { border: 1px dashed var(--line); border-radius: 10px; background: var(--tint); }
+.adv > summary { cursor: pointer; padding: 11px 12px; font-weight: 700; font-size: 14px; list-style: none; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.adv > summary::-webkit-details-marker { display: none; }
+.adv > summary::after { content: "＋"; color: var(--fire); font-weight: 800; }
+.adv[open] > summary::after { content: "－"; }
+.adv > summary em { font-style: normal; font-weight: 500; font-size: 12.5px; color: var(--muted); margin-left: auto; }
+.adv > .grid2 { padding: 0 12px 12px; }
+.ctbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom, 0px)); z-index: 19; border: 0; border-radius: 999px; padding: 11px 18px; background: var(--ink); color: var(--bg); font: inherit; font-size: 14px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.25); white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+.ctbar b { background: var(--fire); color: var(--on-fire); border-radius: 999px; min-width: 24px; padding: 1px 7px; text-align: center; }
+.ctbar span { font-weight: 700; }
 #ctres { scroll-margin-top: 130px; }
 .mixbox { display: grid; gap: 10px; border: 1px dashed var(--line); border-radius: 10px; padding: 12px; }
 .mixout { margin: 8px 0 0; font-size: 14px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; }
@@ -495,12 +512,13 @@ function renderHome() {
   view.innerHTML = `
     <p class="intro">Tra cứu trang bị phương tiện PCCC và CNCH theo QCVN 10:2025/BCA, hiệu lực từ 30/12/2025. Gõ từ khóa ở ô tìm (tìm được không dấu), hoặc chọn mục bên dưới.</p>
     <button class="ct-cta" data-go="cong-trinh"><b>Tra theo công trình</b><span>Chọn loại nhà, nhập số tầng, diện tích sàn, chiều cao PCCC — nhận danh sách hệ thống phải trang bị kèm số bảng, số điều.</span></button>
-    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="nhieu-khoi">Dự án nhiều khối</button><button class="btn2" data-go="gian-phong">Gian phòng, thiết bị</button><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Điểm mới cần lưu ý</button>${/^https?:$/.test(location.protocol) && /\/qcvn10\//.test(location.pathname) ? '<a class="btn2" href="../" style="text-decoration:none;display:inline-flex;align-items:center">← Sổ tay QCVN 06</a>' : ""}</div>
+    <p class="label" style="margin:4px 0 6px">Tra nhanh theo loại</p>${popHTML("")}
+    <p class="label" style="margin:10px 0 6px">Công cụ</p><div class="tools"><button class="btn2" data-go="nhieu-khoi">Dự án nhiều khối</button><button class="btn2" data-go="gian-phong">Gian phòng, thiết bị</button><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Điểm mới cần lưu ý</button>${/^https?:$/.test(location.protocol) && /\/qcvn10\//.test(location.pathname) ? '<a class="btn2" href="../" style="text-decoration:none;display:inline-flex;align-items:center">← Sổ tay QCVN 06</a>' : ""}</div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v28 · cập nhật 15/11/2026</p>`;
+    <p class="ver">Phiên bản v29 · cập nhật 15/11/2026</p>`;
   window.scrollTo(0, 0);
 }
 function renderSection(id, openBlock) {
@@ -1530,10 +1548,12 @@ function renderCT() {
   if (need.includes("bacS") || f5) extra.push(selF("S", "Cấp kết cấu (S)", ["S0", "S1", "S2", "S3"]));
   if (f5) extra.push(selF("hang", "Hạng cháy nổ", ["A", "B", "C1", "C2", "C3", "C4", "D", "E"]));
   if (need.includes("gara")) extra.push(selF("gara", "Dạng nhà để xe", [["kin", "Dạng kín"], ["ho", "Dạng hở"]]));
-  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín (tổng các tầng)", "m²")); extra.push(numF("phh", "Chiều cao tầng để xe", "m", "", "3,3")); extra.push(numF("pmoto", "Diện tích để xe máy kín", "m²")); }
+  const adv = [];
+  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { adv.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); adv.push(numF("parea", "Diện tích phần để xe kín (tổng các tầng)", "m²")); adv.push(numF("phh", "Chiều cao tầng để xe", "m", "", "3,3")); adv.push(numF("pmoto", "Diện tích để xe máy kín", "m²")); }
   if (need.includes("ga")) extra.push(numF("ga", "Gian lớn nhất", "m²", "", "= tổng"));
-  if (need.includes("tm")) { extra.push(numF("tmTr", "Gian thương mại trên mặt đất", "m²")); extra.push(numF("tmHam", "Gian thương mại tầng hầm", "m²")); }
-  if (t.og !== "ham") { extra.push(numF("srv", "Phòng máy chủ, IT", "m²")); extra.push(numF("pdien", "Phòng điện tổng, tủ phân phối", "m²")); extra.push(numF("mba", "Máy biến áp trong nhà", "MVA")); extra.push(numF("mbaKv", "Điện áp máy biến áp", "kV")); }
+  if (need.includes("tm")) { adv.push(numF("tmTr", "Gian thương mại trên mặt đất", "m²")); adv.push(numF("tmHam", "Gian thương mại tầng hầm", "m²")); }
+  if (t.og !== "ham") { adv.push(numF("srv", "Phòng máy chủ, IT", "m²")); adv.push(numF("pdien", "Phòng điện tổng, tủ phân phối", "m²")); adv.push(numF("mba", "Máy biến áp trong nhà", "MVA")); adv.push(numF("mbaKv", "Điện áp máy biến áp", "kV")); }
+  const advKeys = ["pcar", "parea", "phh", "pmoto", "tmTr", "tmHam", "srv", "pdien", "mba", "mbaKv"], advN = advKeys.filter(k => +ctV[k] > 0).length;
   const checks = [];
   if (need.includes("bas") || t.a1 === "25") checks.push(chkF("bas", t.a1 === "sx" || t.a1 === "kho" ? "Gian bố trí tại tầng hầm, bán hầm" : "Bố trí tại tầng hầm, tầng bán hầm"));
   if (need.includes("hl")) checks.push(chkF("hl", "Hành lang chung dài > 10 m"));
@@ -1559,6 +1579,7 @@ function renderCT() {
     <label class="fld wide"><span>Loại nhà, công trình</span>
       <input id="ctq" type="search" autocomplete="off" placeholder="Gõ để đổi: chung cư, karaoke, kho, gara…" value="${esc(ctQ)}"></label>
     <div id="ctlist" class="picks">${ctList()}</div>
+    ${ctQ.trim() ? "" : popHTML(t.id)}
     <label class="fld"><span>Hoặc chọn</span><select id="ct-id" data-k="id">${T.map(x => `<option value="${x.id}"${x.id === t.id ? " selected" : ""}>${esc(x.n)}</option>`).join("")}</select></label>
     <div class="grid2">
       ${numF("n", "Số tầng (1.4.24)", "tầng")}
@@ -1569,13 +1590,18 @@ function renderCT() {
       ${MAP06[t.id] ? numF("dt1", "Diện tích 1 tầng lớn nhất", "m²", "", "= tổng / số tầng") : ""}
       ${extra.join("")}
     </div>
+    ${adv.length ? `<details class="adv"${advN || ctAdvOpen ? " open" : ""}><summary>Để xe, gian thương mại, phòng kỹ thuật <em>${advN ? advN + " ô đã nhập" : "tùy chọn"}</em></summary><div class="grid2">${adv.join("")}</div></details>` : ""}
     ${mixHtml}
     <p class="note" style="margin:0">Số tầng gồm tầng kỹ thuật, tầng tum, tầng bán hầm; không gồm tầng áp mái (1.4.24).</p>
     <div class="checks">${checks.join("")}</div>
     <button class="btn1 jump" id="ctjump" type="button">Xem kết quả ↓</button>
   </div>
-  <div id="ctres">${ctResult()}</div>`;
+  <div id="ctres">${ctResult()}</div>
+  <button id="ctbar" class="ctbar" type="button" hidden></button>`;
+  setTimeout(ctBar, 0);
 }
+let ctAdvOpen = false;
+document.addEventListener("toggle", e => { if (e.target.classList && e.target.classList.contains("adv")) ctAdvOpen = e.target.open; }, true);
 function mixHTML() {
   const m = mixRule(ctV.mix);
   if (!m) return `<p class="note">Nhập diện tích để kiểm tra.</p>`;
@@ -1584,6 +1610,16 @@ function mixHTML() {
     (m.mixed ? `<p class="mixout ok">Không công năng nào vượt 70 % → áp dụng quy định **nhà hỗn hợp** (Bảng A.1 mục 21, B.1 mục 1.2).</p>`.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
              : `<p class="mixout warn"><b>${esc(m.top.n)}</b> chiếm ${pct(m.share)} > 70 % → áp dụng quy định cho công năng này. <button class="btn2" type="button" data-ct="${m.top.id}">Tra theo ${esc(m.top.n.split(",")[0])}</button></p>`);
 }
+let ctLastReq = 0;
+const POP = [["chung-cu", "Chung cư"], ["kho", "Nhà kho"], ["san-xuat", "Nhà xưởng"], ["khach-san", "Khách sạn"], ["van-phong", "Văn phòng"], ["de-xe", "Gara, để xe"], ["cho-tttm", "TTTM"], ["nha-hang", "Nhà hàng"], ["karaoke", "Karaoke"], ["truong-hoc", "Trường học"], ["benh-vien", "Bệnh viện"], ["hon-hop", "Hỗn hợp"]];
+const popHTML = cur => `<div class="pop" role="group" aria-label="Loại hay tra">${POP.map(([id, l]) => `<button type="button" data-ct="${id}"${id === cur ? ' aria-pressed="true"' : ""}>${l}</button>`).join("")}</div>`;
+function ctBar() {
+  const bar = document.getElementById("ctbar"), r = document.getElementById("ctres");
+  if (!bar || !r) return;
+  bar.innerHTML = `<b>${ctLastReq}</b> mục phải trang bị <span>Xem kết quả ↓</span>`;
+  bar.hidden = r.getBoundingClientRect().top < window.innerHeight - 140;
+}
+window.addEventListener("scroll", ctBar, { passive: true });
 function ctResult() {
   const t = TI[ctV.id];
   const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "dt1", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
@@ -1591,6 +1627,7 @@ function ctResult() {
   const out = ctEvaluate(t, v);
   const chips = [t.g, `${v.n} tầng`, `${fmtN(v.h)} m`, `${fmtN(v.a)} m²`, v.vol ? `${fmtN(v.vol)} m³` : "", v.nb ? `${v.nb} hầm` : "", `bậc ${v.bac}`].filter(Boolean);
   const req = out.reduce((s, x) => s + x.items.filter(i => i.lv === "req" || i.lv === "alt").length, 0);
+  ctLastReq = req;
   const all = out.flatMap(x => x.items);
   const tile = (lbl, re) => { const it = all.find(i => re.test(i.txt)); const k = !it ? "na" : it.lv === "req" ? "y" : it.lv === "alt" ? "t" : it.lv === "no" ? "n" : "na"; return `<div class="tile ${k}"><b>${{ y: "Có", t: "Có*", n: "Không", na: "—" }[k]}</b><span>${lbl}</span></div>`; };
   let t06 = "";
@@ -1631,7 +1668,11 @@ function ctSync(full) {
     else { const n = parseNum(el.value); ctV[k] = n === "" ? 0 : Math.max(0, n); }
   });
   store.set("q10-ct", ctV);
-  if (full) renderCT(); else document.getElementById("ctres").innerHTML = ctResult();
+  if (full) renderCT(); else {
+    document.getElementById("ctres").innerHTML = ctResult(); ctBar();
+    const em = view.querySelector(".adv > summary em");
+    if (em) { const n = [...view.querySelectorAll(".adv [data-k]")].filter(el => +ctV[el.dataset.k] > 0).length; em.textContent = n ? n + " ô đã nhập" : "tùy chọn"; }
+  }
 }
 
 
@@ -2078,6 +2119,7 @@ document.addEventListener("click", e => {
   const mkd = e.target.closest("[data-mkdel]"); if (mkd) { if (mkV.parts.length > 1) { mkV.parts.splice(+mkd.dataset.mkdel, 1); store.set("q10-mk", mkV); renderMK(); } return; }
   const q13 = e.target.closest("[data-q13]"); if (q13) { e.preventDefault(); const el = document.getElementById("q13"); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
   const q6 = e.target.closest("[data-q06]"); if (q6) { e.preventDefault(); const el = document.getElementById("q06"); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
+  if (e.target.closest("#ctbar")) { const r = document.getElementById("ctres"); if (r) r.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
   if (e.target.id === "ctjump") { const r = document.getElementById("ctres"); if (r) r.scrollIntoView({ block: "start", behavior: "smooth" }); return; }
   const gk = e.target.closest("[data-gp]"); if (gk) { gpV.k = +gk.dataset.gp; gpV.q = ""; q.value = ""; clearQ.hidden = true; store.set("q10-gp", gpV); if (location.hash !== "#gian-phong") location.hash = "gian-phong"; else renderGP(); window.scrollTo(0, 0); return; }
   const pk = e.target.closest("[data-ct]"); if (pk) { ctV.id = pk.dataset.ct; ctQ = ""; q.value = ""; clearQ.hidden = true; store.set("q10-ct", ctV); if (location.hash !== "#cong-trinh") location.hash = "cong-trinh"; else renderCT(); window.scrollTo(0, 0); return; }

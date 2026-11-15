@@ -295,6 +295,23 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .tile.t { border-color: var(--amber); background: var(--amber-bg); } .tile.t b { color: var(--amber-ink); }
 .tile.n b { color: var(--exit); }
 .jump { justify-self: start; }
+.tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 8px; }
+.tools .btn2 { min-height: 48px; border-radius: 12px; font-weight: 600; font-size: 14px; text-align: left; padding: 10px 12px; line-height: 1.3; }
+.pop { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.pop button { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 7px 13px; font: inherit; font-size: 13.5px; font-weight: 600; cursor: pointer; min-height: 36px; }
+.pop button:hover { border-color: var(--fire); color: var(--fire); }
+.pop button[aria-pressed=true] { background: var(--fire); border-color: var(--fire); color: var(--on-fire); }
+.ct-form .pop { margin: 0; }
+.adv { border: 1px dashed var(--line); border-radius: 10px; background: var(--tint); }
+.adv > summary { cursor: pointer; padding: 11px 12px; font-weight: 700; font-size: 14px; list-style: none; display: flex; justify-content: space-between; gap: 8px; align-items: center; }
+.adv > summary::-webkit-details-marker { display: none; }
+.adv > summary::after { content: "＋"; color: var(--fire); font-weight: 800; }
+.adv[open] > summary::after { content: "－"; }
+.adv > summary em { font-style: normal; font-weight: 500; font-size: 12.5px; color: var(--muted); margin-left: auto; }
+.adv > .grid2 { padding: 0 12px 12px; }
+.ctbar { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav-h) + 12px + env(safe-area-inset-bottom, 0px)); z-index: 19; border: 0; border-radius: 999px; padding: 11px 18px; background: var(--ink); color: var(--bg); font: inherit; font-size: 14px; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.25); white-space: nowrap; display: flex; gap: 8px; align-items: center; }
+.ctbar b { background: var(--fire); color: var(--on-fire); border-radius: 999px; min-width: 24px; padding: 1px 7px; text-align: center; }
+.ctbar span { font-weight: 700; }
 #ctres { scroll-margin-top: 130px; }
 .mixbox { display: grid; gap: 10px; border: 1px dashed var(--line); border-radius: 10px; padding: 12px; }
 .mixout { margin: 8px 0 0; font-size: 14px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; }

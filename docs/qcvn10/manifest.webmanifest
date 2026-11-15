@@ -1,0 +1,17 @@
+{
+  "name": "Sổ tay QCVN 10:2025/BCA",
+  "short_name": "QCVN 10",
+  "description": "Tra cứu trang bị, bố trí phương tiện PCCC và CNCH cho nhà và công trình theo QCVN 10:2025/BCA.",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbf8f3",
+  "theme_color": "#b42318",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -1,5 +1,5 @@
 // Offline cache for Sổ tay PCCC. Bump VERSION whenever index.html changes.
-const VERSION = "sotay-pccc-v13";
+const VERSION = "sotay-pccc-v14";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "apple-touch-icon.png"];
 
 self.addEventListener("install", (event) => {
@@ -18,6 +18,8 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
   const url = new URL(req.url);
+  // Sổ tay QCVN 10 trong thư mục con có service worker riêng.
+  if (url.pathname.includes("/qcvn10/")) return;
 
   // Page itself: network first so updates arrive, cache as fallback when offline.
   if (req.mode === "navigate") {

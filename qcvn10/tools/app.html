@@ -1,0 +1,852 @@
+<header class="top gutter">
+  <div class="wrap">
+    <div class="brand">
+      <button class="back" id="backBtn" aria-label="Quay lại" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <h1 id="hdr">Sổ tay trang bị PCCC<small>QCVN 10:2025/BCA · TT 103/2025/TT-BCA</small></h1>
+    </div>
+    <div class="search">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input id="q" type="search" inputmode="search" autocomplete="off" placeholder="Tìm: karaoke, sprinkler, DN65, Bảng H.5…" aria-label="Tìm trong sổ tay">
+      <button class="clear" id="clearQ" aria-label="Xóa tìm kiếm" hidden>×</button>
+    </div>
+  </div>
+</header>
+
+<main class="gutter"><div class="wrap" id="view"></div></main>
+
+<nav class="bottom" aria-label="Điều hướng chính">
+  <div class="row">
+    <button data-nav="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5V21h-6v-6H9v6H3z"/></svg>Mục lục</button>
+    <button data-nav="cong-trinh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 21V9l6-4v16M10 21V3l10 5v13M2 21h20M14 11h2M14 15h2"/></svg>Công trình</button>
+    <button data-nav="tinh-nuoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"/></svg>Tính nước</button>
+    <button data-nav="da-luu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Đã lưu</button>
+  </div>
+</nav>
+
+<script>
+const DATA = __DATA__;
+
+const META = {
+  "tong-quan": {n:"0", c:"", t:"Tổng quan & cách tra", d:"Hiệu lực, chuyển tiếp, trình tự 6 bước, cấu trúc"},
+  "chung":     {n:"1", c:"", t:"Quy định chung", d:"Phạm vi, thuật ngữ, số tầng, Bảng 1, 2, quy tắc 70 %, loại trừ"},
+  "trang-bi":  {n:"2", c:"f", t:"Trang bị, bố trí — Phần 2", d:"Bình chữa cháy, ống khô, công trường, bình tự kích hoạt"},
+  "pl-a":      {n:"A", c:"f", t:"Báo cháy, chữa cháy tự động", d:"Bảng A.1 nhà · A.2 hạng mục · A.3 gian phòng · A.4 thiết bị"},
+  "pl-bc":     {n:"B", c:"x", t:"Họng nước trong nhà, nước ngoài nhà", d:"Bảng B.1, C.1"},
+  "pl-dg":     {n:"D", c:"", t:"Cơ giới, phá dỡ, mặt nạ, loa", d:"Bảng D.1, E.1, F.1, G.1"},
+  "h1":        {n:"H1", c:"x", t:"Thiết kế nước ngoài nhà", d:"Bảng H.1 – H.4, trụ nước, bể, bến lấy nước"},
+  "h2":        {n:"H2", c:"x", t:"Thiết kế họng nước trong nhà", d:"Bảng H.5 – H.7, áp suất, tia đặc, phương án"},
+  "h34":       {n:"H3", c:"a", t:"Trạm bơm, loa thông báo", d:"Bơm dự phòng, nguồn điện, mức âm thanh"}
+};
+const ORDER = Object.keys(META);
+const FILE2ID = {"README.md":"tong-quan","01-quy-dinh-chung.md":"chung","02-trang-bi.md":"trang-bi","03-phu-luc-a.md":"pl-a","04-phu-luc-b-c.md":"pl-bc","05-phu-luc-d-g.md":"pl-dg","06-h1-nuoc-ngoai-nha.md":"h1","07-h2-hong-nuoc.md":"h2","08-h3-h4-bom-loa.md":"h34"};
+
+/* ---------- lưu trên thiết bị (không bắt buộc) ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+let saved = store.get("q10-saved", []);
+/* Số kiểu Việt Nam: "12,5" "1 200" "1.200" "1.200,5" */
+function parseNum(x) {
+  if (x === null || x === undefined) return "";
+  let t = String(x).trim().replace(/[\s ]/g, "");
+  if (!t) return "";
+  if (t.includes(",") && t.includes(".")) t = t.replace(/\./g, "").replace(",", ".");
+  else if (t.includes(",")) t = t.replace(",", ".");
+  else if (/^-?\d{1,3}(\.\d{3})+$/.test(t)) t = t.replace(/\./g, "");
+  const n = Number(t);
+  return Number.isFinite(n) ? n : "";
+}
+function fmtIn(x) { return x === "" || x === null || x === undefined ? "" : String(x).replace(".", ","); }
+const fmtN = x => (Math.round(x * 100) / 100).toLocaleString("vi-VN");
+
+/* ---------- markdown → khối ---------- */
+const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g, "&quot;");
+function inline(s) {
+  s = esc(s);
+  s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+  s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/\*([^*\s][^*]*)\*/g, "<em>$1</em>");
+  s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (m, t, h) => { const id = FILE2ID[h]; return id ? `<a href="#${id}" data-go="${id}">${t}</a>` : t; });
+  return s;
+}
+function mdToHtml(lines) {
+  let out = "", i = 0;
+  while (i < lines.length) {
+    const l = lines[i];
+    if (!l.trim()) { i++; continue; }
+    if (/^### /.test(l)) { out += `<h3>${inline(l.slice(4))}</h3>`; i++; continue; }
+    if (/^\|/.test(l)) {
+      const rows = [];
+      while (i < lines.length && /^\|/.test(lines[i])) { rows.push(lines[i]); i++; }
+      const cells = r => r.trim().replace(/^\||\|$/g, "").split("|").map(c => c.trim());
+      const head = cells(rows[0]); const body = rows.slice(2).map(cells);
+      const wide = head.length > 3;
+      out += `<div class="tbl${wide ? " wide" : ""}"><table><thead><tr>${head.map(h => `<th>${inline(h)}</th>`).join("")}</tr></thead><tbody>${body.map(r => `<tr>${r.map(c => `<td>${inline(c)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+      if (wide) out += `<p class="hint">← Vuốt ngang để xem hết bảng →</p>`;
+      continue;
+    }
+    if (/^> /.test(l)) {
+      const b = [];
+      while (i < lines.length && /^>/.test(lines[i])) { b.push(lines[i].replace(/^>\s?/, "")); i++; }
+      out += `<blockquote><p>${inline(b.join(" "))}</p></blockquote>`; continue;
+    }
+    if (/^- /.test(l)) {
+      out += "<ul>";
+      while (i < lines.length && /^(- |  - )/.test(lines[i])) { const sub = /^  - /.test(lines[i]); out += `<li${sub ? ' class="sub"' : ""}>${inline(lines[i].replace(/^\s*- /, ""))}</li>`; i++; }
+      out += "</ul>"; continue;
+    }
+    if (/^\d+\. /.test(l)) {
+      out += "<ol>";
+      while (i < lines.length && /^\d+\. /.test(lines[i])) { out += `<li>${inline(lines[i].replace(/^\d+\. /, ""))}</li>`; i++; }
+      out += "</ol>"; continue;
+    }
+    const p = [];
+    while (i < lines.length && lines[i].trim() && !/^(#|\||> |- |\d+\. )/.test(lines[i])) { p.push(lines[i]); i++; }
+    if (p.length) out += `<p>${inline(p.join(" "))}</p>`; else i++;
+  }
+  return out;
+}
+const norm = s => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+
+const SECTIONS = {};
+for (const [file, md] of Object.entries(DATA)) {
+  const id = FILE2ID[file]; if (!id) continue;
+  const lines = md.split("\n");
+  const lead = [], blocks = []; let cur = null;
+  for (const l of lines) {
+    if (/^# /.test(l)) continue;
+    if (/^## /.test(l)) { cur = { title: l.slice(3).trim(), lines: [] }; blocks.push(cur); continue; }
+    (cur ? cur.lines : lead).push(l);
+  }
+  blocks.forEach((b, k) => { b.id = id + "--" + k; b.raw = b.lines.join(" ").replace(/[|*`>#]/g, " ").replace(/\s+/g, " "); b.text = norm(b.title + " " + b.raw); });
+  SECTIONS[id] = { id, title: META[id].t, lead, blocks, leadText: norm(lead.join(" ")) };
+}
+
+/* ---------- khung trang ---------- */
+const view = document.getElementById("view");
+const hdr = document.getElementById("hdr");
+const backBtn = document.getElementById("backBtn");
+const q = document.getElementById("q");
+const clearQ = document.getElementById("clearQ");
+const HDR_HOME = hdr.innerHTML;
+function setNav(name) { document.querySelectorAll("nav.bottom button").forEach(b => { if (b.dataset.nav === name) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); }); }
+function setHeader(title) {
+  if (title) { hdr.innerHTML = esc(title) + "<small>QCVN 10:2025/BCA</small>"; backBtn.hidden = false; }
+  else { hdr.innerHTML = HDR_HOME; backBtn.hidden = true; }
+}
+const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
+const chev = '<svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>';
+
+function renderHome() {
+  setHeader(null); setNav("home");
+  view.innerHTML = `
+    <p class="intro">Tra cứu trang bị phương tiện PCCC và CNCH theo QCVN 10:2025/BCA, hiệu lực từ 30/12/2025. Gõ từ khóa ở ô tìm (tìm được không dấu), hoặc chọn mục bên dưới.</p>
+    <button class="ct-cta" data-go="cong-trinh"><b>Tra theo công trình</b><span>Chọn loại nhà, nhập số tầng, diện tích sàn, chiều cao PCCC — nhận danh sách hệ thống phải trang bị kèm số bảng, số điều.</span></button>
+    <div class="row-btns" style="margin:0 0 8px"><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Thay đổi so với TCVN 3890</button></div>
+    <p class="label">Mục lục</p>
+    <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
+    <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>`;
+  window.scrollTo(0, 0);
+}
+function renderSection(id, openBlock) {
+  const s = SECTIONS[id]; if (!s) return renderHome();
+  setHeader(META[id].t); setNav("");
+  let html = `<article class="doc">`;
+  const leadHtml = mdToHtml(s.lead);
+  if (leadHtml) html += `<div class="lead">${leadHtml}</div>`;
+  s.blocks.forEach((b, k) => {
+    const open = openBlock ? b.id === openBlock : (s.blocks.length <= 2 || k === 0);
+    const isSaved = saved.includes(b.id);
+    html += `<details id="${b.id}"${open ? " open" : ""}><summary>${inline(b.title)}<button class="star" data-star="${b.id}" aria-pressed="${isSaved}" aria-label="${isSaved ? "Bỏ lưu" : "Lưu mục này"}">${starSvg}</button></summary><div class="body">${mdToHtml(b.lines)}</div></details>`;
+  });
+  const idx = ORDER.indexOf(id), prev = ORDER[idx - 1], next = ORDER[idx + 1];
+  html += `<div class="pager">${prev ? `<button data-go="${prev}"><small>← Trước</small>${META[prev].t}</button>` : ""}${next ? `<button class="next" data-go="${next}"><small>Tiếp →</small>${META[next].t}</button>` : ""}</div></article>`;
+  view.innerHTML = html;
+  if (openBlock) { const el = document.getElementById(openBlock); if (el) setTimeout(() => el.scrollIntoView({ block: "start" }), 0); }
+  else window.scrollTo(0, 0);
+}
+function renderSaved() {
+  setHeader("Đã lưu"); setNav("da-luu");
+  const items = saved.map(bid => { const sid = bid.split("--")[0]; const s = SECTIONS[sid]; const b = s && s.blocks.find(x => x.id === bid); return b ? { s, b } : null; }).filter(Boolean);
+  if (!items.length) { view.innerHTML = `<div class="empty">Chưa lưu mục nào.<br>Bấm biểu tượng dấu trang trên tiêu đề một mục để lưu lại tra cứu nhanh.</div>`; return; }
+  view.innerHTML = `<ul class="results">${items.map(({ s, b }) => `<li><button data-open="${b.id}"><span class="sec">${META[s.id].t}</span><span class="ttl">${inline(b.title)}</span><span class="snip">${esc(b.raw.slice(0, 120))}…</span></button></li>`).join("")}</ul>`;
+}
+const MAP = { a:"aàáảãạăằắẳẵặâầấẩẫậ", e:"eèéẻẽẹêềếểễệ", i:"iìíỉĩị", o:"oòóỏõọôồốổỗộơờớởỡợ", u:"uùúủũụưừứửữự", y:"yỳýỷỹỵ", d:"dđ" };
+function buildRe(t) {
+  const src = [...t].map(ch => { const k = ch.toLowerCase(); if (MAP[k]) return "[" + MAP[k] + MAP[k].toUpperCase() + "]"; return ch.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("");
+  return new RegExp(src, "gi");
+}
+function renderSearch(term) {
+  setNav(""); setHeader(null);
+  const terms = norm(term).split(/\s+/).filter(Boolean);
+  const res = [];
+  for (const id of ORDER) for (const b of SECTIONS[id].blocks) if (terms.every(t => b.text.includes(t))) res.push({ id, b, score: terms.filter(t => norm(b.title).includes(t)).length });
+  const types = T.filter(t => terms.every(x => norm(t.n + " " + (t.k || "")).includes(x))).slice(0, 4);
+  res.sort((a, b) => b.score - a.score);
+  const typeHtml = types.length ? `<p class="label">Tra theo công trình</p><div class="picks">${types.map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("")}</div>` : "";
+  if (!res.length) {
+    view.innerHTML = typeHtml + `<div class="empty">Không thấy kết quả cho “${esc(term)}”.<br>Thử từ khóa ngắn hơn hoặc gợi ý:<div class="chips">${["sprinkler","báo cháy độc lập","DN65","bình chữa cháy","khách sạn","Bảng H.5","trụ nước","đường ống khô"].map(c => `<button data-chip="${c}">${c}</button>`).join("")}</div></div>`;
+    return;
+  }
+  const mk = s => { let h = esc(s); for (const t of terms) { if (t.length < 2) continue; h = h.replace(buildRe(t), m => `<mark>${m}</mark>`); } return h; };
+  view.innerHTML = typeHtml + `<p class="label">${res.length} kết quả</p><ul class="results">${res.slice(0, 60).map(({ id, b }) => {
+    const nraw = norm(b.raw); const pos = Math.max(0, nraw.indexOf(terms[0]) - 40);
+    const snip = (pos ? "…" : "") + b.raw.slice(pos, pos + 150) + "…";
+    return `<li><button data-open="${b.id}"><span class="sec">${META[id].t}</span><span class="ttl">${mk(b.title)}</span><span class="snip">${mk(snip)}</span></button></li>`;
+  }).join("")}</ul>`;
+}
+
+/* ---------- liên kết số điều, số bảng ---------- */
+function refFound(qq) { const t = norm(qq).split(/\s+/).filter(Boolean); return t.length && ORDER.some(id => SECTIONS[id].blocks.some(b => t.every(x => b.text.includes(x)))); }
+function resolveRef(qq) {
+  let cur = qq;
+  while (cur) { if (refFound(cur)) return cur; const m = cur.match(/^(.*\d)\.\d+[a-z]?$/); if (!m) break; cur = m[1]; }
+  const head = qq.match(/^(Bảng\s+[A-H]?\.?\d+)/); if (head && refFound(head[1])) return head[1];
+  return qq;
+}
+function refHTML(ref) {
+  return String(ref || "").split(/\s*;\s*/).filter(Boolean).map(r => {
+    const qq = r.replace(/\s+(mục|CT|chú thích|⁽).*$/i, "").trim();
+    return `<button class="ref" data-ref="${esc(qq)}" title="Tìm ${esc(qq)} trong sổ tay">${esc(r)}</button>`;
+  }).join("");
+}
+const LV = { req: ["bad", "Phải trang bị"], alt: ["warn", "Phải trang bị · được dùng TBĐL"], no: ["ok", "Không bắt buộc"], info: ["warn", "Lưu ý"], val: ["n", ""] };
+function md(s) { return esc(s).replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>"); }
+function itemsHTML(sections) {
+  return sections.filter(s => s.items.length).map(s => `<section class="ct-sec"><h2>${esc(s.t)}</h2><ul>${s.items.map(x => { const lv = LV[x.lv] || LV.val; return `<li class="lv-${lv[0]}">${lv[1] ? `<span class="lv">${lv[1]}</span>` : ""}<span class="tx">${md(x.txt)}</span><span class="refs">${refHTML(x.ref)}</span></li>`; }).join("")}</ul></section>`).join("");
+}
+
+/* =====================================================================
+   BỘ QUY TẮC QCVN 10:2025/BCA
+   v = { n: số tầng (1.4.24), h: chiều cao PCCC (m), a: tổng diện tích sàn (m²),
+         vol: khối tích (m³), nb: số tầng hầm, bas: bố trí tại tầng hầm/bán hầm,
+         kids, seats, ppl (người/tầng), room (người trong phòng lớn nhất),
+         hl: hành lang chung > 10 m, bac, S, hang, len (m), cho (chỗ đỗ / tầng),
+         gara: kin|ho, open12, xm (chỉ xe máy), ngan (dạng ngăn ≤ 2 xe), rural }
+   ===================================================================== */
+const NOLIMIT = "không phụ thuộc diện tích";
+// Bảng A.1: r = hàm trả về {req, tbdl, why}; s = hàm trả về {req, why}
+const A1 = {
+  "1":  { r: v => ({ req: v.n >= 7, tbdl: true, why: "≥ 7 tầng (được dùng TBĐL)" }), s: v => ({ req: v.h >= 30, why: "chiều cao PCCC ≥ 30 m" }) },
+  "2":  { r: v => ({ req: v.n >= 3 || v.a >= 500, tbdl: v.n < 5 && v.a < 500, why: "≥ 3 tầng hoặc ≥ 500 m² (TBĐL khi < 5 tầng và < 500 m²)" }), s: v => ({ req: v.h >= 30, why: "chiều cao PCCC ≥ 30 m" }) },
+  "3":  { r: v => ({ req: v.n >= 5 || v.a >= 700, tbdl: v.n < 5 && v.a < 1500, why: "≥ 5 tầng hoặc ≥ 700 m² (TBĐL khi < 5 tầng và < 1 500 m²)" }), s: v => ({ req: v.h >= 30, why: "chiều cao PCCC ≥ 30 m" }) },
+  "4":  { r: v => ({ req: v.kids >= 100 || v.a >= 300, tbdl: v.a < 500, why: "≥ 100 cháu hoặc ≥ 300 m² (TBĐL khi < 500 m²)" }), s: v => ({ req: v.n >= 4 && v.a >= 5000, why: "≥ 4 tầng (không tính tầng kỹ thuật trên cùng) và ≥ 5 000 m²" }) },
+  "5":  { r: v => ({ req: v.n >= 5 || v.a >= 1500, tbdl: v.a < 700, why: "≥ 5 tầng hoặc ≥ 1 500 m² (TBĐL khi < 700 m²)" }), s: v => ({ req: v.h >= 25, why: "chiều cao PCCC ≥ 25 m" }) },
+  "6":  { r: v => ({ req: v.n >= 3 || v.a >= 300, tbdl: false, why: "≥ 3 tầng hoặc ≥ 300 m²" }), s: v => ({ req: v.h >= 25 || v.a >= 2000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 2 000 m²" }) },
+  "7":  { r: v => ({ req: true, tbdl: v.n < 3 && v.a < 300, why: NOLIMIT + " (TBĐL khi < 3 tầng và < 300 m²)" }), s: v => ({ req: v.a >= 500, why: "≥ 500 m²" }) },
+  "8":  { r: v => ({ req: v.a >= 500 || v.seats >= 200, tbdl: v.a < 1500, why: "≥ 500 m² hoặc khán đài ≥ 200 chỗ (TBĐL khi < 1 500 m²)" }), s: v => ({ req: v.h >= 25, why: "chiều cao PCCC ≥ 25 m" }) },
+  "9":  { r: v => ({ req: v.a >= 500 || v.seats >= 200, tbdl: v.a < 1500, why: "≥ 500 m² hoặc ≥ 200 chỗ (TBĐL khi < 1 500 m²)" }), s: v => ({ req: v.h >= 25, why: "chiều cao PCCC ≥ 25 m" }) },
+  "10": { r: v => ({ req: v.a >= 300, tbdl: v.a < 500, why: "≥ 300 m² (TBĐL khi < 500 m²)" }), s: v => ({ req: v.h >= 25 || v.a >= 5000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 5 000 m²" }) },
+  "11": { r: v => v.bas ? { req: true, why: NOLIMIT + " (tầng hầm, bán hầm — 11.1)" } : v.n <= 2 ? { req: v.a >= 500, why: "1 – 2 tầng: ≥ 500 m² (11.2.1)" } : { req: true, why: "≥ 3 tầng: " + NOLIMIT + " (11.2.2)" },
+          s: v => v.bas ? { req: v.a >= 200, why: "tầng hầm: ≥ 200 m² (11.1)" } : v.n <= 2 ? { req: v.a >= 1000, why: "1 – 2 tầng: ≥ 1 000 m² (11.2.1)" } : { req: v.a >= 500, why: "≥ 3 tầng: ≥ 500 m² (11.2.2)" } },
+  "12": { r: v => ({ req: v.n >= 3 || v.a >= 500, why: "≥ 3 tầng hoặc ≥ 500 m²" }), s: v => ({ req: v.h >= 25 || v.a >= 5000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 5 000 m²" }) },
+  "13": { r: v => ({ req: true, why: NOLIMIT }),
+          s: v => v.bas ? { req: true, why: "tầng hầm, bán hầm: " + NOLIMIT + " (13.1)" } : v.n <= 2 ? { req: v.a >= 500, why: "1 – 2 tầng: ≥ 500 m² (13.2.1)" } : { req: true, why: "≥ 3 tầng: " + NOLIMIT + " (13.2.2)" } },
+  "14": { r: v => ({ req: v.n >= 4, why: "≥ 4 tầng" }), s: v => ({ req: v.h >= 25, why: "chiều cao PCCC ≥ 25 m" }) },
+  "15": { r: v => ({ req: true, why: NOLIMIT }),
+          s: v => v.bas ? { req: v.a >= 200, why: "tầng hầm: ≥ 200 m² (15.1)" } : v.n <= 2 ? { req: v.a >= 3500, why: "1 – 2 tầng: ≥ 3 500 m² (15.2.1)" } : { req: true, why: "≥ 3 tầng: " + NOLIMIT + " (15.2.2)" } },
+  "16": { r: v => ({ req: v.a >= 500, tbdl: v.n < 3 && v.a < 1500, why: "≥ 500 m² (TBĐL khi < 3 tầng và < 1 500 m²)" }), s: v => ({ req: v.h >= 25 || v.a >= 5000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 5 000 m²" }) },
+  "17": { r: v => v.bas ? { req: true, why: "tầng hầm: " + NOLIMIT + " (17.1)" } : { req: v.n >= 3 || v.a >= 300, tbdl: v.n < 5 && v.a < 500, why: "≥ 3 tầng hoặc ≥ 300 m² (TBĐL khi < 5 tầng và < 500 m²) (17.2)" },
+          s: v => v.bas ? { req: v.a >= 200, why: "tầng hầm: ≥ 200 m² (17.1)" } : { req: v.h >= 25 || v.a >= 3500, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 3 500 m² (17.2)" } },
+  "17.3": { r: v => ({ req: true, why: NOLIMIT }), s: v => ({ req: true, why: NOLIMIT }) },
+  "18": { r: v => ({ req: v.n >= 3 || v.a >= 700, tbdl: v.n < 5 && v.a < 1500, why: "≥ 3 tầng hoặc ≥ 700 m² (TBĐL khi < 5 tầng và < 1 500 m²)" }), s: v => ({ req: v.h >= 25 || v.a >= 5000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 5 000 m²" }) },
+  "19": { r: v => ({ req: v.n >= 3 || v.a >= 500, why: "≥ 3 tầng hoặc ≥ 500 m²" }), s: v => ({ req: v.h >= 25 || v.a >= 5000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 5 000 m²" }) },
+  "20": { r: v => ({ req: v.n >= 5 || v.a >= 500, tbdl: v.n < 5 && v.a < 1500, why: "≥ 5 tầng hoặc ≥ 500 m² (TBĐL khi < 5 tầng và < 1 500 m²)" }), s: v => ({ req: v.h >= 25 || v.a >= 5000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 5 000 m²" }) },
+  "21": { r: v => ({ req: v.n >= 3 || v.a >= 500, tbdl: v.n < 5 && v.a < 500, why: "≥ 3 tầng hoặc ≥ 500 m² (TBĐL khi < 5 tầng và < 500 m²)" }), s: v => ({ req: v.h >= 25 || v.a >= 5000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 5 000 m²" }) },
+  "22": { r: v => ({ req: v.a >= 500, tbdl: v.n < 3 && v.a < 500, why: "≥ 500 m²" }), s: v => ({ req: v.h >= 25 || v.a >= 10000, why: "chiều cao PCCC ≥ 25 m hoặc ≥ 10 000 m²" }) },
+  "23": { r: v => ({ req: true, why: NOLIMIT }), s: v => ({ req: true, why: NOLIMIT }) },
+  "24": { r: v => ({ req: v.a >= 500, why: "≥ 500 m²" }), s: v => ({ req: false, why: "Bảng A.1 không yêu cầu (—)" }) },
+  "25": { r: v => garage(v).r, s: v => garage(v).s },
+  "26": { r: v => ({ req: false, why: "Bảng A.1 không yêu cầu (—)" }), s: v => ({ req: v.cho >= 4, why: "≥ 4 ô đỗ xe mỗi tầng" }) },
+  "27": { r: v => ({ req: true, why: NOLIMIT }), s: v => ({ req: v.a >= 2800, why: "≥ 2 800 m²" }) },
+  "28": { r: v => ({ req: v.len >= 500, why: "chiều dài ≥ 500 m" }), s: v => ({ req: false, why: "Bảng A.1 không yêu cầu (—)" }) },
+  "29": { r: v => v.open ? { req: false, why: "nhà dạng hở — không yêu cầu (ghi chú ⁽⁶⁾)" } : { req: v.a >= 500, why: "≥ 500 m²" }, s: v => v.open ? { req: false, why: "nhà dạng hở — không yêu cầu (ghi chú ⁽⁶⁾)" } : { req: v.a >= 3000, why: "≥ 3 000 m²" } }
+};
+function garage(v) {
+  if (v.xm && v.n <= 2 && v.a <= 1000) { const x = { req: false, why: "nhà lưu giữ, trưng bày xe máy ≤ 2 tầng và ≤ 1 000 m² — được không trang bị (ghi chú ⁽⁴⁾)" }; return { r: x, s: x }; }
+  if (v.ngan && v.n <= 2) { const x = { req: false, why: "dạng ngăn (vách ngăn cháy loại 1, lối ra ngoài trời trực tiếp), mỗi ngăn ≤ 2 xe — được không trang bị (ghi chú ⁽⁴⁾)" }; return { r: x, s: x }; }
+  if (v.gara === "ho") {
+    if (!v.open12) return { r: { req: v.a >= 4000 || v.n >= 4, why: "dạng hở, mọi điểm cách cạnh để hở ≤ 12 m: ≥ 4 000 m² hoặc ≥ 4 tầng (25.3.1)" }, s: { req: false, why: "dạng hở ≤ 12 m: không yêu cầu (25.3.1)" } };
+    return { r: { req: true, why: "dạng hở, có điểm cách cạnh để hở > 12 m: " + NOLIMIT + " (25.3.2)" }, s: { req: v.a >= 4000 || v.n >= 4, why: "≥ 4 000 m² hoặc ≥ 4 tầng (25.3.2)" } };
+  }
+  if (v.bas || v.n >= 2) {
+    const small = v.bas && v.nb <= 1 && v.n <= 1 && v.cho > 0 && v.cho <= 25;
+    return { r: { req: true, why: NOLIMIT + " (dạng kín tại tầng hầm hoặc ≥ 2 tầng — 25.1)" }, s: small ? { req: false, why: "nhà để xe ngầm một tầng dưới khu đất trống, ≤ 25 chỗ — được không bố trí (ghi chú ⁽⁴⁾)" } : { req: true, why: NOLIMIT + " (25.1)" } };
+  }
+  const lo = ["I", "II", "III"].includes(v.bac);
+  let lim, row;
+  if (lo && v.S === "S0") { lim = 7000; row = "25.2.1"; }
+  else if (lo && v.S === "S1") { lim = 3600; row = "25.2.2"; }
+  else if (!lo && v.S === "S0") { lim = 3600; row = "25.2.3"; }
+  else if (!lo && v.S === "S1") { lim = 2000; row = "25.2.4"; }
+  else { lim = 1000; row = "25.2.5"; }
+  return { r: { req: true, why: NOLIMIT + " (dạng kín 1 tầng — 25.2)" }, s: { req: v.a >= lim, why: `dạng kín 1 tầng, bậc ${v.bac}, ${v.S}: ≥ ${lim.toLocaleString("vi-VN")} m² (${row})` + (lo && !["S0", "S1"].includes(v.S) ? " — bảng không có dòng bậc I – III với S2, S3; tạm lấy dòng 25.2.5" : "") } };
+}
+
+// Bảng A.3 cho nhà sản xuất, kho (xét như một gian phòng)
+function a3F5(v, kind) {
+  const H = v.hang || "C2";
+  if (kind === "kho") {
+    if (v.special) return { r: { req: true, why: "kho cao su, hạt nhựa, diêm, kim loại kiềm, pháo hoa, len, lông thú, chất cháy < 3 kg/m³: " + NOLIMIT }, s: { req: v.a >= 100, why: "≥ 100 m²" }, ref: "Bảng A.3 mục 1.2" };
+    if (v.lanh) return { r: { req: v.a >= 300, why: "kho lạnh: ≥ 300 m²" }, s: { req: false, why: "kho lạnh: không yêu cầu (—)" }, ref: "Bảng A.3 mục 1.6" };
+    if (H === "A" || H === "B") return { r: { req: true, why: NOLIMIT }, s: { req: v.a >= 300, why: "≥ 300 m²" }, ref: "Bảng A.3 mục 1.1" };
+    if (H === "C1") return v.bas ? { r: { req: true, why: NOLIMIT + " (tầng hầm)" }, s: { req: v.a >= 100, why: "tầng hầm: ≥ 100 m²" }, ref: "Bảng A.3 mục 1.4.1" } : { r: { req: v.a >= 300, why: "≥ 300 m²" }, s: { req: v.a >= 300, why: "≥ 300 m²" }, ref: "Bảng A.3 mục 1.4.2" };
+    if (H === "C2" || H === "C3") return v.bas ? { r: { req: v.a >= 300, why: "tầng hầm: ≥ 300 m²" }, s: { req: v.a >= 300, why: "tầng hầm: ≥ 300 m²" }, ref: "Bảng A.3 mục 1.5.1" } : { r: { req: v.a >= 1000, why: "≥ 1 000 m²" }, s: { req: v.a >= 1000, why: "≥ 1 000 m²" }, ref: "Bảng A.3 mục 1.5.2" };
+  } else {
+    if (v.special) return { r: { req: true, why: "phòng SX chất lỏng dễ cháy, phòng sơn, tổng hợp cao su…: " + NOLIMIT }, s: { req: true, why: NOLIMIT }, ref: "Bảng A.3 mục 2.4" };
+    if (H === "A" || H === "B") return { r: { req: true, why: NOLIMIT }, s: { req: v.a >= 300, why: "≥ 300 m²" }, ref: "Bảng A.3 mục 2.1" };
+    if (H === "C1") return v.bas ? { r: { req: true, why: NOLIMIT }, s: { req: true, why: NOLIMIT + " (tầng hầm)" }, ref: "Bảng A.3 mục 2.2.1" } : { r: { req: true, why: NOLIMIT }, s: { req: v.a >= 300, why: "≥ 300 m²" }, ref: "Bảng A.3 mục 2.2.2" };
+    if (H === "C2" || H === "C3") {
+      if (v.bas && !v.direct) return { r: { req: true, why: NOLIMIT }, s: { req: v.a >= 300, why: "tầng hầm, không có lối ra ngoài trực tiếp: ≥ 300 m²" }, ref: "Bảng A.3 mục 2.3.1.1" };
+      if (v.bas) return { r: { req: false, why: "tầng hầm có lối ra ngoài trực tiếp: không yêu cầu (—)" }, s: { req: v.a >= 700, why: "≥ 700 m²" }, ref: "Bảng A.3 mục 2.3.1.2" };
+      return { r: { req: v.a >= 300, why: "≥ 300 m²" }, s: { req: v.a >= 1000, why: "≥ 1 000 m²" }, ref: "Bảng A.3 mục 2.3.2" };
+    }
+  }
+  const x = { req: false, why: `hạng ${H}: Bảng A.3 không quy định; gian hạng C4 (trong nhà F5) và hạng E được loại trừ (1.5.11)` };
+  return { r: x, s: x, ref: "1.5.11" };
+}
+
+// Bảng B.1 — họng nước trong nhà
+const B1 = {
+  "1.1": v => ({ req: v.n >= 7, why: "≥ 7 tầng" }),
+  "1.2": v => ({ req: v.n >= 5 || v.a >= 1500, why: "≥ 5 tầng hoặc ≥ 1 500 m²" }),
+  "1.3": v => ({ req: v.kids >= 100 || v.n >= 3 || v.a >= 1000, why: "≥ 100 cháu hoặc ≥ 3 tầng hoặc ≥ 1 000 m²" }),
+  "1.4": v => ({ req: v.n >= 3 || v.a >= 600, why: "≥ 3 tầng hoặc ≥ 600 m²" }),
+  "1.5": v => ({ req: v.n >= 6 || v.a >= 1500, why: "≥ 6 tầng hoặc ≥ 1 500 m²" }),
+  "1.6": v => ({ req: v.seats >= 300 || v.a >= 1000, why: "≥ 300 chỗ ngồi hoặc ≥ 1 000 m²" }),
+  "1.7": v => ({ req: v.a >= 1500, why: "≥ 1 500 m²" }),
+  "1.8": v => ({ req: v.n >= 6 || v.a >= 1500, why: "≥ 6 tầng hoặc ≥ 1 500 m²" }),
+  "1.9": v => v.bas ? { req: true, why: "tầng hầm: " + NOLIMIT + " (1.9.1)" } : v.n <= 2 ? { req: v.a >= 300, why: "1 – 2 tầng: ≥ 300 m² (1.9.2.1)" } : { req: true, why: "≥ 3 tầng: " + NOLIMIT + " (1.9.2.2)" },
+  "1.10": v => ({ req: true, why: NOLIMIT }),
+  "1.11": v => ({ req: v.n >= 6 || v.a >= 1500, why: "≥ 6 tầng hoặc ≥ 1 500 m²" }),
+  "1.12": v => ({ req: v.n >= 6 || v.a >= 1500, why: "≥ 6 tầng hoặc ≥ 1 500 m²" }),
+  "2": v => v.hang === "E" ? { req: false, why: "hạng E: Bảng B.1 mục 2 chỉ quy định hạng A, B, C, D" } : { req: v.a >= 500, why: "hạng A, B, C, D: ≥ 500 m²" },
+  "3": v => v.gara === "ho" ? { req: v.a >= 1000, why: "dạng hở: ≥ 1 000 m² (3.2)" } : { req: v.a >= 150, why: "dạng kín: ≥ 150 m² (3.1)" },
+  "4": v => ({ req: v.len >= 500, why: "chiều dài ≥ 500 m" }),
+  "5": v => ({ req: v.a >= 1000, why: "≥ 1 000 m²" })
+};
+
+/* Danh mục loại nhà. a1: mục Bảng A.1 (hoặc "kho"/"sx"); b1: mục Bảng B.1; h5: dòng Bảng H.5 (cc chung cư, hc hành chính, rap, cong, xe, ham, f5);
+   og: nhóm Bảng H.2 (F13 | F) ; need: ô nhập bổ sung; c1, e1, f1, g1: cờ phụ lục; pump: bơm phải điều khiển tay tại phòng bơm và tự động (2.4.2) */
+const T = [
+  { id: "nha-o-kd", n: "Nhà ở riêng lẻ kết hợp kinh doanh dịch vụ (phần KD < 30 %)", k: "nha pho shophouse kinh doanh", g: "F1.4", a1: "1", b1: "1.1", h5: "cong", og: "F13" },
+  { id: "nha-o-sx", n: "Nhà ở riêng lẻ kết hợp sản xuất, KD hàng hóa dễ cháy (phần SX, KD < 30 %)", k: "nha pho xuong", g: "F1.4", a1: "2", b1: "1.1", h5: "cong", og: "F13" },
+  { id: "chung-cu", n: "Chung cư, nhà ở tập thể", k: "can ho apartment", g: "F1.3", a1: "3", b1: "1.2", h5: "cc", og: "F13", e1: 1, g1: "cc", need: ["hl"] },
+  { id: "ktx", n: "Ký túc xá thuộc cơ sở giáo dục", k: "ky tuc xa sinh vien", g: "F1.2", a1: "3", b1: "1.2", h5: "cong", og: "F", g1: "cc" },
+  { id: "mam-non", n: "Nhà trẻ, mẫu giáo, mầm non", k: "nha tre mau giao", g: "F4.1", a1: "4", b1: "1.3", h5: "cong", og: "F", g1: "cc", need: ["kids"] },
+  { id: "truong-hoc", n: "Trường tiểu học, THCS, THPT, đại học, cao đẳng, dạy nghề", k: "truong hoc giao duc", g: "F4.1", a1: "5", b1: "1.4", h5: "cong", og: "F", e1: 1, g1: "cc" },
+  { id: "bao-tro", n: "Cơ sở bảo trợ xã hội", k: "bao tro xa hoi", g: "F1.1", a1: "5", b1: null, h5: "cong", og: "F", g1: "cc" },
+  { id: "benh-vien", n: "Bệnh viện (nhà khám, chữa bệnh, lưu trú bệnh nhân)", k: "benh vien y te noi tru", g: "F1.1", a1: "6", b1: "1.4", h5: "cong", og: "F", c1: "bv", e1: 1, g1: "ppl", cs: 1, need: ["ppl"] },
+  { id: "phong-kham", n: "Phòng khám, nhà hộ sinh, trạm y tế, phục hồi chức năng", k: "phong kham tram y te", g: "F3.4", a1: "6", b1: "1.4", h5: "cong", og: "F", g1: "cc", cs: 1 },
+  { id: "duong-lao", n: "Nhà dưỡng lão", k: "duong lao nguoi gia", g: "F1.1", a1: "7", b1: "1.4", b1w: 1, h5: "cong", og: "F", g1: "ppl", need: ["ppl"] },
+  { id: "the-thao", n: "Nhà thi đấu, tập luyện thể thao", k: "the thao san van dong gym", g: "F2.1", a1: "8", b1: "1.5", h5: "cong", og: "F", g1: "cc", need: ["seats"] },
+  { id: "nha-hat", n: "Nhà hát, rạp chiếu phim, rạp xiếc", k: "rap phim cinema hoi truong", g: "F2.1", a1: "9", b1: "1.6", h5: "rap", og: "F", e1: 1, g1: "ppl", pump: 1, need: ["seats", "ppl"] },
+  { id: "thu-vien", n: "Thư viện", k: "thu vien", g: "F2.1", a1: "10", b1: "1.7", h5: "cong", og: "F", g1: "cc", cs: 1 },
+  { id: "bao-tang", n: "Bảo tàng, nhà triển lãm, nhà trưng bày", k: "bao tang trien lam", g: "F2.2", a1: "11", b1: "1.5", h5: "cong", og: "F", g1: "cc", need: ["bas"] },
+  { id: "van-hoa", n: "Nhà văn hóa, trung tâm hội nghị, nhà đa năng", k: "hoi nghi da nang", g: "F2.1", a1: "12", b1: "1.7", h5: "cong", og: "F", g1: "cc", cs: 1 },
+  { id: "karaoke", n: "Karaoke, vũ trường", k: "karaoke vu truong bar", g: "F2.1", a1: "13", b1: "1.9", h5: "cong", og: "F", e1: 1, f1: "kara", g1: "ppl", pump: 1, need: ["bas", "ppl", "room"] },
+  { id: "ton-giao", n: "Nhà tôn giáo, tín ngưỡng; di tích cấp tỉnh trở lên", k: "chua nha tho den dinh di tich", g: "F2.1", a1: "14", b1: "1.5", h5: "cong", og: "F", g1: "cc" },
+  { id: "cho-tttm", n: "Chợ hạng 1, hạng 2; trung tâm thương mại", k: "cho tttm mall", g: "F3.1", a1: "15", b1: "1.10", h5: "cong", og: "F", c1: "all", e1: 1, g1: "cc", pump: 1, need: ["bas"] },
+  { id: "sieu-thi", n: "Siêu thị; chợ khác theo quy hoạch", k: "sieu thi cho", g: "F3.1", a1: "15", b1: "1.10", h5: "cong", og: "F", g1: "cc", pump: 1, need: ["bas"] },
+  { id: "nha-hang", n: "Nhà hàng, cửa hàng ăn uống, nhà ăn", k: "nha hang quan an cafe", g: "F3.2", a1: "16", b1: "1.11", h5: "cong", og: "F", g1: "cc", cs: 1 },
+  { id: "vui-choi", n: "Vui chơi giải trí, thủy cung, biểu diễn nghệ thuật", k: "vui choi giai tri thuy cung", g: "F2.1", a1: "16", b1: "1.5", h5: "cong", og: "F", g1: "cc", cs: 1 },
+  { id: "cua-hang", n: "Cửa hàng điện máy, bách hóa, tiện ích, hàng dễ cháy", k: "cua hang tien loi bach hoa dien may", g: "F3.1", a1: "17", b1: "1.7", h5: "cong", og: "F", g1: "cc", need: ["bas"] },
+  { id: "chat-long", n: "Nhà kinh doanh chất lỏng cháy, dễ cháy", k: "xang dau son dung moi", g: "F3.1", a1: "17.3", b1: null, h5: "cong", og: "F", g1: "cc" },
+  { id: "khach-san", n: "Khách sạn, nhà khách, nhà nghỉ, lưu trú", k: "khach san nha nghi homestay", g: "F1.2", a1: "18", b1: "1.2", h5: "cong", og: "F", e1: 1, f1: "ks", g1: "cc", pump: 1 },
+  { id: "buu-dien", n: "Bưu điện, bưu cục, bưu chính viễn thông", k: "buu dien vien thong", g: "F3.5", a1: "19", b1: "1.8", h5: "cong", og: "F", g1: "cc" },
+  { id: "van-phong", n: "Trụ sở, văn phòng làm việc, nghiên cứu", k: "van phong tru so office", g: "F4.3", a1: "20", b1: "1.8", h5: "hc", og: "F", e1: 1, g1: "cc", cs: 1 },
+  { id: "hon-hop", n: "Nhà hỗn hợp, chung cư mục đích hỗn hợp", k: "hon hop mixed use", g: "F1.3+", a1: "21", b1: "1.2", h5: "cong", og: "F", g1: "cc", cs: 1, need: ["kara"] },
+  { id: "ga-hk", n: "Nhà ga cảng hàng không", k: "san bay nha ga", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "all", pump: 1 },
+  { id: "ga-ds", n: "Nhà ga, đề-pô đường sắt, đường sắt đô thị; ga cáp treo", k: "ga tau metro depot cap treo", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "all", pump: 1 },
+  { id: "ben-xe", n: "Bến xe khách, trạm dừng nghỉ, cảng cạn, dịch vụ cảng, bến", k: "ben xe tram dung nghi cang", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "td", e1: 1, g1: "cc", pump: 1 },
+  { id: "kslk", n: "Đài kiểm soát không lưu", k: "khong luu", g: "F4.3", a1: "23", b1: "1.12", h5: "cong", og: "F", g1: "cc" },
+  { id: "dang-kiem", n: "Xưởng kiểm định, trung tâm đăng kiểm", k: "dang kiem", g: "F5.1", a1: "24", b1: "1.5", h5: "cong", og: "F" },
+  { id: "de-xe", n: "Nhà để xe ô tô, xe máy; trưng bày ô tô, xe máy", k: "garage gara bai do xe parking", g: "F5.2", a1: "25", b1: "3", h5: "xe", og: "F5", g1: "xe", need: ["gara", "bacS", "cho", "kv"] },
+  { id: "gara-ck", n: "Gara ô tô cơ khí", k: "gara co khi tu dong robot", g: "F5.2", a1: "26", b1: null, h5: "xe", og: "F5", need: ["cho"] },
+  { id: "ky-thuat-mb", n: "Nhà kỹ thuật máy bay", k: "hangar may bay", g: "F5.1", a1: "27", b1: "5", h5: "f5", og: "F5", c1: "all", need: ["bacS", "hang"] },
+  { id: "ham", n: "Hầm giao thông đường bộ (hầm ô tô)", k: "ham duong bo tunnel", g: "—", a1: "28", b1: "4", h5: "ham", og: "ham", c1: "ham", g1: "ham", need: ["len"] },
+  { id: "nong-san", n: "Nhà chế biến, lưu trữ nông sản dạng hạt", k: "kho lua gao ngu coc", g: "F5", a1: "29", b1: "2", h5: "f5", og: "F5", e1: 1, need: ["bacS", "hang", "open"] },
+  { id: "kho", n: "Nhà kho", k: "kho hang logistics", g: "F5.2", a1: "kho", b1: "2", h5: "f5", og: "F5", e1: 1, pump: "abc1", need: ["bacS", "hang", "bas", "gia", "khoSp"] },
+  { id: "san-xuat", n: "Nhà sản xuất", k: "nha xuong nha may factory", g: "F5.1", a1: "sx", b1: "2", h5: "f5", og: "F5", e1: 1, g1: "sx", pump: "abc1", need: ["bacS", "hang", "bas", "direct", "sxSp", "ppl"] }
+];
+const TI = Object.fromEntries(T.map(t => [t.id, t]));
+
+/* Bảng H.2 — lưu lượng ngoài nhà nhóm F1 – F4 (L/s); cột theo khối tích (nghìn m³) */
+const H2 = { F13: [[10, 10, 15, 15, 20], [10, 15, 15, 20, 20], [null, 20, 20, 25, 25], [null, 20, 25, 25, 30]],
+             F:   [[10, 10, 15, 20, 25], [10, 15, 20, 25, 30], [null, 20, 25, 30, 35], [null, 25, 30, 30, 35]] };
+const H2V = [1, 5, 25, 50];
+/* Bảng H.3 — F5 có lỗ mở trên mái, hoặc rộng ≤ 60 m */
+const H3V = [3, 5, 20, 50, 200, 400, 600];
+const H3 = [
+  [["I", "II"], ["S0", "S1"], ["D", "E"], [10, 10, 10, 10, 15, 20, 25, 35]],
+  [["I", "II"], ["S0", "S1"], ["A", "B", "C"], [10, 10, 15, 20, 30, 35, 40, 50]],
+  [["III"], ["S0", "S1"], ["D", "E"], [10, 10, 15, 25, 35, 40, 45, null]],
+  [["III"], ["S0"], ["A", "B", "C"], [10, 15, 20, 30, 45, 60, 75, null]],
+  [["IV"], ["S0", "S1"], ["D", "E"], [10, 15, 20, 30, 40, 50, 60, null]],
+  [["IV"], ["S0", "S1"], ["A", "B", "C"], [15, 20, 25, 40, 60, 80, 100, null]],
+  [["IV"], ["S2", "S3"], ["E"], [10, 15, 20, 30, 45, null, null, null]],
+  [["IV"], ["S2", "S3"], ["A", "B", "C"], [15, 20, 25, 40, 65, null, null, null]],
+  [["V"], ["S0", "S1", "S2", "S3"], ["E"], [10, 15, 20, 30, 55, null, null, null]],
+  [["V"], ["S0", "S1", "S2", "S3"], ["C"], [15, 20, 25, 40, 70, null, null, null]]
+];
+/* Bảng H.4 — F5 không có lỗ mở trên mái, rộng > 60 m */
+const H4V = [50, 100, 200, 300, 400, 500, 600, 700];
+const H4 = [
+  [["I", "II"], ["S0", "S1"], ["A", "B", "C"], [20, 30, 40, 50, 60, 70, 80, 90, 100]],
+  [["I", "II"], ["S0"], ["D", "E"], [10, 15, 20, 25, 30, 35, 40, 45, 50]],
+  [["III"], ["S0", "S1"], ["A", "B", "C"], [40, 50, 60, 60, 70, 80, 90, 100, 110]],
+  [["III"], ["S0", "S1"], ["D", "E"], [20, 35, 40, 40, 45, 45, 50, 50, 60]],
+  [["IV"], ["S0", "S1"], ["A", "B", "C"], [50, 60, 65, 70, 80, 90, null, null, null]],
+  [["IV"], ["S0", "S1"], ["D", "E"], [35, 45, 55, 60, 65, 70, 75, 80, 90]],
+  [["IV"], ["S2", "S3"], ["E"], [40, 50, 60, null, null, null, null, null, null]]
+];
+const hangMain = h => (h || "").startsWith("C") ? "C" : h;
+function colOf(bounds, x) { let i = 0; while (i < bounds.length && x > bounds[i] * 1000) i++; return i; }
+function outdoorFlow(t, v) {
+  const vol = +v.vol || 0;
+  if (t.og === "ham") return { q: 10, why: "Hầm giao thông đường bộ: tối thiểu 10 L/s (H.1.2 CT8)", tbl: "H.1.2" };
+  if (!vol) return { q: null, why: "Nhập khối tích nhà để tra Bảng H.2 – H.4" };
+  if (t.og === "F13" || t.og === "F") {
+    const row = v.n <= 3 ? 0 : v.n <= 12 ? 1 : v.n <= 16 ? 2 : 3;
+    const col = colOf(H2V, vol);
+    let qv = H2[t.og][row][col];
+    const rural = v.rural && row === 0 && col <= 1;
+    if (rural) qv = 5;
+    if (qv == null) return { q: null, why: "Bảng H.2 không có giá trị (—) cho khối tích ≤ 1 000 m³ với nhà > 12 tầng" };
+    return { q: qv, why: `Bảng H.2 — ${t.og === "F13" ? "F1.3, F1.4" : "F1.1, F1.2, F2 – F4"}, ${["≤ 3", "> 3 – ≤ 12", "> 12 – ≤ 16", "> 16"][row]} tầng, khối tích ${["≤ 1", "> 1 – ≤ 5", "> 5 – ≤ 25", "> 25 – ≤ 50", "> 50"][col]} nghìn m³${rural ? " (nông thôn: 5 L/s)" : ""}`, tbl: "Bảng H.2" };
+  }
+  if (t.og === "F5") {
+    const H = hangMain(v.hang || "C2"), wide = !v.roof && v.w60;
+    const T_ = wide ? H4 : H3, V_ = wide ? H4V : H3V;
+    const r = T_.find(x => x[0].includes(v.bac) && x[1].includes(v.S) && x[2].includes(H));
+    if (!r) return { q: null, why: `${wide ? "Bảng H.4" : "Bảng H.3"} không có dòng cho bậc ${v.bac}, ${v.S}, hạng ${H} — đối chiếu nguyên văn` };
+    const col = colOf(V_, vol); const qv = r[3][col];
+    if (qv == null) return { q: null, why: `${wide ? "Bảng H.4" : "Bảng H.3"}: ô “—” với khối tích này (bậc ${v.bac}, ${v.S}, hạng ${H}) — giải pháp không phù hợp, xem lại bậc chịu lửa` };
+    let add = 0; if (v.bac === "II" && v.wood) add = 5;
+    return { q: qv + add, why: `${wide ? "Bảng H.4 (không lỗ mở mái, rộng > 60 m)" : "Bảng H.3"} — bậc ${v.bac}, ${v.S}, hạng ${H}${add ? " +5 L/s kết cấu gỗ (CT5)" : ""}`, tbl: wide ? "Bảng H.4" : "Bảng H.3" };
+  }
+  return { q: null, why: "" };
+}
+
+/* Bảng H.5, H.6 — số tia và lưu lượng mỗi tia */
+const H6 = [
+  [["I", "II"], null, ["A", "B", "C"], ["S0", "S1"], [2, 2.5], [3, 2.5]],
+  [["I", "II"], null, ["D", "E"], null, [1, 2.5], [1, 2.5]],
+  [["III"], null, ["A", "B", "C"], ["S0"], [2, 2.5], [3, 2.5]],
+  [["III"], null, ["D", "E"], ["S0", "S1"], [1, 2.5], [2, 2.5]],
+  [["IV"], null, ["A", "B"], ["S0"], [2, 2.5], [3, 2.5]],
+  [["IV"], null, ["C"], ["S0", "S1"], [2, 2.5], [2, 5]],
+  [["IV"], null, ["C"], ["S2", "S3"], [3, 2.5], [4, 2.5]],
+  [["IV"], null, ["D", "E"], null, [1, 2.5], [2, 2.5]],
+  [["V"], null, ["C"], null, [2, 2.5], [2, 5]],
+  [["V"], null, ["D", "E"], null, [1, 2.5], [2, 2.5]]
+];
+function indoorJets(t, v) {
+  const vol = +v.vol || 0;
+  const big = vol > 25000;
+  if (t.h5 === "ham") return { n: 1, q: 5, why: "Hầm đường bộ: ≥ 01 tia × 5 L/s (Bảng H.5 CT1)", ref: "Bảng H.5" };
+  if (t.h5 === "xe") {
+    if (v.ngan && v.n <= 2) return { n: 0, q: 0, why: "Nhà để xe ô tô 1 – 2 tầng dạng ngăn có lối ra ngoài trời từng ngăn: được không đặt đường ống họng nước (Bảng H.5 CT2)", ref: "Bảng H.5" };
+    if (v.gara === "ho") return { n: null, why: "Nhà để xe dạng hở: Bảng H.5 CT2 chỉ quy định dạng kín — xác định theo công năng tương tự", ref: "Bảng H.5" };
+    const kc = +v.kc || vol;
+    if (!kc) return { n: null, why: "Nhập khối tích (khoang cháy) để tra Bảng H.5 CT2", ref: "Bảng H.5" };
+    if (kc < 500) return { n: null, why: "Khoang cháy < 500 m³: Bảng H.5 CT2 không quy định", ref: "Bảng H.5" };
+    return kc <= 5000 ? { n: 2, q: 2.5, why: "Nhà để xe kín, khoang cháy 500 – 5 000 m³: 2 lăng × 2,5 L/s (Bảng H.5 CT2)", ref: "Bảng H.5" } : { n: 2, q: 5, why: "Nhà để xe kín, khoang cháy > 5 000 m³: 2 lăng × 5 L/s (Bảng H.5 CT2)", ref: "Bảng H.5" };
+  }
+  if (t.h5 === "f5") {
+    if (v.h > 50 && ["A", "B", "C"].includes(hangMain(v.hang))) return { n: 4, q: 5, why: "Nhà F5 hạng A, B, C cao PCCC > 50 m: 4 tia × 5 L/s (H.2.2)", ref: "H.2.2" };
+    const H = hangMain(v.hang || "C2");
+    const r = H6.find(x => x[0].includes(v.bac) && x[2].includes(H) && (!x[3] || x[3].includes(v.S)));
+    if (!r) return { n: null, why: `Bảng H.6 không có dòng bậc ${v.bac}, hạng ${H}, ${v.S} — đối chiếu nguyên văn`, ref: "Bảng H.6" };
+    const c = vol > 150000 ? r[5] : r[4];
+    let add = 0, addWhy = "";
+    if ((["III", "IV"].includes(v.bac) && ["S2", "S3"].includes(v.S) && v.steel) || v.wood) { add += 5; addWhy += " +5 L/s (thép không bảo vệ / gỗ, H.2.3)"; }
+    if (v.bac === "IV" && ["S2", "S3"].includes(v.S) && v.combust) { const k = vol <= 10000 ? 1 : 1 + Math.ceil((vol - 10000) / 100000); add += 5 * k; addWhy += ` +${5 * k} L/s (vật liệu cháy bao quanh, H.2.3)`; }
+    return { n: c[0], q: c[1], add, why: `Bảng H.6 — bậc ${v.bac}, hạng ${H}, ${v.S}, khối tích ${vol > 150000 ? "> 150" : "≤ 150"} nghìn m³: ${c[0]} × ${fmtN(c[1])} L/s${addWhy}`, ref: "Bảng H.6" };
+  }
+  if (v.h > 50 && t.h5 !== "cc") return { n: 4, q: 2.5, why: "Phần nhà công cộng cao PCCC > 50 m: 4 tia × 2,5 L/s (H.2.2)", ref: "H.2.2" };
+  if (t.h5 === "cc") {
+    if (v.n > 25) return { n: null, why: "Bảng H.5 chỉ quy định chung cư đến 25 tầng — đối chiếu nguyên văn và H.2.2", ref: "Bảng H.5" };
+    const k = v.n <= 16 ? (v.hl ? 2 : 1) : (v.hl ? 3 : 2);
+    return { n: k, q: 2.5, why: `Chung cư ${v.n <= 16 ? "≤ 16" : "17 – 25"} tầng, hành lang chung ${v.hl ? "> 10 m" : "≤ 10 m"}: ${k} × 2,5 L/s (Bảng H.5 mục 1)`, ref: "Bảng H.5" };
+  }
+  if (t.h5 === "rap") return v.seats > 300 ? { n: 2, q: 5, why: "Nhà hát, rạp > 300 chỗ: 2 × 5 L/s (Bảng H.5 mục 3)", ref: "Bảng H.5" } : { n: 2, q: 2.5, why: "Nhà hát, rạp ≤ 300 chỗ: 2 × 2,5 L/s (Bảng H.5 mục 3)", ref: "Bảng H.5" };
+  if (!vol) return { n: null, why: "Nhập khối tích để tra Bảng H.5 (mốc 25 000 m³)", ref: "Bảng H.5" };
+  const k = v.n <= 10 ? (big ? 2 : 1) : (big ? 3 : 2);
+  return { n: k, q: 2.5, why: `${t.h5 === "hc" ? "Nhà hành chính (mục 2)" : "Nhà công cộng (mục 4)"}, ${v.n <= 10 ? "≤ 10" : "> 10"} tầng, khối tích ${big ? "> 25 000" : "≤ 25 000"} m³: ${k} × 2,5 L/s (Bảng H.5)`, ref: "Bảng H.5" };
+}
+function minJet(t, v) {
+  if (t.h5 === "ham") return 6;
+  if (v.h > 50) return t.og === "F13" ? 8 : 16;
+  return 6;
+}
+
+/* ---------- đánh giá ---------- */
+function ctEvaluate(t, v) {
+  const out = [];
+  const S1 = { t: "Báo cháy, chữa cháy tự động — Phụ lục A", items: [] };
+  const push = (sec, lv, txt, ref) => sec.items.push({ lv, txt, ref });
+  let alarm, spr, aref = "Bảng A.1 mục " + t.a1;
+  if (t.a1 === "kho" || t.a1 === "sx") {
+    let done = false;
+    if (t.a1 === "kho" && v.gia && hangMain(v.hang) === "C") { alarm = { req: true, why: "kho hạng C, hàng trên giá đỡ cao > 5,5 m: " + NOLIMIT }; spr = alarm; aref = "Bảng A.1 mục 30"; done = true; }
+    else if (t.a1 === "kho" && ["B", "C"].includes(hangMain(v.hang)) && v.n >= 2) { alarm = { req: true, why: "kho hạng B, C cao ≥ 2 tầng: " + NOLIMIT }; spr = alarm; aref = "Bảng A.1 mục 31"; done = true; }
+    if (!done) { const r = a3F5(v, t.a1); alarm = r.r; spr = r.s; aref = r.ref; }
+  } else {
+    const rule = A1[t.a1];
+    alarm = rule.r(v); spr = rule.s(v);
+    if (["6", "10", "12", "16", "20", "21"].includes(t.a1) && ["IV", "V"].includes(v.bac)) {
+      if (!alarm.req && v.a >= 200) alarm = { req: true, tbdl: false, why: "bậc chịu lửa IV, V: ≥ 200 m² (Bảng A.1 Chú thích 1)" };
+      if (!spr.req && v.a >= 1200) spr = { req: true, why: "bậc chịu lửa IV, V: ≥ 1 200 m² (Bảng A.1 Chú thích 1)" };
+    }
+  }
+  if (t.id === "hon-hop" && v.kara && !spr.req) spr = { req: true, why: "có karaoke, vũ trường từ tầng 3 trở lên → cho toàn bộ nhà (Bảng A.1 ghi chú ⁽¹⁾)" };
+  push(S1, alarm.req ? (alarm.tbdl ? "alt" : "req") : "no", "**Hệ thống báo cháy tự động** — " + alarm.why, aref);
+  if (alarm.req && alarm.tbdl) push(S1, "info", "Thiết bị báo cháy độc lập lắp trong cùng nhà phải **liên kết** với nhau, cùng phát tín hiệu khi một thiết bị kích hoạt", "1.4.11");
+  const addr = (t.id === "benh-vien" && v.a >= 3000) || (t.id === "duong-lao" && v.a >= 3000) || (v.h >= 75 && !["F5", "ham"].includes(t.og));
+  if (alarm.req && addr) push(S1, "req", "**Báo cháy địa chỉ** khi xây dựng mới — " + (v.h >= 75 ? "nhà dân dụng chiều cao PCCC ≥ 75 m" : (t.id === "duong-lao" ? "nhà dưỡng lão" : "nhà điều trị nội trú / bệnh viện tâm thần") + " ≥ 3 000 m²"), "Bảng A.1 Chú thích 2");
+  push(S1, spr.req ? "req" : "no", "**Hệ thống chữa cháy tự động** — " + spr.why, aref);
+  if (spr.req && t.id === "chung-cu" && v.h <= 100) push(S1, "info", "Căn hộ F1.3 cao PCCC ≤ 100 m: được chỉ bố trí **đầu phun sprinkler tại cửa căn hộ** (phía trong căn hộ)", "1.5.12");
+  if (spr.req && ["cho-tttm", "sieu-thi"].includes(t.id)) push(S1, "info", "Được không lắp sprinkler tại khu trưng bày hàng **không cháy**; khu lưu trữ, chế biến thịt, cá, rau quả", "Bảng A.1 ghi chú ⁽³⁾");
+  if (t.id === "hon-hop") push(S1, v.kara ? "req" : "info", v.kara ? "Có **karaoke, vũ trường từ tầng 3** (hoặc phần karaoke thuộc diện) → chữa cháy tự động **cho toàn bộ nhà**" : "Phần công năng nào thuộc diện chữa cháy tự động theo Bảng A.1 → trang bị **cho phần đó**; quy tắc 70 % xác định nhà hỗn hợp", "Bảng A.1 ghi chú ⁽¹⁾; 1.5.8");
+  if (["nha-o-kd", "nha-o-sx"].includes(t.id)) push(S1, "info", "Được chỉ trang bị báo cháy tại **khu vực SX, KD**; mỗi tầng ở có thiết bị cảnh báo âm thanh liên động. Phần SX, KD 30 – 70 % → như nhà hỗn hợp; > 70 % → theo công năng SX, KD", "Bảng A.1 ghi chú ⁽²⁾");
+  if (t.og === "F5" && spr.req && v.ceil10) push(S1, "info", "Gian F5 cao ≤ 10 m có chữa cháy tự động liên động trung tâm báo cháy → được **không** lắp đầu báo cháy tự động", "1.5.6");
+  push(S1, "info", "Xét tiếp **hạng mục** (Bảng A.2: hầm cáp, trần giả ≥ 0,35 m…), **gian phòng** (Bảng A.3: kho, phòng máy chủ ≥ 24 m², gian thương mại…), **thiết bị** (Bảng A.4: máy biến áp dầu…). Loại trừ: khu ướt, vệ sinh, buồng thang, khoang đệm, gian hạng E (1.5.11)", "1.5.9; 1.5.11");
+  out.push(S1);
+
+  const S2 = { t: "Nước chữa cháy trong nhà — Phụ lục B, H.2", items: [] };
+  let hydr;
+  if (!t.b1) hydr = { req: false, why: "loại nhà không có trong Bảng B.1 — xác định theo nhà có công năng tương tự (1.5.7)" };
+  else hydr = B1[t.b1](v);
+  if (t.id === "hon-hop" && v.kara) hydr = { req: true, why: "nhà hỗn hợp có karaoke, vũ trường từ tầng 3 → cho toàn bộ nhà (Bảng B.1 CT1)" };
+  push(S2, hydr.req ? "req" : (t.b1 ? "no" : "info"), "**Hệ thống họng nước chữa cháy trong nhà** — " + hydr.why + (t.b1w ? " (nhà dưỡng lão: áp dụng mục 1.4 như nhà điều dưỡng — đối chiếu)" : ""), t.b1 ? "Bảng B.1 mục " + t.b1 : "1.5.7");
+  if (hydr.req || spr.req) {
+    const j = indoorJets(t, v);
+    if (j.n) {
+      const tot = j.n * j.q + (j.add || 0);
+      push(S2, "val", `**Số tia × lưu lượng**: ${j.n} × ${fmtN(j.q)} L/s = **${fmtN(tot)} L/s**. ${j.why}`, j.ref);
+      push(S2, "val", `**Thời gian** làm việc **1 h**${spr.req ? " (có chữa cháy tự động bằng nước: bằng thời gian của hệ thống tự động)" : ""} → nước dự trữ cho họng ≈ **${fmtN(tot * 3.6)} m³**`, "H.2.9");
+      if (j.n >= 2) push(S2, "info", "Số tia ≥ 2 → mỗi điểm cháy được **2 tia** từ " + (t.h5 === "cc" && !v.hl ? "một ống đứng (hành lang ≤ 10 m)" : "**2 tủ, 2 ống đứng khác nhau**"), "H.2.4; H.2.11");
+    } else push(S2, "info", j.why, j.ref);
+    const mj = minJet(t, v);
+    push(S2, "val", `**Tia nước đặc tối thiểu ${mj} m** (không nhỏ hơn chiều cao khu vực tới xà, trần). Tia ≤ 4 L/s → họng **DN 50**; > 4 L/s → **DN 65**`, "H.2.7");
+    push(S2, "val", "Miệng họng cao **1,20 m ± 0,15 m**, trong tủ có niêm phong; áp suất tĩnh tại họng thấp nhất **≤ 0,6 MPa** (hệ riêng), giảm áp dư khi **> 0,45 MPa**", "H.2.12; H.2.6");
+    push(S2, "val", v.n >= 17 ? "**Họng chờ tiếp nước** ≥ DN65 ngoài nhà; nhà **≥ 17 tầng** → chia vùng theo chiều cao **≤ 50 m**, có van một chiều" : "**Họng chờ tiếp nước** ngoài nhà, đầu nối ≥ **DN65**, có van một chiều", "H.2.13");
+    if (hydr.req && spr.req) push(S2, "req", "Có cả họng nước và sprinkler → ống nối từ trạm bơm đến **≥ 01 họng lấy nước hai cửa DN65** ở mặt ngoài tường, phía đường giao thông", "H.2.19");
+    const pumpReq = t.pump === 1 || (t.pump === "abc1" && ["A", "B", "C1"].includes(v.hang)) || v.h >= 25;
+    if (pumpReq) push(S2, "req", "Bơm chữa cháy: **điều khiển bằng tay tại phòng bơm và tự động**" + (v.h >= 25 && !t.pump ? " (chiều cao PCCC ≥ 25 m)" : ""), "2.4.2");
+    push(S2, "val", "Phương án họng nước: **PA1** lưu lượng trung bình (mọi công trình)" + (t.og !== "F5" ? "; **PA2** lưu lượng nhỏ + ống họng khô; **PA4** nhỏ + trung bình (nhà ở, công cộng)" : "") + (spr.req ? "; **PA3** lưu lượng nhỏ (có chữa cháy tự động toàn bộ)" : ""), "H.2.18");
+  }
+  const dry = (t.og === "F13" && t.id === "chung-cu" ? v.h > 50 : v.h > 28) || v.deep;
+  if (dry) push(S2, "req", `**Đường ống khô** DN65, họng chờ tại sảnh thang máy chữa cháy hoặc khoang đệm buồng thang N; van một chiều, van xả khí (điểm cao), van xả nước (điểm thấp) — ${v.deep ? "sàn hầm dưới cùng sâu > 9 m" : `chiều cao PCCC > ${t.id === "chung-cu" ? 50 : 28} m`}`, "2.4.4");
+  out.push(S2);
+
+  const S3 = { t: "Nước chữa cháy ngoài nhà — Phụ lục C, H.1", items: [] };
+  let c1 = null;
+  if (t.c1 === "bv") c1 = { req: v.n >= 5 || v.a >= 3000, why: "bệnh viện ≥ 5 tầng hoặc ≥ 3 000 m²", ref: "Bảng C.1 mục 1" };
+  else if (t.c1 === "all") c1 = { req: true, why: "không phụ thuộc quy mô", ref: "Bảng C.1" };
+  else if (t.c1 === "ham") c1 = { req: v.len >= 500, why: "hầm dài ≥ 500 m", ref: "Bảng C.1 mục 4" };
+  else if (t.c1 === "td") c1 = { req: false, info: true, why: "cảng cạn, cảng, bến cấp đặc biệt/cấp I, trạm dừng nghỉ trên **đường cao tốc**: không phụ thuộc quy mô; bến xe khách: không có trong C.1", ref: "Bảng C.1 mục 3" };
+  if (c1) push(S3, c1.req ? "req" : (c1.info ? "info" : "no"), "**Hệ thống cấp nước chữa cháy ngoài nhà riêng** — " + c1.why, c1.ref);
+  else push(S3, "info", "Không có trong mục 1 – 9 Bảng C.1: dùng hệ thống cấp nước chữa cháy của **khu dân cư, khu đô thị, KCN** (mục 10: trụ dọc đường ≤ 150 m)", "Bảng C.1 mục 10; H.1.4.7");
+  push(S3, "info", "Được **miễn** khi mọi điểm của nhà nằm trong **bán kính 400 m** từ trụ nước hoặc bến lấy nước đủ lưu lượng", "2.3.2");
+  const of = outdoorFlow(t, v);
+  if (of.q) {
+    const small = (t.og === "F5" ? of.q <= 20 : of.q <= 15);
+    const hrs = t.og === "F5" && ["I", "II"].includes(v.bac) && ["D", "E"].includes(hangMain(v.hang)) ? 2 : 3;
+    const tm = small ? 1 : hrs;
+    push(S3, "val", `**Lưu lượng ngoài nhà ${of.q} L/s** cho 1 đám cháy. ${of.why}`, of.tbl);
+    push(S3, "val", `**Thời gian chữa cháy ${tm} h**${small ? ` (lưu lượng ≤ ${t.og === "F5" ? 20 : 15} L/s)` : tm === 2 ? " (bậc I, II, hạng D, E)" : ""} → lượng nước ≈ **${fmtN(of.q * tm * 3.6)} m³**`, "H.1.3.3");
+    if (of.q >= 25) push(S3, "req", "Lưu lượng **≥ 25 L/s** → **≥ 02 trụ** trong bán kính 400 m; bơm điều khiển tự động hoặc từ xa + bằng tay tại phòng bơm, chạy **≤ 3 min**", "H.1.4.7; H.3.3");
+  } else if (of.why) push(S3, "info", of.why, of.tbl || "H.1.2");
+  push(S3, "val", "Trụ nước cách mép đường **≤ 2,5 m**, cách tường nhà **≥ 1 m**; bán kính phục vụ **≤ 400 m**", "H.1.4.6; H.1.4.7");
+  out.push(S3);
+
+  const S4 = { t: "Phương tiện khác — Phần 2, Phụ lục E, F, G", items: [] };
+  push(S4, "req", "**Bình chữa cháy** xách tay hoặc có bánh xe cho **mọi khu vực**, kể cả nơi có hệ thống chữa cháy — chọn, tính, bố trí theo **điểm 6, 7 TCVN 7435-1**; bảo dưỡng **6 tháng/lần**", "2.6.1; 1.5.13");
+  push(S4, "req", "**Chiếu sáng sự cố, chỉ dẫn thoát nạn** — theo **TCVN 13456**", "2.2.1");
+  let g1 = null;
+  if (t.g1 === "cc") g1 = { req: v.n > 10 || v.nb >= 2, why: "> 10 tầng hoặc ≥ 2 tầng hầm", ref: "Bảng G.1 mục 1" };
+  else if (t.g1 === "ppl") g1 = { req: v.ppl >= 50 || v.n > 10 || v.nb >= 2, why: "≥ 50 người trên 1 tầng (mục 2) hoặc > 10 tầng, ≥ 2 tầng hầm (mục 1)", ref: "Bảng G.1 mục 2" };
+  else if (t.g1 === "xe") g1 = { req: v.gara !== "ho" && v.a >= 18000, why: "nhà để xe dạng kín ≥ 18 000 m²", ref: "Bảng G.1 mục 3" };
+  else if (t.g1 === "sx") g1 = { req: v.a >= 18000 && v.ppl >= 300, why: "≥ 18 000 m² và ≥ 300 người trên 1 tầng", ref: "Bảng G.1 mục 4" };
+  else if (t.g1 === "ham") g1 = { req: v.len >= 500, why: "hầm dài ≥ 500 m", ref: "Bảng G.1 mục 5" };
+  else if (t.g1 === "all") g1 = { req: true, why: "nhà ga hành khách hàng không, đường sắt, đường sắt đô thị: không phụ thuộc quy mô", ref: "Bảng G.1 mục 6" };
+  if (g1) push(S4, g1.req ? "req" : "no", "**Loa thông báo và hướng dẫn thoát nạn** — " + g1.why + (g1.req ? "; ≥ 75 dBA ở 3 m, vượt ồn ≥ 15 dBA, ≤ 120 dBA" : ""), g1.ref + (g1.req ? "; H.4" : ""));
+  if (t.e1) push(S4, "req", "**Dụng cụ phá dỡ thô sơ**: 01 bộ — rìu ≥ 2 kg, xà beng ≥ 100 cm, búa ≥ 5 kg, kìm cộng lực tải cắt ≥ 60 kg; đặt nơi có người trực PCCC", "Bảng E.1; 2.7.1");
+  if (t.f1 === "ks") push(S4, v.n >= 3 ? "req" : "no", v.n >= 3 ? "**Mặt nạ lọc độc** tại tất cả các tầng: **01 chiếc/01 người** (khách lưu trú và nhân viên thường xuyên)" : "**Mặt nạ lọc độc** — < 3 tầng: không bắt buộc", "Bảng F.1 mục 1");
+  if (t.f1 === "kara") push(S4, "req", `**Mặt nạ lọc độc** tại tất cả các tầng; mỗi tầng = số người trong **phòng lớn nhất** của tầng${v.room ? ` → **${v.room} chiếc/tầng**` : ""}`, "Bảng F.1 mục 2");
+  out.push(S4);
+  return out;
+}
+
+/* ---------- giao diện Tra theo công trình ---------- */
+const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0 };
+let ctV = Object.assign({}, DEF, store.get("q10-ct", {}));
+if (!TI[ctV.id]) ctV.id = DEF.id;
+let ctQ = "";
+function ctList() {
+  if (!ctQ.trim()) return "";
+  const k = norm(ctQ).split(/\s+/).filter(Boolean);
+  return T.filter(t => k.every(x => norm(t.n + " " + t.k + " " + t.g).includes(x))).slice(0, 8).map(t => `<button class="pick" data-ct="${t.id}"><span>${esc(t.n)}</span><b>${t.g}</b></button>`).join("") || `<p class="note">Không thấy loại nhà phù hợp — chọn trong danh sách bên dưới.</p>`;
+}
+function numF(id, label, unit, hint) {
+  return `<label class="fld"><span>${label}</span><span class="inp"><input id="ct-${id}" data-k="${id}" type="text" inputmode="decimal" autocomplete="off" value="${fmtIn(ctV[id])}"><i>${unit}</i></span>${hint ? `<em class="hint2">${hint}</em>` : ""}</label>`;
+}
+function selF(id, label, opts) {
+  return `<label class="fld"><span>${label}</span><select id="ct-${id}" data-k="${id}">${opts.map(o => { const [val, txt] = Array.isArray(o) ? o : [o, o]; return `<option value="${val}"${String(ctV[id]) === String(val) ? " selected" : ""}>${txt}</option>`; }).join("")}</select></label>`;
+}
+function chkF(id, label) { return `<label><input type="checkbox" data-k="${id}" id="ct-${id}"${ctV[id] ? " checked" : ""}> ${label}</label>`; }
+function renderCT() {
+  setHeader("Tra theo công trình"); setNav("cong-trinh");
+  const t = TI[ctV.id], need = t.need || [];
+  const f5 = need.includes("hang");
+  const extra = [];
+  if (need.includes("kids")) extra.push(numF("kids", "Số cháu", "cháu"));
+  if (need.includes("seats")) extra.push(numF("seats", t.id === "the-thao" ? "Chỗ ngồi khán đài" : "Số chỗ ngồi", "chỗ"));
+  if (need.includes("ppl")) extra.push(numF("ppl", "Người trên 1 tầng (lớn nhất)", "người"));
+  if (need.includes("room")) extra.push(numF("room", "Người trong phòng lớn nhất / tầng", "người"));
+  if (need.includes("len")) extra.push(numF("len", "Chiều dài hầm", "m"));
+  if (need.includes("cho")) extra.push(numF("cho", t.id === "gara-ck" ? "Ô đỗ xe mỗi tầng" : "Số chỗ đỗ (nhà để xe ngầm)", "chỗ"));
+  extra.push(selF("bac", "Bậc chịu lửa", ["I", "II", "III", "IV", "V"]));
+  if (need.includes("bacS") || f5) extra.push(selF("S", "Cấp nguy hiểm cháy kết cấu", ["S0", "S1", "S2", "S3"]));
+  if (f5) extra.push(selF("hang", "Hạng nguy hiểm cháy nổ", ["A", "B", "C1", "C2", "C3", "C4", "D", "E"]));
+  if (need.includes("gara")) extra.push(selF("gara", "Dạng nhà để xe", [["kin", "Dạng kín"], ["ho", "Dạng hở"]]));
+  const checks = [];
+  if (need.includes("bas") || need.includes("gara")) checks.push(chkF("bas", t.a1 === "sx" || t.a1 === "kho" ? "Gian bố trí tại tầng hầm, bán hầm" : "Bố trí tại tầng hầm, tầng bán hầm"));
+  if (need.includes("hl")) checks.push(chkF("hl", "Hành lang chung dài > 10 m"));
+  if (need.includes("gara") && ctV.gara === "ho") checks.push(chkF("open12", "Có điểm cách cạnh để hở > 12 m"));
+  if (need.includes("gara")) { checks.push(chkF("xm", "Chỉ lưu giữ, trưng bày xe máy")); checks.push(chkF("ngan", "Dạng ngăn (vách ngăn cháy loại 1, lối ra ngoài trời từng ngăn), mỗi ngăn ≤ 2 xe")); }
+  if (need.includes("gia")) checks.push(chkF("gia", "Hàng xếp trên giá đỡ cao > 5,5 m"));
+  if (need.includes("khoSp")) { checks.push(chkF("special", "Kho cao su, hạt nhựa, diêm, pháo hoa, len, lông thú, chất cháy < 3 kg/m³")); checks.push(chkF("lanh", "Kho lạnh")); }
+  if (need.includes("sxSp")) checks.push(chkF("special", "SX chất lỏng dễ cháy, phòng sơn, tổng hợp cao su, gia nhiệt dầu…"));
+  if (need.includes("direct")) checks.push(chkF("direct", "Gian hầm có lối ra ngoài trực tiếp"));
+  if (need.includes("open")) checks.push(chkF("open", "Nhà dạng hở"));
+  if (need.includes("kara")) checks.push(chkF("kara", "Có karaoke, vũ trường từ tầng 3 (hoặc phần karaoke thuộc diện)"));
+  if (t.og === "F5") { checks.push(chkF("w60", "Không có lỗ mở trên mái và nhà rộng > 60 m (Bảng H.4)")); checks.push(chkF("ceil10", "Gian cao ≤ 10 m, sprinkler liên động trung tâm báo cháy")); }
+  if (f5) { checks.push(chkF("steel", "Kết cấu thép không bảo vệ / gỗ (H.2.3)")); checks.push(chkF("combust", "Vật liệu cháy bao quanh cấu trúc (bậc IV, S2, S3)")); }
+  checks.push(chkF("deep", "Sàn hầm dưới cùng sâu > 9 m"));
+  if (t.og === "F13" || t.og === "F") checks.push(chkF("rural", "Khu vực nông thôn"));
+  view.innerHTML = `
+  <div class="quick ct-form">
+    <label class="fld wide"><span>Loại nhà, công trình</span>
+      <input id="ctq" type="search" autocomplete="off" placeholder="Gõ để đổi: chung cư, karaoke, kho, gara…" value="${esc(ctQ)}"></label>
+    <div id="ctlist" class="picks">${ctList()}</div>
+    <label class="fld"><span>Hoặc chọn</span><select id="ct-id" data-k="id">${T.map(x => `<option value="${x.id}"${x.id === t.id ? " selected" : ""}>${esc(x.n)}</option>`).join("")}</select></label>
+    <div class="grid2">
+      ${numF("n", "Số tầng (1.4.24)", "tầng", "gồm tầng kỹ thuật, tum, bán hầm")}
+      ${numF("h", "Chiều cao PCCC", "m")}
+      ${numF("a", "Tổng diện tích sàn", "m²")}
+      ${numF("vol", "Khối tích nhà", "m³")}
+      ${selF("nb", "Số tầng hầm", [0, 1, 2, 3, 4, 5])}
+      ${extra.join("")}
+    </div>
+    <div class="checks">${checks.join("")}</div>
+  </div>
+  <div id="ctres">${ctResult()}</div>`;
+}
+function ctResult() {
+  const t = TI[ctV.id];
+  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc"].forEach(k => { v[k] = +v[k] || 0; });
+  if (v.n < 1 && !["ham"].includes(t.og)) v.n = 1;
+  const out = ctEvaluate(t, v);
+  const chips = [t.g, `${v.n} tầng`, `${fmtN(v.h)} m`, `${fmtN(v.a)} m²`, v.vol ? `${fmtN(v.vol)} m³` : "", v.nb ? `${v.nb} hầm` : "", `bậc ${v.bac}`].filter(Boolean);
+  const req = out.reduce((s, x) => s + x.items.filter(i => i.lv === "req" || i.lv === "alt").length, 0);
+  return `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>
+  <div class="row-btns"><button class="btn2" id="ctcopy">Sao chép kết quả</button></div><p class="note" id="ctmsg" role="status"></p>` + itemsHTML(out) +
+  `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;
+}
+function ctText() {
+  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
+  const out = ctEvaluate(t, v);
+  const lines = [`${t.n} — ${v.n} tầng, chiều cao PCCC ${fmtN(v.h)} m, ${fmtN(v.a)} m², ${fmtN(v.vol)} m³ (QCVN 10:2025/BCA)`];
+  out.forEach(s => { lines.push("", s.t); s.items.forEach(i => lines.push(`- [${(LV[i.lv] || LV.val)[1] || "Giá trị"}] ${i.txt.replace(/\*\*/g, "")} (${i.ref})`)); });
+  return lines.join("\n");
+}
+function ctSync(full) {
+  view.querySelectorAll("[data-k]").forEach(el => {
+    const k = el.dataset.k;
+    if (el.type === "checkbox") ctV[k] = el.checked;
+    else if (el.tagName === "SELECT") ctV[k] = k === "nb" ? +el.value : el.value;
+    else { const n = parseNum(el.value); ctV[k] = n === "" ? 0 : Math.max(0, n); }
+  });
+  store.set("q10-ct", ctV);
+  if (full) renderCT(); else document.getElementById("ctres").innerHTML = ctResult();
+}
+
+/* ---------- Tính nước ---------- */
+let wV = Object.assign({ pop: 20000, hi: true, ac: 150, mode: "kdc" }, store.get("q10-w", {}));
+const H1 = [[1, 1, 5, 10], [5, 1, 10, 10], [10, 1, 10, 15], [25, 2, 10, 15], [50, 2, 20, 25], [100, 2, 25, 35], [200, 3, 40, 40], [300, 3, 55, 55], [400, 3, 70, 70], [500, 3, 80, 80], [600, 3, 85, 85], [700, 3, 90, 90], [800, 3, 95, 95], [1000, 3, 100, 100], [Infinity, 5, 110, 110]];
+function h1Row(pop) { return H1.find(r => pop <= r[0] * 1000); }
+function renderWater() {
+  setHeader("Tính lưu lượng nước"); setNav("tinh-nuoc");
+  const r = h1Row(+wV.pop || 0);
+  const kd = r ? r[1] : 0, qv = r ? (wV.hi ? r[3] : r[2]) : 0;
+  const ac = +wV.ac || 0;
+  const ct = ac <= 30 ? 0 : ac <= 50 ? 15 : ac <= 100 ? 20 : ac <= 300 ? 25 : ac <= 1000 ? 40 : ac <= 1500 ? 60 : ac <= 2000 ? 80 : 100;
+  view.innerHTML = `
+  <div class="seg tabs" role="tablist" style="grid-template-columns:repeat(3,1fr)"><button role="tab" aria-selected="true" data-go="tinh-nuoc">Khu dân cư</button><button role="tab" data-go="h7">Áp suất họng</button><button role="tab" data-go="cong-truong">Công trường</button></div>
+  <section class="quick w-form"><h2>Bảng H.1 — Khu dân cư</h2>
+    <div class="grid2">
+      <label class="fld"><span>Dân số</span><span class="inp"><input id="w-pop" data-w="pop" type="text" inputmode="decimal" value="${fmtIn(wV.pop)}"><i>người</i></span></label>
+      <label class="fld"><span>Chiều cao nhà</span><select id="w-hi" data-w="hi"><option value="0"${!wV.hi ? " selected" : ""}>Không quá 2 tầng</option><option value="1"${wV.hi ? " selected" : ""}>Từ 3 tầng trở lên</option></select></label>
+    </div>
+    <dl class="kv" id="w-out">
+      <dt>Số đám cháy đồng thời</dt><dd>${kd}</dd>
+      <dt>Lưu lượng 1 đám cháy</dt><dd>${qv} L/s</dd>
+      <dt>Tổng lưu lượng</dt><dd>${kd * qv} L/s</dd>
+      <dt>Lượng nước 3 h</dt><dd>${fmtN(kd * qv * 10.8)} m³</dd>
+    </dl>
+    <p class="note">Lưu lượng khu dân cư không nhỏ hơn lưu lượng cho nhà theo Bảng H.2 (CT1). Số đám cháy gồm cả nhà SX, kho trong khu (CT4). Thời gian phục hồi: ≤ 24 h (> 5 000 người), ≤ 72 h (≤ 5 000 người) — H.1.3.4.</p>
+  </section>
+  <section class="quick w-form" style="margin-top:12px"><h2>Bãi công-ten-nơ (H.1.2 CT7)</h2>
+    <label class="fld"><span>Số công-ten-nơ có hàng</span><span class="inp"><input id="w-ac" data-w="ac" type="text" inputmode="decimal" value="${fmtIn(wV.ac)}"><i>cont</i></span></label>
+    <dl class="kv"><dt>Lưu lượng ngoài nhà</dt><dd>${ct ? ct + " L/s" : "< 30 cont: CT7 không quy định"}</dd></dl>
+  </section>
+  <section class="quick" style="margin-top:12px"><h2>Bổ sung dự trữ (H.1.3.4 CT2)</h2>
+    <p class="note" style="margin-top:0">Không bảo đảm thời gian phục hồi: ΔW = W (K − 1) / K. Ví dụ W = 324 m³, phục hồi thực tế 36 h so với yêu cầu 24 h → K = 1,5 → ΔW = 108 m³.</p>
+  </section>
+  <p class="disclaimer">Lưu lượng cho nhà cụ thể (Bảng H.2 – H.4, H.5 – H.6) tính trong thẻ <a href="#cong-trinh" data-go="cong-trinh">Tra theo công trình</a>.</p>`;
+}
+const H7 = {
+  "50": { 13: [null, null, null, [2.6, .202, .206, .21], [2.8, .236, .241, .245], [3.2, .316, .322, .328], [3.6, .39, .398, .406], null],
+          16: [[2.6, .092, .096, .1], [2.9, .12, .125, .13], [3.3, .151, .157, .164], [3.7, .192, .196, .21], [4.2, .248, .255, .263], [4.6, .293, .3, .318], [5.1, .36, .38, .4], null],
+          19: [[3.4, .088, .096, .104], [4.1, .129, .138, .148], [4.6, .16, .173, .185], [5.2, .206, .223, .24], null, null, null, null] },
+  "65": { 13: [null, null, null, [2.6, .198, .199, .201], [2.8, .23, .231, .233], [3.2, .31, .313, .315], [3.6, .38, .383, .385], [4, .464, .467, .47]],
+          16: [[2.6, .088, .089, .09], [2.9, .11, .112, .114], [3.3, .14, .143, .146], [3.7, .18, .183, .186], [4.2, .23, .233, .235], [4.6, .276, .28, .284], [5.1, .338, .342, .346], [5.6, .412, .424, .418]],
+          19: [[3.4, .078, .08, .083], [4.1, .114, .117, .121], [4.6, .143, .147, .151], [5.2, .182, .19, .199], [5.7, .218, .224, .23], [6.3, .266, .273, .28], [7, .329, .338, .348], [7.5, .372, .385, .397]] }
+};
+const H7H = [6, 8, 10, 12, 14, 16, 18, 20];
+let h7V = Object.assign({ dn: "50", tip: "16", jet: 6, hose: 20 }, store.get("q10-h7", {}));
+function h7Calc(V) {
+  const hi = H7H.findIndex(x => x >= +V.jet);
+  if (hi < 0) return { err: "Bảng H.7 chỉ đến tia đặc 20 m" };
+  const row = H7[V.dn][V.tip][hi];
+  if (!row) return { err: `Không có giá trị cho lăng ${V.tip} mm, DN ${V.dn}, tia ${H7H[hi]} m — chọn lăng khác` };
+  const ci = { 10: 1, 15: 2, 20: 3 }[V.hose];
+  return { jet: H7H[hi], q: row[0], p: row[ci] };
+}
+function renderH7() {
+  setHeader("Áp suất họng nước — Bảng H.7"); setNav("tinh-nuoc");
+  const r = h7Calc(h7V);
+  const sel = (k, lbl, opts) => `<label class="fld"><span>${lbl}</span><select data-h7="${k}">${opts.map(([v, tx]) => `<option value="${v}"${String(h7V[k]) === String(v) ? " selected" : ""}>${tx}</option>`).join("")}</select></label>`;
+  view.innerHTML = `
+  <div class="seg tabs" role="tablist" style="grid-template-columns:repeat(3,1fr)"><button role="tab" data-go="tinh-nuoc">Khu dân cư</button><button role="tab" aria-selected="true" data-go="h7">Áp suất họng</button><button role="tab" data-go="cong-truong">Công trường</button></div>
+  <section class="quick"><h2>Lưu lượng và áp suất theo tia nước đặc</h2>
+    <div class="grid2">
+      ${sel("dn", "Họng nước", [["50", "DN 50"], ["65", "DN 65"]])}
+      ${sel("tip", "Đầu lăng phun", [["13", "13 mm"], ["16", "16 mm"], ["19", "19 mm"]])}
+      ${sel("jet", "Tia nước đặc yêu cầu", H7H.map(x => [x, x + " m"]))}
+      ${sel("hose", "Chiều dài cuộn vòi", [[10, "10 m"], [15, "15 m"], [20, "20 m"]])}
+    </div>
+    ${r.err ? `<p class="note">${esc(r.err)}</p>` : `<dl class="kv"><dt>Lưu lượng lăng phun</dt><dd>${fmtN(r.q)} L/s</dd><dt>Áp suất tại họng</dt><dd>${fmtN(r.p)} MPa</dd><dt>≈ cột nước</dt><dd>${fmtN(r.p * 102)} m</dd></dl>`}
+    <p class="note">Tia đặc tối thiểu: 6 m (≤ 50 m), 8 m (nhà ở > 50 m), 16 m (công cộng, SX > 50 m) — H.2.7. Tia ≤ 4 L/s dùng DN 50, > 4 L/s dùng DN 65 (H.2.7 CT2). Áp suất giữa van và đầu nối > 0,45 MPa phải giảm áp dư (H.2.6).</p>
+  </section>`;
+}
+let csV = Object.assign({ floors: "1200, 1200, 800", road: true }, store.get("q10-cs", {}));
+function csCalc(V) {
+  const fl = String(V.floors).split(/[;\n]|,\s+|\s{2,}/).map(parseNum).filter(x => x !== "" && x > 0);
+  const per = fl.map(a => Math.max(1, Math.ceil(a / 500)) * (V.road ? 1 : 2));
+  return { fl, per, tot: per.reduce((s, x) => s + x, 0) };
+}
+function renderCS() {
+  setHeader("Công trình đang thi công"); setNav("tinh-nuoc");
+  const r = csCalc(csV);
+  view.innerHTML = `
+  <div class="seg tabs" role="tablist" style="grid-template-columns:repeat(3,1fr)"><button role="tab" data-go="tinh-nuoc">Khu dân cư</button><button role="tab" data-go="h7">Áp suất họng</button><button role="tab" aria-selected="true" data-go="cong-truong">Công trường</button></div>
+  <section class="quick"><h2>Bình bột ABC ≥ 4 kg (2.6.5)</h2>
+    <label class="fld"><span>Diện tích sàn từng tầng, kể cả nhà tạm (ngăn bằng dấu chấm phẩy hoặc xuống dòng)</span><textarea id="cs-floors" rows="3" style="width:100%;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;font-size:16px;background:var(--bg);color:var(--ink)">${esc(csV.floors)}</textarea></label>
+    <div class="checks" style="margin-top:8px"><label><input type="checkbox" id="cs-road"${csV.road ? " checked" : ""}> Có đường cho xe chữa cháy tiếp cận</label></div>
+    <dl class="kv" id="cs-out">${r.fl.map((a, i) => `<dt>Tầng ${i + 1}: ${fmtN(a)} m²</dt><dd>${r.per[i]} bình</dd>`).join("")}<dt><b>Tổng</b></dt><dd>${r.tot} bình</dd></dl>
+    <p class="note">≥ 01 bình / 500 m² sàn, xét riêng từng tầng; < 500 m² vẫn ≥ 01 bình. Không có đường cho xe chữa cháy → gấp đôi. Bán kính bảo vệ tối đa 25 m.</p>
+  </section>
+  <section class="quick" style="margin-top:12px"><h2>Yêu cầu khác trên công trường</h2>
+    <ul class="plain">
+      <li><b>Chiếu sáng sự cố</b> ≥ 1 h, độ rọi ≥ 0,5 lux tại phòng máy phát, máy biến áp, phòng bơm (2.2.3)</li>
+      <li><b>≥ 10 tầng hoặc ≥ 28 m</b>, giai đoạn hoàn thiện, lắp cơ điện: ≥ 01 đường ống khô có họng nước đến mỗi tầng, đầu nối ngoài công trình; mỗi họng ≥ 02 cuộn vòi + 01 lăng (2.4.3)</li>
+    </ul>
+  </section>`;
+}
+function renderCompare() {
+  setHeader("Điểm mới cần lưu ý"); setNav("");
+  const rows = [
+    ["Văn bản", "QCVN 10:2025/BCA (bắt buộc) thay vai trò TCVN 3890:2023 trong trang bị phương tiện; TCVN 3890 là tài liệu tham khảo [3]", "Lời nói đầu; Thư mục"],
+    ["Thiết bị báo cháy độc lập", "Được thay hệ thống báo cháy tự động cho nhà nhỏ (cột TBĐL Bảng A.1); phải liên kết nhau", "1.4.11; Bảng A.1"],
+    ["Nhà ở riêng lẻ kết hợp KD", "Báo cháy từ 7 tầng (KD dịch vụ), từ 3 tầng hoặc 500 m² (SX, KD hàng dễ cháy); sprinkler từ 30 m", "Bảng A.1 mục 1, 2"],
+    ["Chung cư", "Báo cháy ≥ 5 tầng hoặc ≥ 700 m²; sprinkler từ 30 m; ≤ 100 m chỉ cần đầu phun tại cửa căn hộ", "Bảng A.1 mục 3; 1.5.12"],
+    ["Bình chữa cháy", "Dẫn chiếu TCVN 7435-1 (điểm 5, 6, 7); bảo dưỡng 6 tháng/lần; công trường 1 bình/500 m²/tầng", "2.6; 1.5.13"],
+    ["Đường ống khô", "Bắt buộc khi cao PCCC > 28 m (F1.3: > 50 m) hoặc hầm sâu > 9 m; công trường ≥ 10 tầng", "2.4.3; 2.4.4"],
+    ["Bình tự kích hoạt", "Thay hệ thống cho khu ≤ 100 m² không thường xuyên có người; bếp, nồi hơi, giặt là ≤ 100 m²", "2.5.4; 2.5.5"],
+    ["Cấp nước ngoài nhà", "Miễn khi trong bán kính 400 m có trụ hoặc bến lấy nước đủ lưu lượng", "2.3.2"],
+    ["Loa thông báo", "Phụ lục G mới: chung cư, công cộng > 10 tầng hoặc ≥ 2 hầm; karaoke, rạp, bệnh viện ≥ 50 người/tầng…", "Bảng G.1; H.4"],
+    ["Mặt nạ", "Khách sạn ≥ 3 tầng: 1 mặt nạ lọc độc/người; karaoke: theo phòng lớn nhất", "Bảng F.1"],
+    ["Hệ thống đóng gói", "Được dùng hệ thống chữa cháy, họng nước Package (TCVN 13926)", "Bảng A.1 ⁽¹⁾; Bảng B.1 CT2"]
+  ];
+  view.innerHTML = `<p class="intro">Các điểm nổi bật khi chuyển từ TCVN 3890:2023 sang QCVN 10:2025/BCA, tóm tắt từ chính văn bản quy chuẩn. Bấm số điều để mở nội dung.</p>
+  <section class="ct-sec"><ul>${rows.map(r => `<li><span class="tx"><b>${esc(r[0])}</b> — ${esc(r[1])}</span><span class="refs">${refHTML(r[2])}</span></li>`).join("")}</ul></section>
+  <p class="disclaimer">Bảng này chỉ tóm tắt nội dung QCVN 10:2025/BCA, không so sánh từng con số với TCVN 3890:2023.</p>`;
+  window.scrollTo(0, 0);
+}
+
+/* ---------- định tuyến ---------- */
+function route() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (q.value.trim()) return renderSearch(q.value.trim());
+  if (!h || h === "home") return renderHome();
+  if (h === "cong-trinh") return renderCT();
+  if (h === "tinh-nuoc") return renderWater();
+  if (h === "h7") return renderH7();
+  if (h === "cong-truong") return renderCS();
+  if (h === "so-sanh") return renderCompare();
+  if (h === "da-luu") return renderSaved();
+  if (SECTIONS[h]) return renderSection(h);
+  renderHome();
+}
+function go(hash, block) {
+  q.value = ""; clearQ.hidden = true;
+  if (block) { const sid = block.split("--")[0]; if (location.hash.slice(1) !== sid) history.replaceState(null, "", "#" + sid); renderSection(sid, block); return; }
+  if (location.hash.slice(1) === hash) route(); else location.hash = hash;
+}
+window.addEventListener("hashchange", route);
+async function copyText(t, msgId) {
+  let ok = false;
+  try { await navigator.clipboard.writeText(t); ok = true; } catch (e) {
+    try { const ta = document.createElement("textarea"); ta.value = t; document.body.appendChild(ta); ta.select(); ok = document.execCommand("copy"); ta.remove(); } catch (e2) {}
+  }
+  const m = document.getElementById(msgId); if (m) m.textContent = ok ? "Đã sao chép." : "Không sao chép được trên trình duyệt này.";
+}
+document.addEventListener("click", e => {
+  const star = e.target.closest("[data-star]");
+  if (star) { e.preventDefault(); e.stopPropagation(); const id = star.dataset.star;
+    saved = saved.includes(id) ? saved.filter(x => x !== id) : [...saved, id]; store.set("q10-saved", saved);
+    const on = saved.includes(id); star.setAttribute("aria-pressed", on); star.setAttribute("aria-label", on ? "Bỏ lưu" : "Lưu mục này"); return; }
+  const rf = e.target.closest("[data-ref]"); if (rf) { e.preventDefault(); q.value = resolveRef(rf.dataset.ref); clearQ.hidden = false; renderSearch(q.value); window.scrollTo(0, 0); return; }
+  if (e.target.id === "ctcopy") { copyText(ctText(), "ctmsg"); return; }
+  const pk = e.target.closest("[data-ct]"); if (pk) { ctV.id = pk.dataset.ct; ctQ = ""; q.value = ""; clearQ.hidden = true; store.set("q10-ct", ctV); if (location.hash !== "#cong-trinh") location.hash = "cong-trinh"; else renderCT(); window.scrollTo(0, 0); return; }
+  const op = e.target.closest("[data-open]"); if (op) { e.preventDefault(); go(null, op.dataset.open); return; }
+  const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); return; }
+  const n = e.target.closest("[data-nav]"); if (n) { go(n.dataset.nav); return; }
+  const chip = e.target.closest("[data-chip]"); if (chip) { q.value = chip.dataset.chip; clearQ.hidden = false; renderSearch(q.value); return; }
+});
+backBtn.addEventListener("click", () => go("home"));
+document.addEventListener("input", e => {
+  const el = e.target;
+  if (el.id === "ctq") { ctQ = el.value; document.getElementById("ctlist").innerHTML = ctList(); return; }
+  if (el.dataset && el.dataset.k && el.tagName === "INPUT" && el.type !== "checkbox") { ctSync(false); return; }
+  if (el.dataset && el.dataset.w) { const n = parseNum(el.value); wV[el.dataset.w] = n === "" ? 0 : Math.max(0, n); store.set("q10-w", wV); const pos = el.selectionStart; renderWater(); const ne = document.getElementById(el.id); if (ne) { ne.focus(); try { ne.setSelectionRange(pos, pos); } catch (x) {} } return; }
+  if (el.id === "cs-floors") { csV.floors = el.value; store.set("q10-cs", csV); const r = csCalc(csV); document.getElementById("cs-out").innerHTML = r.fl.map((a, i) => `<dt>Tầng ${i + 1}: ${fmtN(a)} m²</dt><dd>${r.per[i]} bình</dd>`).join("") + `<dt><b>Tổng</b></dt><dd>${r.tot} bình</dd>`; return; }
+});
+document.addEventListener("change", e => {
+  const el = e.target;
+  if (el.dataset && el.dataset.k && (el.tagName === "SELECT" || el.type === "checkbox")) { ctSync(el.dataset.k === "id" || el.dataset.k === "gara" || el.dataset.k === "hang"); return; }
+  if (el.dataset && el.dataset.w && el.tagName === "SELECT") { wV[el.dataset.w] = el.value === "1"; store.set("q10-w", wV); renderWater(); return; }
+  if (el.dataset && el.dataset.h7) { h7V[el.dataset.h7] = el.value; store.set("q10-h7", h7V); renderH7(); return; }
+  if (el.id === "cs-road") { csV.road = el.checked; store.set("q10-cs", csV); renderCS(); return; }
+});
+let tmr;
+q.addEventListener("input", () => { clearQ.hidden = !q.value; clearTimeout(tmr); tmr = setTimeout(() => q.value.trim() ? renderSearch(q.value.trim()) : route(), 120); });
+clearQ.addEventListener("click", () => { q.value = ""; clearQ.hidden = true; route(); q.focus(); });
+saved = (Array.isArray(saved) ? saved : []).filter(x => typeof x === "string");
+route();
+</script>

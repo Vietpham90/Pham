@@ -83,7 +83,7 @@ const { chromium } = require('playwright');
   // F. Nền tối các màn hình mới
   await ctx.close(); ctx = await b.newContext({ viewport: { width: 390, height: 844 }, colorScheme: 'dark' }); p = await ctx.newPage(); p.setDefaultTimeout(4000);
   const low = await p.evaluate(() => 0);
-  for (const h of ['#tinh-thoat-nan', '#cong-trinh']) {
+  for (const h of ['#gian-phong', '#cong-trinh']) {
     await p.goto(f + h); await p.waitForTimeout(250);
     const bad = await p.evaluate(() => { const lum = c => { const m = c.match(/\d+(\.\d+)?/g); if (!m) return 1; const [r, g, b] = m.slice(0, 3).map(x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }); return .2126 * r + .7152 * g + .0722 * b; };
       const bgOf = el => { while (el) { const c = getComputedStyle(el).backgroundColor; if (c && !/rgba\(0, 0, 0, 0\)|transparent/.test(c)) return c; el = el.parentElement; } return getComputedStyle(document.body).backgroundColor; };

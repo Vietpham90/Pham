@@ -76,22 +76,16 @@ node tools/test-bam-sau-khi-go.js /tmp/so-tay.html
 node tools/test-do-ben.js /tmp/so-tay.html /tmp/anh
 ```
 
-```bash
-node tools/test-tinh-thoat-nan.js /tmp/so-tay.html /tmp/anh
-```
 
 ```bash
 node tools/test-dau-thap-phan.js /tmp/so-tay.html
 ```
 
-```bash
-node tools/test-doi-chieu-f5.js /tmp/so-tay.html
-```
 
 ```bash
 node tools/test-tom-tat-cong-trinh.js /tmp/so-tay.html /tmp/anh
 ```
 
 ```bash
-node tools/test-doi-chieu-cong-nang.js /tmp/so-tay.html
+node tools/test-tim-cong-trinh.js /tmp/so-tay.html
 ```

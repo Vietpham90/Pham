@@ -338,7 +338,7 @@ Cửa hoặc lối đi qua vùng an toàn trong nhà, cùng tầng, ra khu vực
 
 ## 3.11 Trình tự tính toán thoát nạn theo tầng
 
-Dùng cho thuyết minh hồ sơ thẩm duyệt. Công cụ **Công trình → Thoát nạn** tính tự động và xuất bảng sang Excel.
+Dùng cho thuyết minh hồ sơ thẩm duyệt. Kiểm tra từng gian phòng nhanh bằng công cụ **Công trình → Gian phòng**.
 
 | Bước | Nội dung | Điều khoản |
 | --- | --- | --- |

@@ -23,6 +23,8 @@ Tra cứu nhanh **trang bị, bố trí phương tiện PCCC và CNCH cho nhà v
 | 5 | **Bình chữa cháy**, chiếu sáng sự cố, đường ống khô, công trình đang thi công | [Trang bị — Phần 2](02-trang-bi.md) |
 | 6 | **Loa thông báo** (G.1), **phá dỡ** (E.1), **mặt nạ** (F.1), **xe, tàu, bơm** (D.1); trạm bơm | [Phụ lục D – G](05-phu-luc-d-g.md) · [H.3, H.4](08-h3-h4-bom-loa.md) |
 
+Chung cư, nhà kho, nhà xưởng: xem ngay [Tra nhanh chung cư, kho, xưởng](09-chung-cu-kho-xuong.md).
+
 Dùng thẻ **Tra theo công trình** để chọn loại nhà, nhập số tầng, diện tích, chiều cao PCCC và nhận danh sách trang bị bắt buộc kèm số điều.
 
 ## Giọng văn của sổ tay

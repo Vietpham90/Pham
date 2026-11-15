@@ -87,7 +87,7 @@ Tra cứu trang bị phương tiện PCCC và CNCH: báo cháy, chữa cháy t�
 
 | Thư mục / tệp | Nội dung |
 | --- | --- |
-| `qcvn10/noi-dung/` | Nội dung gốc Markdown (9 mục). **Sửa nội dung ở đây.** |
+| `qcvn10/noi-dung/` | Nội dung gốc Markdown (10 mục, gồm trang tra nhanh chung cư, kho, xưởng). **Sửa nội dung ở đây.** |
 | `qcvn10/tools/` | Giao diện (`head.html`, `app.html`), script tạo bản, bộ kiểm thử |
 | `docs/qcvn10/` | Bản web cài được (PWA), chạy offline — trên GitHub Pages ở địa chỉ `…/qcvn10/` |
 | `so-tay-qcvn10-mobile.html` | Một tệp HTML, mở trực tiếp bằng trình duyệt điện thoại |
@@ -138,6 +138,7 @@ node qcvn10/tools/smoke.js /tmp/q10.html
 ```
 
 - `test-quy-tac.js` — 171 trường hợp có đáp án tính tay từ Bảng A.1, A.3, B.1, C.1, G.1, H.2 – H.6 (ngay trên và dưới từng ngưỡng).
+- `test-chung-cu-kho.js` — 33 tình huống thiết kế chung cư, nhà kho, nhà xưởng.
 - `test-co-so.js` — 31 trường hợp Bảng D.1, F.1, C.1 cho cơ sở, khu.
 - `test-doi-chieu.js` — bảng số trong mã khớp bảng trong `noi-dung` (H.1 – H.4, H.6, H.7 và 69 dòng Bảng A.2 – A.4).
 - `test-tinh-chat.js` — đầu vào ngẫu nhiên; tăng số tầng, diện tích, chiều cao không bao giờ làm giảm yêu cầu.

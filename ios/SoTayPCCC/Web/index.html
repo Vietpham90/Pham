@@ -219,6 +219,18 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 .lvchip { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
 .lvchip.ok { background: var(--tint); color: var(--ink); }
 .lvchip.bad { background: var(--amber-bg); color: var(--amber-ink); }
+.ct-key h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--fire); margin: 14px 0 6px; }
+.ct-key dl { margin: 0; display: grid; gap: 0; }
+.ct-key dt { font-weight: 700; font-size: 13.5px; margin-top: 10px; }
+.ct-key dd { margin: 2px 0 0; font-size: 14px; line-height: 1.5; }
+.ct-key dd p { margin: 2px 0; }
+.ct-key dd .refs { display: inline-flex; vertical-align: middle; }
+.ct-key .lv { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 6px; background: var(--amber-bg); color: var(--amber-ink); }
+.ct-alert { background: var(--amber-bg); color: var(--amber-ink); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.ct-alert ul { margin: 6px 0 0; padding-left: 18px; }
+.ct-alert ul li { display: list-item; padding: 4px 0; border: 0; }
+.ct-alert .refs { display: inline-flex; vertical-align: middle; }
+.ct-sug { margin: 0 0 14px; }
 .tn-h { font-size: 15px; margin: 12px 0 8px; }
 .tn-notes { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; }
 .tn-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; align-items: end; }
@@ -619,12 +631,14 @@ function renderSearch(term) {
   }
   res.sort((a, b) => b.score - a.score);
   setHeader(null);
+  const ctHits = CT.map((c, i) => ({ c, i })).filter(({ c }) => terms.length && terms.every(t => norm(c.n + " " + c.g).includes(t))).slice(0, 6);
+  const ctBox = ctHits.length ? `<section class="ct-sug"><p class="label">Tra yêu cầu PCCC theo công trình — nhập diện tích, chiều cao, khối tích</p><div class="picks">${ctHits.map(({ c, i }) => `<button class="pick" data-ctgo="${i}"><span>${esc(c.n)}</span><b>${c.g}</b></button>`).join("")}</div></section>` : "";
   if (!res.length) {
-    view.innerHTML = `<div class="empty">Không thấy kết quả cho “${esc(term)}”.<br>Thử từ khóa ngắn hơn hoặc gợi ý:<div class="chips">${["buồng thang","REI","hành lang cụt","khoang cháy","F1.3","xe chữa cháy","khoang đệm"].map(c => `<button data-chip="${c}">${c}</button>`).join("")}</div></div>`;
+    view.innerHTML = ctBox + `<div class="empty">Không thấy kết quả cho “${esc(term)}”.<br>Thử từ khóa ngắn hơn hoặc gợi ý:<div class="chips">${["buồng thang","REI","hành lang cụt","khoang cháy","F1.3","xe chữa cháy","khoang đệm"].map(c => `<button data-chip="${c}">${c}</button>`).join("")}</div></div>`;
     return;
   }
   const mk = s => { let h = esc(s); for (const t of terms) { if (t.length < 2) continue; const re = buildRe(t); h = h.replace(re, m => `<mark>${m}</mark>`); } return h; };
-  view.innerHTML = `<p class="label">${res.length} kết quả</p><ul class="results">${res.slice(0, 60).map(({ id, b }) => {
+  view.innerHTML = ctBox + `<p class="label">${res.length} kết quả</p><ul class="results">${res.slice(0, 60).map(({ id, b }) => {
     const nraw = norm(b.raw); const pos = Math.max(0, nraw.indexOf(terms[0]) - 40);
     const snip = (pos ? "…" : "") + b.raw.slice(pos, pos + 150) + "…";
     return `<li><button data-open="${b.id}"><span class="sec">${META[id].t}</span><span class="ttl">${mk(b.title.replace(/[⚑✱]/g, ""))}</span><span class="snip">${mk(snip.replace(/[⚑✱]/g, ""))}</span></button></li>`;
@@ -743,7 +757,7 @@ function floorIdxH2(n) { return n <= 1 ? 0 : n === 2 ? 1 : n === 3 ? 2 : n <= 5 
 function ctEvaluate(v) {
   const it = CT[v.i] || CT[0];
   const pos = x => { const t = +x; return Number.isFinite(t) && t > 0 ? t : 0; };
-  const g = it.g, G = g.slice(0, 2), h = pos(v.h), n = Math.max(1, Math.round(pos(v.n)) || 1), nb = Math.min(4, Math.round(pos(v.nb))), A = pos(v.a), P = pos(v.p), sp = !!v.sp, hang = ["A", "B", "C", "D", "E"].includes(v.hang) ? v.hang : "C", V = pos(v.v);
+  const g = it.g, G = g.slice(0, 2), h = pos(v.h), n = Math.max(1, Math.round(pos(v.n)) || 1), nb = Math.min(4, Math.round(pos(v.nb))), A = pos(v.a) || (pos(v.at) ? Math.round(pos(v.at) / n) : 0), P = pos(v.p), sp = !!v.sp, hang = ["A", "B", "C", "D", "E"].includes(v.hang) ? v.hang : "C", V = pos(v.v);
   const fmtN = x => Math.round(x).toLocaleString("vi-VN");
   const out = []; const sec = (t) => { const s = { t, items: [] }; out.push(s); return s; };
   const add = (s, txt, ref, lv) => s.items.push({ txt, ref, lv: lv || "" });
@@ -940,11 +954,40 @@ function ctList() {
   const rows = CT.map((c, i) => ({ c, i })).filter(({ c }) => !t.length || t.every(x => norm(c.n + " " + c.g).includes(x)));
   return rows.slice(0, t.length ? 12 : 0).map(({ c, i }) => `<button class="pick" data-ct="${i}"><span>${esc(c.n)}</span><b>${c.g}</b></button>`).join("") || (t.length ? `<p class="note">Không thấy. Chọn công trình gần nhất theo đặc điểm sử dụng (Bảng 6).</p>` : "");
 }
+/* Tóm tắt yêu cầu chính: chọn các mục then chốt từ kết quả chi tiết, chia nhóm kết cấu / kiến trúc */
+const CT_KEYS = [
+  ["kc", "Bậc chịu lửa", (x, s) => s === "Bậc chịu lửa và khoang cháy" && /Phương án bậc thấp nhất đạt|yêu cầu tối thiểu \*\*bậc|bậc chịu lửa \*\*I\*\*|Không có dòng nào|: tra Bảng H\./.test(x.txt)],
+  ["kc", "Giới hạn chịu lửa kết cấu", x => /^Bảng 4$/.test(x.ref) || /GHCL theo Bảng A\.1/.test(x.txt)],
+  ["kc", "Diện tích tầng, khoang cháy", (x, s) => s === "Bậc chịu lửa và khoang cháy" && /các phương án đạt|Diện tích 1 tầng \/ khoang cháy/.test(x.txt)],
+  ["kc", "Tầng hầm", x => /Bảng 4 CT/.test(x.ref), true],
+  ["kt", "Số lối ra thoát nạn", x => /3\.2\.6\.1/.test(x.ref)],
+  ["kt", "Buồng thang bộ", x => /3\.4\.1[13]/.test(x.ref), true],
+  ["kt", "Bản thang, lối ra", x => /^3\.4\.1,|^H\.2\.9\.1|^A\.3\.1\.8|^3\.2\.9/.test(x.ref), true],
+  ["kt", "Khoảng cách thoát nạn", (x, s) => s === "Thoát nạn" && /Bảng G\.|A\.2\.19|Phụ lục G/.test(x.ref)],
+  ["kt", "Ngăn cháy lan mặt ngoài", x => /4\.33\.4/.test(x.ref)],
+  ["kt", "Khoảng cách PCCC giữa các nhà", x => /Bảng E\.1/.test(x.ref)],
+  ["kt", "Đường, bãi đỗ xe chữa cháy", x => /6\.2\.1|6\.2\.2/.test(x.ref), true],
+  ["kt", "Thang máy chữa cháy", x => /6\.13/.test(x.ref)]
+];
+function ctSummaryRows(out) {
+  const all = out.flatMap(s => s.items.map(x => ({ ...x, s: s.t })));
+  const used = new Set();
+  return CT_KEYS.map(([grp, label, f, many]) => { const hit = all.filter(x => !used.has(x.txt) && f(x, x.s)); const items = many ? hit : hit.slice(0, 1); items.forEach(x => used.add(x.txt)); return { grp, label, items }; }).filter(r => r.items.length);
+}
+function ctSummary(out) {
+  const rows = ctSummaryRows(out);
+  const bad = out.flatMap(s => s.items).filter(x => x.lv === "bad");
+  const blk = (grp, title) => { const rs = rows.filter(r => r.grp === grp); return rs.length ? `<h3>${title}</h3><dl>${rs.map(r => `<dt>${esc(r.label)}</dt><dd>${r.items.map(x => `<p class="lv-${x.lv || "n"}">${x.lv === "bad" || x.lv === "warn" ? `<span class="lv">${LV_LABEL[x.lv]}</span> ` : ""}${md(x.txt)} <span class="refs">${refHTML(x.ref)}</span></p>`).join("")}</dd>`).join("")}</dl>` : ""; };
+  return `<section class="ct-sec ct-key"><h2>Tóm tắt yêu cầu chính</h2>
+    ${bad.length ? `<div class="ct-alert"><b>Cần xử lý:</b><ul>${bad.map(x => `<li>${md(x.txt)} <span class="refs">${refHTML(x.ref)}</span></li>`).join("")}</ul></div>` : ""}
+    ${blk("kc", "Kết cấu")}${blk("kt", "Kiến trúc — thoát nạn, ngăn cháy, tiếp cận chữa cháy")}
+    <p class="hint" style="margin:8px 0 0">Đầy đủ các yêu cầu ở các mục bên dưới.</p></section>`;
+}
 function ctResult() {
   const { it, out } = ctEvaluate(ctV);
   const lab = { ok: "Đạt", warn: "Lưu ý", bad: "Vượt / không đạt" };
-  return `<div class="ct-sum"><span class="chip">${it.g}</span><span class="chip">${ctV.h || 0} m</span><span class="chip">${ctV.n || 1} tầng nổi</span><span class="chip">${ctV.nb || 0} tầng hầm</span>${+ctV.v ? `<span class="chip">${(+ctV.v).toLocaleString("vi-VN")} m³</span>` : ""}${ctV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
-    `<div class="row-btns"><button class="btn1" data-report="ct">Tạo phiếu kiểm tra</button><button class="btn2" data-go="so-do">Sơ đồ minh họa</button></div>` + itemsHTML(out) + itemsHTML([{ t: "Ngưỡng gần nhất — thay đổi khi điều chỉnh phương án", items: thresholdsCT(ctV) }]) +
+  return `<div class="ct-sum"><span class="chip">${it.g}</span><span class="chip">${ctV.h || 0} m</span><span class="chip">${ctV.n || 1} tầng nổi</span><span class="chip">${ctV.nb || 0} tầng hầm</span>${+ctV.a || +ctV.at ? `<span class="chip">${(+ctV.a || Math.round(+ctV.at / (+ctV.n || 1))).toLocaleString("vi-VN")} m²/tầng${+ctV.a ? "" : " (ước tính)"}</span>` : ""}${+ctV.v ? `<span class="chip">${(+ctV.v).toLocaleString("vi-VN")} m³</span>` : ""}${ctV.sp ? '<span class="chip">Có sprinkler</span>' : ""}</div>` +
+    `<div class="row-btns"><button class="btn1" data-report="ct">Tạo phiếu kiểm tra</button><button class="btn2" data-go="so-do">Sơ đồ minh họa</button></div>` + ctSummary(out) + itemsHTML(out) + itemsHTML([{ t: "Ngưỡng gần nhất — thay đổi khi điều chỉnh phương án", items: thresholdsCT(ctV) }]) +
     `<p class="disclaimer">Kết quả là danh sách nội dung cần lưu ý, suy ra từ các điều đã dẫn của QCVN 06:2022/BXD (SĐ1:2023). Kiểm tra lại nguyên văn và các chú thích trước khi dùng trong hồ sơ.</p>`;
 }
 function renderCT() {
@@ -963,12 +1006,13 @@ function renderCT() {
       <div class="fld">${num("cth", "Chiều cao PCCC", ctV.h, "m")}<button class="link-btn" data-go="chieu-cao">Tính chiều cao PCCC →</button></div>
       ${num("ctn", "Số tầng nổi", ctV.n, "tầng")}
       <label class="fld"><span>Số tầng hầm</span><select id="ctnb">${[0, 1, 2, 3, 4].map(k => `<option value="${k}"${+ctV.nb === k ? " selected" : ""}>${k}${k === 4 ? "+" : ""}</option>`).join("")}</select></label>
-      ${num("cta", "Diện tích 1 tầng", ctV.a, "m²", "tùy chọn")}
+      ${num("cta", "Diện tích 1 tầng (lớn nhất)", ctV.a, "m²", +ctV.at && +ctV.n ? "≈ " + Math.round(ctV.at / ctV.n).toLocaleString("vi-VN") : "tùy chọn")}
+      ${num("ctat", "Tổng diện tích sàn", ctV.at, "m²", "tùy chọn")}
       ${num("ctp", "Số người / tầng", ctV.p, "người", "tùy chọn")}
       ${num("ctv", "Khối tích", ctV.v, "m³", "tùy chọn")}
       ${f5 ? `<label class="fld"><span>Hạng nguy hiểm cháy nổ</span><select id="cthang">${["A", "B", "C", "D", "E"].map(k => `<option${ctV.hang === k ? " selected" : ""}>${k}</option>`).join("")}</select></label>` : ""}
     </div>
-    <p class="note" style="margin:-4px 0 0">Khối tích: tính từ mặt ngoài kết cấu bao che, phần trên mặt đất từ cốt ± 0,00 (A.1.2.2). Bảng 16 (nhà F5) không tính tầng hầm.</p>
+    <p class="note" style="margin:-4px 0 0">Chỉ có tổng diện tích sàn: để trống ô diện tích 1 tầng, công cụ lấy tổng ÷ số tầng nổi. Khối tích: tính từ mặt ngoài kết cấu bao che, phần trên mặt đất từ cốt ± 0,00 (A.1.2.2). Bảng 16 (nhà F5) không tính tầng hầm.</p>
     <div class="checks">
       <label><input type="checkbox" id="ctsp"${ctV.sp ? " checked" : ""}> Chữa cháy tự động (sprinkler) toàn nhà</label>
       <label><input type="checkbox" id="ctdeep"${ctV.deep ? " checked" : ""}> Sàn hầm dưới cùng sâu > 9 m</label>
@@ -980,7 +1024,7 @@ function renderCT() {
 }
 function ctSync(rerenderForm) {
   const gv = id => document.getElementById(id);
-  if (gv("cth")) { ctV.h = numv(gv("cth")); ctV.n = numv(gv("ctn")); ctV.nb = gv("ctnb").value; ctV.a = numv(gv("cta")); ctV.p = numv(gv("ctp")); ctV.v = numv(gv("ctv"));
+  if (gv("cth")) { ctV.h = numv(gv("cth")); ctV.n = numv(gv("ctn")); ctV.nb = gv("ctnb").value; ctV.a = numv(gv("cta")); ctV.at = numv(gv("ctat")); ctV.p = numv(gv("ctp")); ctV.v = numv(gv("ctv"));
     ctV.sp = gv("ctsp").checked; ctV.deep = gv("ctdeep").checked; ctV.hh = gv("cthh").checked;
     if (gv("cthang")) ctV.hang = gv("cthang").value; ctV.c1 = gv("ctc1") ? gv("ctc1").checked : false; }
   store.set("pccc-ct", ctV);
@@ -1916,6 +1960,7 @@ document.addEventListener("click", e => {
   const pd = e.target.closest("[data-projdel]"); if (pd) { if (pd.dataset.confirm) { projects.splice(+pd.dataset.projdel, 1); store.set("pccc-projects", projects); renderProjects(); } else { pd.dataset.confirm = "1"; pd.textContent = "Bấm lần nữa để xóa"; } return; }
   if (e.target.id === "mxadd") { mxSync(false); mxV.parts.push({ i: 25, from: 1, to: 1, a: 1000, p: "" }); store.set("pccc-mx", mxV); renderMX(); return; }
   const md_ = e.target.closest("[data-mxdel]"); if (md_) { mxSync(false); mxV.parts.splice(+md_.dataset.mxdel, 1); store.set("pccc-mx", mxV); renderMX(); return; }
+  const cg = e.target.closest("[data-ctgo]"); if (cg) { ctV.i = +cg.dataset.ctgo; ctQ = ""; store.set("pccc-ct", ctV); q.value = ""; clearQ.hidden = true; if (location.hash === "#cong-trinh") route(); else go("cong-trinh"); window.scrollTo(0, 0); return; }
   const pk = e.target.closest("[data-ct]"); if (pk) { ctSync(false); ctV.i = +pk.dataset.ct; ctQ = ""; store.set("pccc-ct", ctV); renderCT(); window.scrollTo(0, 0); return; }
   const op = e.target.closest("[data-open]"); if (op) { e.preventDefault(); go(null, op.dataset.open); return; }
   const g = e.target.closest("[data-go]"); if (g) { e.preventDefault(); go(g.dataset.go); return; }

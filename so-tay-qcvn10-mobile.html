@@ -301,6 +301,10 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .tile.n b { color: var(--exit); }
 .jump { justify-self: start; }
 #ctres { scroll-margin-top: 130px; }
+.mixbox { display: grid; gap: 10px; border: 1px dashed var(--line); border-radius: 10px; padding: 12px; }
+.mixout { margin: 8px 0 0; font-size: 14px; line-height: 1.5; padding: 8px 10px; border-radius: 8px; }
+.mixout.ok { background: var(--exit-bg); } .mixout.warn { background: var(--amber-bg); }
+.mixout .btn2 { margin-top: 6px; display: block; }
 </style>
 <style>
 html { padding-top: env(safe-area-inset-top, 0px); -webkit-tap-highlight-color: transparent; }
@@ -882,6 +886,18 @@ function ctEvaluate(t, v) {
   push(S3, "val", "Trụ nước cách mép đường **≤ 2,5 m**, cách tường nhà **≥ 1 m**; bán kính phục vụ **≤ 400 m**", "H.1.4.6; H.1.4.7");
   out.push(S3);
 
+  if (v.pcar > 0 || v.parea > 0) {
+    const S5 = { t: "Phần để xe ô tô trong nhà — Bảng A.3, G.1, H.5", items: [] };
+    const nhaO = ["nha-o-kd", "nha-o-sx"].includes(t.id);
+    if (nhaO) push(S5, "info", "Nhà ở riêng lẻ kết hợp SX, KD: **không áp dụng** Bảng A.3 mục 4.4", "Bảng A.3 mục 4.4");
+    else {
+      push(S5, "req", "**Báo cháy tự động** cho phòng lưu giữ ô tô — không phụ thuộc diện tích", "Bảng A.3 mục 4.4");
+      push(S5, v.pcar >= 3 ? "req" : "no", `**Chữa cháy tự động** cho phần để xe — ${v.pcar} xe ${v.pcar >= 3 ? "≥" : "<"} 3 xe ô tô`, "Bảng A.3 mục 4.4");
+    }
+    if (v.parea) push(S5, v.parea >= 18000 ? "req" : "no", `**Loa thông báo** — nhà để xe kín (kể cả trong nhà có chức năng khác) ${fmtN(v.parea)} m² ${v.parea >= 18000 ? "≥" : "<"} 18 000 m²`, "Bảng G.1 mục 3");
+    if (v.parea >= 150) push(S5, "val", `**Họng nước**: khu để xe kín cần 2 lăng; khoang cháy 500 – 5 000 m³ → 2 × 2,5 L/s, > 5 000 m³ → 2 × 5 L/s${v.parea * 3 > 5000 ? " (ước theo chiều cao tầng ≈ 3 m: khoang > 5 000 m³ → 2 × 5 L/s)" : ""}`, "Bảng H.5 CT2");
+    out.push(S5);
+  }
   const S4 = { t: "Phương tiện khác — Phần 2, Phụ lục E, F, G", items: [] };
   push(S4, "req", "**Bình chữa cháy** xách tay hoặc có bánh xe cho **mọi khu vực**, kể cả nơi có hệ thống chữa cháy — chọn, tính, bố trí theo **điểm 6, 7 TCVN 7435-1**; bảo dưỡng **6 tháng/lần**", "2.6.1; 1.5.13");
   push(S4, "req", "**Chiếu sáng sự cố, chỉ dẫn thoát nạn** — theo **TCVN 13456**", "2.2.1");
@@ -900,10 +916,20 @@ function ctEvaluate(t, v) {
   return out;
 }
 
+/* Quy tắc 70 % (1.5.8): tổng diện tích sàn không gồm kỹ thuật, PCCC, lánh nạn, đỗ xe */
+function mixRule(mix) {
+  const rows = (Array.isArray(mix) ? mix : []).filter(r => Array.isArray(r) && TI[r[0]] && +r[1] > 0);
+  const tot = rows.reduce((x, r) => x + +r[1], 0);
+  if (!tot) return null;
+  const top = rows.reduce((m, r) => (+r[1] > +m[1] ? r : m), rows[0]);
+  const share = +top[1] / tot;
+  return { tot, top: TI[top[0]], share, mixed: share <= 0.7, rows: rows.map(r => [TI[r[0]], +r[1], +r[1] / tot]) };
+}
 /* ---------- giao diện Tra theo công trình ---------- */
-const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0 };
+const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
 let ctV = Object.assign({}, DEF, store.get("q10-ct", {}));
 if (!TI[ctV.id]) ctV.id = DEF.id;
+if (!Array.isArray(ctV.mix) || ctV.mix.length !== 3 || !ctV.mix.every(r => Array.isArray(r) && TI[r[0]])) ctV.mix = JSON.parse(JSON.stringify(DEF.mix));
 let ctQ = "";
 function ctList() {
   if (!ctQ.trim()) return "";
@@ -932,6 +958,7 @@ function renderCT() {
   if (need.includes("bacS") || f5) extra.push(selF("S", "Cấp nguy hiểm cháy kết cấu", ["S0", "S1", "S2", "S3"]));
   if (f5) extra.push(selF("hang", "Hạng nguy hiểm cháy nổ", ["A", "B", "C1", "C2", "C3", "C4", "D", "E"]));
   if (need.includes("gara")) extra.push(selF("gara", "Dạng nhà để xe", [["kin", "Dạng kín"], ["ho", "Dạng hở"]]));
+  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín", "m²")); }
   const checks = [];
   if (need.includes("bas") || t.a1 === "25") checks.push(chkF("bas", t.a1 === "sx" || t.a1 === "kho" ? "Gian bố trí tại tầng hầm, bán hầm" : "Bố trí tại tầng hầm, tầng bán hầm"));
   if (need.includes("hl")) checks.push(chkF("hl", "Hành lang chung dài > 10 m"));
@@ -947,6 +974,7 @@ function renderCT() {
   if (f5) { checks.push(chkF("steel", "Kết cấu thép không bảo vệ / gỗ (H.2.3)")); checks.push(chkF("combust", "Vật liệu cháy bao quanh cấu trúc (bậc IV, S2, S3)")); }
   checks.push(chkF("deep", "Sàn hầm dưới cùng sâu > 9 m"));
   if (t.og === "F13" || t.og === "F") checks.push(chkF("rural", "Khu vực nông thôn"));
+  const mixHtml = t.id === "hon-hop" ? `<div class="mixbox"><p class="label" style="margin:0">Quy tắc 70 % (1.5.8) — diện tích sàn từng công năng</p>${(ctV.mix || []).map((r, i) => `<div class="grid2"><label class="fld"><span>Công năng ${i + 1}</span><select data-mix="${i}" data-mk="0">${T.filter(x => x.og !== "F5" && x.id !== "hon-hop" && x.og !== "ham").map(x => `<option value="${x.id}"${x.id === r[0] ? " selected" : ""}>${esc(x.n)}</option>`).join("")}</select></label><label class="fld"><span>Diện tích sàn</span><span class="inp"><input id="mix-a${i}" data-mix="${i}" data-mk="1" type="text" inputmode="decimal" autocomplete="off" value="${fmtIn(r[1])}"><i>m²</i></span></label></div>`).join("")}<p class="note" style="margin:0">Không tính diện tích kỹ thuật, PCCC, gian lánh nạn và đỗ xe.</p><div id="mixres">${mixHTML()}</div></div>` : "";
   view.innerHTML = `${ctTabs("cong-trinh")}
   <div class="quick ct-form">
     <label class="fld wide"><span>Loại nhà, công trình</span>
@@ -961,15 +989,24 @@ function renderCT() {
       ${selF("nb", "Số tầng hầm", [0, 1, 2, 3, 4, 5])}
       ${extra.join("")}
     </div>
+    ${mixHtml}
     <p class="note" style="margin:0">Số tầng gồm tầng kỹ thuật, tầng tum, tầng bán hầm; không gồm tầng áp mái (1.4.24).</p>
     <div class="checks">${checks.join("")}</div>
     <button class="btn1 jump" id="ctjump" type="button">Xem kết quả ↓</button>
   </div>
   <div id="ctres">${ctResult()}</div>`;
 }
+function mixHTML() {
+  const m = mixRule(ctV.mix);
+  if (!m) return `<p class="note">Nhập diện tích để kiểm tra.</p>`;
+  const pct = x => { let d = 1; while (d < 4 && Math.abs(x - 0.7) > 0 && Math.round(x * 100 * 10 ** d) / 10 ** d === 70) d++; return (Math.round(x * 100 * 10 ** d) / 10 ** d).toLocaleString("vi-VN", { maximumFractionDigits: d }) + " %"; };
+  return `<dl class="kv">${m.rows.map(([t, a, sh]) => `<dt>${esc(t.n)}</dt><dd><span style="white-space:nowrap">${fmtN(a)} m²</span><br><span style="white-space:nowrap">${pct(sh)}</span></dd>`).join("")}</dl>` +
+    (m.mixed ? `<p class="mixout ok">Không công năng nào vượt 70 % → áp dụng quy định **nhà hỗn hợp** (Bảng A.1 mục 21, B.1 mục 1.2).</p>`.replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>")
+             : `<p class="mixout warn"><b>${esc(m.top.n)}</b> chiếm ${pct(m.share)} > 70 % → áp dụng quy định cho công năng này. <button class="btn2" type="button" data-ct="${m.top.id}">Tra theo ${esc(m.top.n.split(",")[0])}</button></p>`);
+}
 function ctResult() {
   const t = TI[ctV.id];
-  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc"].forEach(k => { v[k] = +v[k] || 0; });
+  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea"].forEach(k => { v[k] = +v[k] || 0; });
   if (v.n < 1 && !["ham"].includes(t.og)) v.n = 1;
   const out = ctEvaluate(t, v);
   const chips = [t.g, `${v.n} tầng`, `${fmtN(v.h)} m`, `${fmtN(v.a)} m²`, v.vol ? `${fmtN(v.vol)} m³` : "", v.nb ? `${v.nb} hầm` : "", `bậc ${v.bac}`].filter(Boolean);
@@ -982,7 +1019,7 @@ function ctResult() {
   `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;
 }
 function ctText() {
-  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
+  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
   const out = ctEvaluate(t, v);
   const lines = [`${t.n} — ${v.n} tầng, chiều cao PCCC ${fmtN(v.h)} m, ${fmtN(v.a)} m², ${fmtN(v.vol)} m³ (QCVN 10:2025/BCA)`];
   out.forEach(s => { lines.push("", s.t); s.items.forEach(i => lines.push(`- [${(LV[i.lv] || LV.val)[1] || "Giá trị"}] ${i.txt.replace(/\*\*/g, "")} (${i.ref})`)); });
@@ -1285,6 +1322,7 @@ backBtn.addEventListener("click", () => go("home"));
 document.addEventListener("input", e => {
   const el = e.target;
   if (el.id === "ctq") { ctQ = el.value; document.getElementById("ctlist").innerHTML = ctList(); return; }
+  if (el.dataset && el.dataset.mix !== undefined && el.tagName === "INPUT") { const n = parseNum(el.value); ctV.mix[+el.dataset.mix][1] = n === "" ? 0 : Math.max(0, n); store.set("q10-ct", ctV); document.getElementById("mixres").innerHTML = mixHTML(); return; }
   if (el.dataset && el.dataset.k && el.tagName === "INPUT" && el.type !== "checkbox") { ctSync(false); return; }
   if (el.dataset && el.dataset.w) { const n = parseNum(el.value); wV[el.dataset.w] = n === "" ? 0 : Math.max(0, n); store.set("q10-w", wV); const pos = el.selectionStart; renderWater(); const ne = document.getElementById(el.id); if (ne) { ne.focus(); try { ne.setSelectionRange(pos, pos); } catch (x) {} } return; }
   if (el.id === "gp-q") { gpV.q = el.value; const o = gpList(); if (o.length && !o.some(([, i]) => i === gpV.k)) gpV.k = o[0][1]; store.set("q10-gp", gpV); document.getElementById("gp-k").innerHTML = o.map(([r, i]) => `<option value="${i}"${i === gpV.k ? " selected" : ""}>${esc(r[0])} · ${esc(r[2])}</option>`).join(""); document.getElementById("gp-x").nextElementSibling.textContent = GP[gpV.k][5] || "m²"; document.getElementById("gpres").innerHTML = gpResult(); return; }
@@ -1293,6 +1331,7 @@ document.addEventListener("input", e => {
 });
 document.addEventListener("change", e => {
   const el = e.target;
+  if (el.dataset && el.dataset.mix !== undefined && el.tagName === "SELECT") { ctV.mix[+el.dataset.mix][0] = el.value; store.set("q10-ct", ctV); document.getElementById("mixres").innerHTML = mixHTML(); return; }
   if (el.dataset && el.dataset.k && (el.tagName === "SELECT" || el.type === "checkbox")) { ctSync(el.dataset.k === "id" || el.dataset.k === "gara" || el.dataset.k === "hang"); return; }
   if (el.dataset && el.dataset.w && el.tagName === "SELECT") { wV[el.dataset.w] = el.value === "1"; store.set("q10-w", wV); renderWater(); return; }
   if (el.dataset && el.dataset.h7) { h7V[el.dataset.h7] = el.value; store.set("q10-h7", h7V); renderH7(); return; }

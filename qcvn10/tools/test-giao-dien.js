@@ -82,6 +82,15 @@ const { chromium } = require("playwright");
   await p.fill("#q", "kho tien"); await p.waitForTimeout(250);
   await p.click("#view .pick[data-gp]"); await p.waitForTimeout(100);
   check((await p.evaluate(() => location.hash)) === "#gian-phong" && (await p.innerText("#gpres")).includes("Kho tiền"), "tìm 'kho tien' → mở gian phòng kho tiền");
+  // 7c. Quy tắc 70 %
+  await p.evaluate(() => { location.hash = "cong-trinh"; }); await p.waitForTimeout(80);
+  await p.selectOption("#ct-id", "hon-hop"); await p.waitForTimeout(80);
+  await p.fill("#mix-a0", "3000"); await p.fill("#mix-a1", "0"); await p.fill("#mix-a2", "7000"); await p.waitForTimeout(60);
+  check((await p.innerText("#mixres")).includes("nhà hỗn hợp"), "70 % đúng ngưỡng (7 000 / 10 000) → vẫn là nhà hỗn hợp");
+  await p.fill("#mix-a2", "7001"); await p.waitForTimeout(60);
+  check((await p.innerText("#mixres")).includes("> 70 %"), "70,0x % → áp dụng theo công năng chiếm ưu thế");
+  await p.click("#mixres [data-ct]"); await p.waitForTimeout(80);
+  check(await p.inputValue("#ct-id") === "chung-cu", "bấm nút chuyển sang tra chung cư");
   await p.close();
   // 8. Tràn ngang ở 320 px, sáng và tối
   for (const scheme of ["light", "dark"]) {

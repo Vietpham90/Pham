@@ -1,9 +1,15 @@
 // Bộ kiểm thử có đáp án: mỗi trường hợp tính tay từ bảng của QCVN 10:2025/BCA.
 // Dùng: node qcvn10/tools/test-quy-tac.js /tmp/q10.html
 const { chromium } = require("playwright");
-const D = { n: 1, h: 3, a: 100, vol: 0, nb: 0, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0 };
+const D = { n: 1, h: 3, a: 100, vol: 0, nb: 0, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0 };
 // key: id, v: tham số, expect: { alarm: "req|alt|no", spr, hydr, c1, g1, outQ, jets, dry, addr }
 const C = [
+  // phần để xe trong nhà khác
+  ["chung-cu", { n: 20, h: 60, a: 20000, pcar: 2 }, { pspr: "no" }],
+  ["chung-cu", { n: 20, h: 60, a: 20000, pcar: 3 }, { pspr: "req" }],
+  ["van-phong", { n: 20, h: 70, a: 30000, pcar: 400, parea: 18000 }, { pspr: "req", pg1: "req" }],
+  ["van-phong", { n: 20, h: 70, a: 30000, pcar: 400, parea: 17000 }, { pg1: "no" }],
+  ["nha-o-kd", { n: 5, h: 16, a: 500, pcar: 4 }, { pspr: "none" }],
   // Bảng A.1 mục 1
   ["nha-o-kd", { n: 6, h: 20, a: 600 }, { alarm: "no", spr: "no", hydr: "no" }],
   ["nha-o-kd", { n: 7, h: 24, a: 600 }, { alarm: "alt", spr: "no", hydr: "req" }],
@@ -208,7 +214,8 @@ const C = [
     const got = {
       alarm: lv(find(/^\*\*Hệ thống báo cháy tự động/)), spr: lv(find(/^\*\*Hệ thống chữa cháy tự động/)), hydr: lv(find(/^\*\*Hệ thống họng nước/)),
       c1: lv(find(/^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)), g1: lv(find(/^\*\*Loa thông báo/)),
-      dry: !!find(/^\*\*Đường ống khô/), addr: !!find(/^\*\*Báo cháy địa chỉ/)
+      dry: !!find(/^\*\*Đường ống khô/), addr: !!find(/^\*\*Báo cháy địa chỉ/),
+      pspr: lv(find(/^\*\*Chữa cháy tự động\*\* cho phần để xe/)), pg1: lv(find(/^\*\*Loa thông báo\*\* — nhà để xe kín/))
     };
     const oq = find(/^\*\*Lưu lượng ngoài nhà (\d+)/); got.outQ = oq ? +oq.txt.match(/ngoài nhà (\d+)/)[1] : null;
     const jt = find(/^\*\*Số tia/); got.jets = jt ? [+jt.txt.match(/: (\d+) ×/)[1], +jt.txt.match(/× ([\d,]+) L\/s/)[1].replace(",", ".")] : (find(/được không đặt đường ống họng/) ? 0 : null);

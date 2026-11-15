@@ -98,6 +98,7 @@ Tra cứu trang bị phương tiện PCCC và CNCH: báo cháy, chữa cháy t�
 Công cụ trong sổ tay:
 
 - **Tra theo công trình** — 41 loại nhà; nhập số tầng (1.4.24), chiều cao PCCC, diện tích sàn, khối tích → báo cháy (kể cả khi được dùng thiết bị báo cháy độc lập), chữa cháy tự động, họng nước (số tia × L/s theo Bảng H.5, H.6), lưu lượng ngoài nhà (Bảng H.2 – H.4), đường ống khô, loa, phá dỡ, mặt nạ — kèm số bảng, số điều bấm được.
+- **Nhà hỗn hợp**: kiểm tra quy tắc 70 % (1.5.8) từ diện tích từng công năng. **Phần để xe trong nhà** (Bảng A.3 mục 4.4, G.1 mục 3, H.5 CT2).
 - **Gian phòng, hạng mục, thiết bị** — 69 dòng Bảng A.2, A.3, A.4 (phòng máy chủ, kho tiền, máy biến áp dầu, hầm cáp…): nhập quy mô → báo cháy, chữa cháy tự động kèm ghi chú.
 - **Tính nước** — khu dân cư (Bảng H.1), bãi công-ten-nơ; áp suất họng theo tia nước đặc (Bảng H.7); số bình chữa cháy cho công trình đang thi công (2.6.5).
 
@@ -135,8 +136,9 @@ node qcvn10/tools/test-giao-dien.js /tmp/q10.html
 node qcvn10/tools/smoke.js /tmp/q10.html
 ```
 
-- `test-quy-tac.js` — 166 trường hợp có đáp án tính tay từ Bảng A.1, A.3, B.1, C.1, G.1, H.2 – H.6 (ngay trên và dưới từng ngưỡng).
+- `test-quy-tac.js` — 171 trường hợp có đáp án tính tay từ Bảng A.1, A.3, B.1, C.1, G.1, H.2 – H.6 (ngay trên và dưới từng ngưỡng).
 - `test-doi-chieu.js` — bảng số trong mã khớp bảng trong `noi-dung` (H.1 – H.4, H.6, H.7 và 69 dòng Bảng A.2 – A.4).
 - `test-tinh-chat.js` — đầu vào ngẫu nhiên; tăng số tầng, diện tích, chiều cao không bao giờ làm giảm yêu cầu.
+- `doi-chieu-ocr.py` — mọi con số trong `noi-dung` phải có trong văn bản OCR của bản scan (0 số lệch; các ô OCR không đọc được đã đối chiếu bằng ảnh và ghi trong script).
 - `test-offline.js` — chặn mọi yêu cầu mạng, phông nhúng phải tải được và hiện đúng tiếng Việt (`node qcvn10/tools/test-offline.js so-tay-qcvn10-offline.html`).
 - `test-giao-dien.js` — nhập số kiểu Việt Nam, tìm kiếm không dấu, liên kết số điều, không tràn ngang ở 320 px, chế độ tối.

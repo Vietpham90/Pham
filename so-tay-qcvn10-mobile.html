@@ -1158,7 +1158,58 @@ function gpResult() {
     `<p class="disclaimer">Ngưỡng “từ … trở lên” lấy nguyên Bảng ${esc(row[0].split(" ")[0])}. Khu vực ướt, vệ sinh, buồng thang, khoang đệm, gian hạng E và C4 (trừ trong nhà F1.1, F1.2, F2.1, F4.1, F4.2) được loại trừ (1.5.11).</p>`;
 }
 function ctTabs(active) {
-  return `<div class="seg tabs" role="tablist" style="grid-template-columns:repeat(2,1fr)">${[["cong-trinh", "Toàn nhà (A.1, B, C…)"], ["gian-phong", "Gian phòng (A.2 – A.4)"]].map(([id, l]) => `<button role="tab" data-go="${id}" aria-selected="${id === active}">${l}</button>`).join("")}</div>`;
+  return `<div class="seg tabs" role="tablist" style="grid-template-columns:repeat(3,1fr)">${[["cong-trinh", "Toàn nhà"], ["gian-phong", "Gian phòng"], ["co-so", "Cơ sở, khu"]].map(([id, l]) => `<button role="tab" data-go="${id}" aria-selected="${id === active}">${l}</button>`).join("")}</div>`;
+}
+
+
+/* ---------- Cơ sở, khu: Bảng D.1 (xe, tàu, bơm), F.1 (mặt nạ cách ly), C.1 (nước ngoài nhà) ---------- */
+const CS = [
+  { id: "kho-dau", n: "Kho dầu mỏ, sản phẩm dầu mỏ", u: "m³", lbl: "Tổng dung tích", ex: "auto",
+    d: (x, o) => { const k = o.auto ? 1 : 2; return x > 500000 ? { xe: 2 * k, why: "> 500 000 m³" } : x >= 100000 ? { xe: 1 * k, why: "100 000 – 500 000 m³" } : { bom: 1 * k, why: "< 100 000 m³" }; },
+    f: x => x >= 100000, c: () => true, ref: "Bảng D.1 mục 1" },
+  { id: "cang-hk", n: "Cảng hàng không (cấp PCCC theo ICAO Doc 9137)", u: "cấp", lbl: "Cấp PCCC sân bay (1 – 10)",
+    d: x => x >= 8 ? { xe: 3, why: "cấp 8 – 10" } : x >= 6 ? { xe: 2, why: "cấp 6, 7" } : x >= 1 ? { xe: 1, why: "cấp 1 – 5" } : { why: "nhập cấp 1 – 10" }, f: () => false, c: () => true, ref: "Bảng D.1 mục 2.1" },
+  { id: "cang-bien", n: "Bến cảng biển xuất, nhập hàng nguy hiểm (chất nổ, khí, lỏng, rắn dễ cháy)", u: "", lbl: "Cấp công trình", sel: [["db", "Cấp đặc biệt"], ["1", "Cấp I"], ["2", "Cấp II, III"]],
+    d: (x, o) => o.cap === "db" ? { xe: 2, why: "cấp đặc biệt" } : o.cap === "1" ? { xe: 1, why: "cấp I" } : { bom: 1, why: "cấp II, III" }, f: (x, o) => o.cap !== "2", c: (x, o) => o.cap !== "2", ref: "Bảng D.1 mục 2.2" },
+  { id: "lng", n: "Bến cảng chuyên dùng LNG", u: "m³", lbl: "Dung tích tàu, thiết bị tiếp nhận", d: x => x >= 8000 ? { tau: 1, why: "≥ 8 000 m³" } : { why: "< 8 000 m³: Bảng D.1 không quy định" }, f: () => false, c: () => false, ref: "Bảng D.1 mục 2.2" },
+  { id: "nhiet-dien", n: "Nhà máy nhiệt điện", u: "MW", lbl: "Tổng công suất",
+    d: x => x >= 1200 ? { xe: 2, why: "≥ 1 200 MW" } : x >= 600 ? { xe: 1, why: "600 – < 1 200 MW" } : { bom: 1, why: "< 600 MW" }, f: x => x >= 600, c: () => true, ref: "Bảng D.1 mục 3.1, 3.3" },
+  { id: "thuy-dien", n: "Nhà máy thủy điện", u: "MW", lbl: "Tổng công suất",
+    d: x => x >= 1000 ? { xe: 1, why: "≥ 1 000 MW" } : { bom: 1, why: "< 1 000 MW" }, f: x => x >= 1000, c: () => false, ref: "Bảng D.1 mục 3.2, 3.3" },
+  { id: "det", n: "Nhà máy dệt", u: "triệu m²/năm", lbl: "Công suất", d: x => x >= 25 ? { xe: 1, why: "≥ 25 triệu m²/năm" } : { why: "< 25 triệu m²/năm: Bảng D.1 không quy định" }, f: x => x >= 25, c: () => false, ref: "Bảng D.1 mục 3.4" },
+  { id: "loc-dau", n: "Nhà máy lọc dầu, lọc hóa dầu", u: "", lbl: "", d: () => ({ xe: 2, why: "không phụ thuộc công suất" }), f: () => true, c: () => true, ref: "Bảng D.1 mục 3.5" },
+  { id: "che-bien-khi", n: "Cơ sở chế biến khí đốt", u: "triệu m³/ngày đêm", lbl: "Công suất", d: x => x >= 10 ? { xe: 1, why: "≥ 10 triệu m³ khí/ngày đêm" } : { why: "< 10 triệu m³/ngày đêm: Bảng D.1 không quy định" }, f: x => x >= 10, c: () => true, ref: "Bảng D.1 mục 3.6" },
+  { id: "kcn", n: "Khu công nghiệp", u: "ha", lbl: "Tổng diện tích",
+    d: x => x > 300 ? { xe: 2, why: "> 300 ha" } : x >= 75 ? { xe: 1, why: "75 – 300 ha" } : { bom: 1, why: "< 75 ha" }, f: x => x >= 75, c: () => true, ref: "Bảng D.1 mục 4" },
+  { id: "ccn", n: "Cụm công nghiệp", u: "ha", lbl: "Tổng diện tích",
+    d: x => x >= 75 ? { xe: 1, why: "75 – 300 ha" } : { bom: 1, why: "< 75 ha" }, f: () => false, c: () => true, ref: "Bảng D.1 mục 4.2, 4.3" }
+];
+let csxV = Object.assign({ i: 0, x: 200000, cap: "1", auto: true }, store.get("q10-csx", {}));
+if (!CS[csxV.i]) csxV.i = 0;
+function csxEval(V) {
+  const c = CS[V.i], x = +V.x || 0, d = c.d(x, V), items = [];
+  const parts = [d.xe ? `**${d.xe} xe ô tô chữa cháy**` : "", d.tau ? `**${d.tau} tàu chữa cháy**` : "", d.bom ? `**${d.bom} máy bơm chữa cháy khiêng tay** (loại B-1, TCVN 12110)` : ""].filter(Boolean);
+  items.push({ lv: parts.length ? "req" : "no", txt: (parts.length ? parts.join(" + ") : "**Phương tiện chữa cháy cơ giới** — không quy định") + " — " + d.why + (c.ex && !V.auto ? " (kho **không có** chữa cháy tự động, làm mát cố định: **gấp hai lần** định mức)" : ""), ref: c.ref });
+  if (d.bom) items.push({ lv: "info", txt: "Được thay máy bơm khiêng tay bằng **xe ô tô chữa cháy**", ref: "Bảng D.1 CT2" });
+  if (d.tau) items.push({ lv: "info", txt: "Được thay tàu chữa cháy bằng **tàu lai dắt có chức năng chữa cháy**", ref: "Bảng D.1 CT4" });
+  items.push({ lv: "info", txt: "Dự án liền kề hoặc trong bán kính **≤ 3 km** cùng một tổ chức quản lý → trang bị theo dự án có yêu cầu lớn hơn; các dự án còn lại mỗi dự án **01 bơm khiêng tay**. KCN phân kỳ đầu tư → theo từng phân kỳ", ref: "Bảng D.1 CT1; CT3" });
+  const f = c.f(x, V);
+  items.push({ lv: f ? "req" : "no", txt: f ? "**Mặt nạ phòng độc cách ly**: tối thiểu **03 bộ**, đặt tại phòng trực điều khiển chống cháy" : "**Mặt nạ phòng độc cách ly** — không thuộc Bảng F.1", ref: "Bảng F.1; 2.7.2" });
+  const cc = c.c(x, V);
+  items.push({ lv: cc ? "req" : "info", txt: cc ? "**Hệ thống cấp nước chữa cháy ngoài nhà** — không phụ thuộc quy mô" + (["nhiet-dien", "loc-dau", "che-bien-khi", "kho-dau"].includes(c.id) ? "; lưu lượng theo tiêu chuẩn, quy chuẩn lựa chọn (H.1.2 CT9)" : "") : "**Cấp nước ngoài nhà** — xét theo loại nhà, công trình trong cơ sở (Bảng C.1)", ref: c.id === "cang-hk" ? "Bảng C.1 mục 3" : c.id.startsWith("k") || c.id === "ccn" ? "Bảng C.1 mục 10" : "Bảng C.1" });
+  return items;
+}
+function renderCSX() {
+  setHeader("Cơ sở, khu — Bảng D.1, F.1"); setNav("cong-trinh");
+  const c = CS[csxV.i];
+  view.innerHTML = `${ctTabs("co-so")}
+  <div class="quick ct-form">
+    <label class="fld"><span>Cơ sở, khu</span><select id="csx-i">${CS.map((x, i) => `<option value="${i}"${i === csxV.i ? " selected" : ""}>${esc(x.n)}</option>`).join("")}</select></label>
+    ${c.sel ? `<label class="fld"><span>${c.lbl}</span><select id="csx-cap">${c.sel.map(([v, t]) => `<option value="${v}"${csxV.cap === v ? " selected" : ""}>${t}</option>`).join("")}</select></label>` : c.lbl ? `<label class="fld"><span>${c.lbl}</span><span class="inp"><input id="csx-x" type="text" inputmode="decimal" autocomplete="off" value="${fmtIn(csxV.x)}"><i>${c.u}</i></span></label>` : ""}
+    ${c.ex ? `<div class="checks"><label><input type="checkbox" id="csx-auto"${csxV.auto ? " checked" : ""}> Có chữa cháy tự động, chữa cháy và làm mát cố định cho bồn, trạm bơm</label></div>` : ""}
+  </div>
+  <div id="csxres">${itemsHTML([{ t: c.n, items: csxEval(csxV) }])}</div>
+  <p class="disclaimer">Xe ô tô chữa cháy theo TCVN 13316, bơm khiêng tay theo TCVN 12110 (2.8). Các nhà, công trình bên trong cơ sở vẫn xét riêng theo thẻ Toàn nhà và Gian phòng.</p>`;
 }
 
 /* ---------- Tính nước ---------- */
@@ -1282,6 +1333,7 @@ function route() {
   if (!h || h === "home") return renderHome();
   if (h === "cong-trinh") return renderCT();
   if (h === "gian-phong") return renderGP();
+  if (h === "co-so") return renderCSX();
   if (h === "tinh-nuoc") return renderWater();
   if (h === "h7") return renderH7();
   if (h === "cong-truong") return renderCS();
@@ -1326,6 +1378,7 @@ document.addEventListener("input", e => {
   if (el.dataset && el.dataset.k && el.tagName === "INPUT" && el.type !== "checkbox") { ctSync(false); return; }
   if (el.dataset && el.dataset.w) { const n = parseNum(el.value); wV[el.dataset.w] = n === "" ? 0 : Math.max(0, n); store.set("q10-w", wV); const pos = el.selectionStart; renderWater(); const ne = document.getElementById(el.id); if (ne) { ne.focus(); try { ne.setSelectionRange(pos, pos); } catch (x) {} } return; }
   if (el.id === "gp-q") { gpV.q = el.value; const o = gpList(); if (o.length && !o.some(([, i]) => i === gpV.k)) gpV.k = o[0][1]; store.set("q10-gp", gpV); document.getElementById("gp-k").innerHTML = o.map(([r, i]) => `<option value="${i}"${i === gpV.k ? " selected" : ""}>${esc(r[0])} · ${esc(r[2])}</option>`).join(""); document.getElementById("gp-x").nextElementSibling.textContent = GP[gpV.k][5] || "m²"; document.getElementById("gpres").innerHTML = gpResult(); return; }
+  if (el.id === "csx-x") { const n = parseNum(el.value); csxV.x = n === "" ? 0 : Math.max(0, n); store.set("q10-csx", csxV); document.getElementById("csxres").innerHTML = itemsHTML([{ t: CS[csxV.i].n, items: csxEval(csxV) }]); return; }
   if (el.id === "gp-x") { const n = parseNum(el.value); gpV.x = n === "" ? 0 : Math.max(0, n); store.set("q10-gp", gpV); document.getElementById("gpres").innerHTML = gpResult(); return; }
   if (el.id === "cs-floors") { csV.floors = el.value; store.set("q10-cs", csV); const r = csCalc(csV); document.getElementById("cs-out").innerHTML = r.fl.map((a, i) => `<dt>Tầng ${i + 1}: ${fmtN(a)} m²</dt><dd>${r.per[i]} bình</dd>`).join("") + `<dt><b>Tổng</b></dt><dd>${r.tot} bình</dd>`; return; }
 });
@@ -1335,6 +1388,9 @@ document.addEventListener("change", e => {
   if (el.dataset && el.dataset.k && (el.tagName === "SELECT" || el.type === "checkbox")) { ctSync(el.dataset.k === "id" || el.dataset.k === "gara" || el.dataset.k === "hang"); return; }
   if (el.dataset && el.dataset.w && el.tagName === "SELECT") { wV[el.dataset.w] = el.value === "1"; store.set("q10-w", wV); renderWater(); return; }
   if (el.dataset && el.dataset.h7) { h7V[el.dataset.h7] = el.value; store.set("q10-h7", h7V); renderH7(); return; }
+  if (el.id === "csx-i") { csxV.i = +el.value; store.set("q10-csx", csxV); renderCSX(); return; }
+  if (el.id === "csx-cap") { csxV.cap = el.value; store.set("q10-csx", csxV); renderCSX(); return; }
+  if (el.id === "csx-auto") { csxV.auto = el.checked; store.set("q10-csx", csxV); renderCSX(); return; }
   if (el.id === "gp-k") { gpV.k = +el.value; store.set("q10-gp", gpV); renderGP(); return; }
   if (el.id === "cs-road") { csV.road = el.checked; store.set("q10-cs", csV); renderCS(); return; }
 });

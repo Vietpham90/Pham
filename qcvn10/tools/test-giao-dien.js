@@ -95,7 +95,7 @@ const { chromium } = require("playwright");
   // 8. Tràn ngang ở 320 px, sáng và tối
   for (const scheme of ["light", "dark"]) {
     const c = await b.newContext({ viewport: { width: 320, height: 640 }, colorScheme: scheme }); const q = await c.newPage();
-    for (const h of ["home", "cong-trinh", "tinh-nuoc", "h7", "cong-truong", "so-sanh", "gian-phong", "pl-a", "h1", "h2"]) {
+    for (const h of ["home", "cong-trinh", "tinh-nuoc", "h7", "cong-truong", "so-sanh", "gian-phong", "co-so", "pl-a", "h1", "h2"]) {
       await q.goto(file + "#" + h); await q.waitForTimeout(80);
       const over = await q.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
       check(over <= 0, `${scheme} ${h}: không tràn ngang (${over}px)`);

@@ -83,3 +83,7 @@ node tools/test-tinh-thoat-nan.js /tmp/so-tay.html /tmp/anh
 ```bash
 node tools/test-dau-thap-phan.js /tmp/so-tay.html
 ```
+
+```bash
+node tools/test-doi-chieu-f5.js /tmp/so-tay.html
+```

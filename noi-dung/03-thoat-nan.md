@@ -342,5 +342,7 @@ Dùng cho thuyết minh hồ sơ thẩm duyệt. Công cụ **Công trình → T
 | 5 | Mỗi lối ra ≥ 1,2 m (F1.1 > 15 người; nhóm khác > 50 người, trừ F1.3), còn lại ≥ 0,8 m | 3.2.9 |
 | 6 | Bản thang ≥ chiều rộng tính toán và ≥ 1,2 m (tầng bất kỳ trừ tầng một > 200 người), 0,9 m các trường hợp còn lại; nhà > 50 m phần ở: N1, N3 ≥ 1,2 m | 3.4.1, A.3.1.8 |
 | 7 | Khoảng cách từ cửa căn hộ, gian phòng đến lối ra gần nhất: Bảng G.1 (F1.2, F1.3), Bảng G.2a (nhà công cộng), nhà > 50 m: 15 m hành lang cụt, 20 m giữa các buồng thang N | Bảng G.1, G.2a, A.2.19 |
+| 8 | Nhà F5, từng gian: số lối ra theo 3.2.5 (hạng A, B > 5 người; hạng C > 25 người hoặc > 1 000 m²; từ 50 người); chiều rộng lối ra của gian theo Bảng G.7 (khối tích gian, hạng, cấp S; gian cao > 6 m tăng 20 – 40 %), mỗi lối ≥ 0,9 m; lối ra tầng ra ngoài hoặc vào buồng thang theo Bảng G.8 | 3.2.5, G.2.2.1, G.2.2.2 |
+| 9 | Nhà F5, khoảng cách: từ chỗ làm việc xa nhất tới lối ra theo Bảng G.3 (gian > 1 000 m² gồm cả đường hành lang; gian cao > 6 m tăng 20 – 40 %, tối đa 140 m hạng A, B và 240 m hạng C); gian ≤ 1 000 m²: từ cửa gian tới lối ra theo Bảng G.4 | Bảng G.3, G.1.3.3, Bảng G.4 |
 
 > Các trường hợp được phép một lối ra (3.2.6.2), gian phòng có ghế khán giả và lối ra qua gian liền kề cần kiểm tra riêng.

@@ -93,3 +93,7 @@ node tools/test-tim-cong-trinh.js /tmp/so-tay.html
 ```bash
 node tools/test-so-do.js /tmp/so-tay.html
 ```
+
+```bash
+node tools/test-dong-bo.js /tmp/so-tay.html
+```

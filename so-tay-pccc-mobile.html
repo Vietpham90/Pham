@@ -149,7 +149,8 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 .chips button { border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 6px 12px; cursor: pointer; font-size: 13px; }
 
 .ver { margin: 18px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); }
-.ver p { margin: 0 0 6px; } .ver b { color: var(--ink); }
+.ver p { margin: 0 0 6px; }
+#syncst[data-st="on"] { color: var(--exit); font-weight: 600; } #syncst[data-st="on"]::before { content: "✓ "; } .ver b { color: var(--ink); }
 .ver summary { cursor: pointer; font-weight: 600; color: var(--ink); }
 .ver ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
 .disclaimer { font-size: 12.5px; color: var(--amber-ink); background: var(--amber-bg); border-radius: 10px; padding: 10px 12px; margin: 16px 0 0; }
@@ -531,7 +532,8 @@ function setHeader(title) {
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 
-const APP_VER = { so: "1.28", ngay: "15/11/2026", moi: [
+const APP_VER = { so: "1.29", ngay: "15/11/2026", moi: [
+  "Đồng bộ theo tài khoản Claude: mục đã lưu ★ và thông số Toàn nhà, Hỗn hợp, Gian phòng tự đồng bộ giữa các máy (khi mở trên claude.ai).",
   "Sơ đồ sinh động hơn: màu chuyển sắc, đổ bóng, bầu trời, cây xanh; mũi tên thoát nạn chuyển động, biển EXIT sáng, lửa và khói, đèn xe chữa cháy nhấp nháy; chú giải màu.",
   "Bỏ phiếu kiểm tra và mục Dự án; tab công cụ còn Toàn nhà, Hỗn hợp, Gian phòng.",
   "Thêm 7 sơ đồ minh họa: tầng hầm / nửa hầm, lối ra khẩn cấp qua ban công, chiều rộng hành lang khi cửa mở ra, thang máy chữa cháy và sảnh, lối ra mái và thang P1/P2, đường một làn và đường cụt, tầng lánh nạn; mục lục sơ đồ dạng nút.",
@@ -556,7 +558,7 @@ function renderHome() {
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span><svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg></button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đã đối chiếu với bản hợp nhất QCVN 06:2022/BXD + Sửa đổi 1:2023. <strong>✱ SĐ1</strong> đánh dấu nội dung sửa đổi. Mỗi giá trị kèm số điều để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
-    <footer class="ver"><p><b>Phiên bản ${APP_VER.so}</b> · cập nhật ${APP_VER.ngay}<br>Căn cứ: QCVN 06:2022/BXD (TT 06/2022/TT-BXD) và Sửa đổi 1:2023 (TT 09/2023/TT-BXD)</p>
+    <footer class="ver"><p><b>Phiên bản ${APP_VER.so}</b> · cập nhật ${APP_VER.ngay}<br>Căn cứ: QCVN 06:2022/BXD (TT 06/2022/TT-BXD) và Sửa đổi 1:2023 (TT 09/2023/TT-BXD)<br><span id="syncst" data-st="${sync.state}">${SYNC_TXT[sync.state]}</span></p>
       <details><summary>Thay đổi gần đây</summary><ul>${APP_VER.moi.map(x => `<li>${esc(x)}</li>`).join("")}</ul></details></footer>`;
 }
 
@@ -1691,6 +1693,61 @@ function thresholdsCT(v) {
   if (!["I", "II", "III", "IV", "V"].includes(gpV.bac)) gpV.bac = "I";
   saved = (Array.isArray(saved) ? saved : []).filter(x => typeof x === "string");
   if (typeof checks !== "object" || !checks || Array.isArray(checks)) checks = {};
+})();
+/* ---------- Đồng bộ giữa các máy cùng tài khoản Claude (chỉ khi mở trên claude.ai) ----------
+   Lưu mục đã lưu ★ và thông số Toàn nhà / Hỗn hợp / Gian phòng vào kho riêng của người xem
+   (data/users/<id>/sotay — chỉ chính người đó đọc được). Mở ngoài claude.ai: chỉ lưu trên máy. */
+const SYNC_KEYS = { saved: "pccc-saved", ct: "pccc-ct", mx: "pccc-mx", gp: "pccc-gp" };
+const sync = { ref: null, dev: Math.random().toString(36).slice(2, 10), timer: 0, busy: false, again: false, last: "", state: "local", pending: false };
+const syncAt = () => { try { return +(localStorage.getItem("pccc-sync-at") || 0); } catch (e) { return 0; } };
+const storeSet0 = store.set;
+store.set = (k, v) => { storeSet0(k, v); if (Object.values(SYNC_KEYS).includes(k)) { try { localStorage.setItem("pccc-sync-at", String(Date.now())); } catch (e) {} syncPush(); } };
+const SYNC_TXT = { local: "Dữ liệu lưu trên máy này.", on: "Đã đồng bộ theo tài khoản Claude — mở trên máy khác cùng tài khoản để dùng tiếp.", busy: "Đang đồng bộ…", off: "Chưa đồng bộ được — dữ liệu vẫn lưu trên máy này.", ro: "Tài khoản này chỉ xem, không lưu đồng bộ được." };
+function setSync(st) { sync.state = st; const el = document.getElementById("syncst"); if (el) { el.textContent = SYNC_TXT[st]; el.dataset.st = st; } }
+function syncBody() { const b = { v: 1, at: syncAt(), dev: sync.dev }; for (const [k, key] of Object.entries(SYNC_KEYS)) { const x = store.get(key, null); if (x !== null) b[k] = x; } return b; }
+function syncPush(now) {
+  if (!sync.ref) return;
+  clearTimeout(sync.timer);
+  sync.timer = setTimeout(async () => {
+    if (sync.busy) { sync.again = true; return; }
+    const body = syncBody(), key = JSON.stringify({ ...body, at: 0, dev: "" });
+    if (key === sync.last) return;
+    sync.busy = true; setSync("busy");
+    try { await sync.ref.set(body); sync.last = key; setSync("on"); }
+    catch (e) { setSync(e && e.code === "invalid_argument" ? "ro" : "off"); if (e && e.code === "invalid_argument") sync.ref = null; }
+    sync.busy = false;
+    if (sync.again) { sync.again = false; syncPush(true); }
+  }, now ? 0 : 1500);
+}
+function syncApply(d) {
+  const obj = x => x && typeof x === "object";
+  try {
+    if (Array.isArray(d.saved)) { localStorage.setItem(SYNC_KEYS.saved, JSON.stringify(d.saved)); saved = d.saved.filter(x => typeof x === "string"); }
+    if (obj(d.ct) && !Array.isArray(d.ct)) { localStorage.setItem(SYNC_KEYS.ct, JSON.stringify(d.ct)); ctV = Object.assign({}, ctV, d.ct); if (!CT[ctV.i]) ctV.i = 0; }
+    if (obj(d.mx) && Array.isArray(d.mx.parts)) { localStorage.setItem(SYNC_KEYS.mx, JSON.stringify(d.mx)); mxV = Object.assign({}, mxV, d.mx); mxV.parts = mxV.parts.filter(p => obj(p) && CT[p.i]); }
+    if (obj(d.gp) && !Array.isArray(d.gp)) { localStorage.setItem(SYNC_KEYS.gp, JSON.stringify(d.gp)); gpV = Object.assign({}, gpV, d.gp); if (!G9[gpV.k]) gpV.k = 0; }
+    localStorage.setItem("pccc-sync-at", String(+d.at || Date.now()));
+  } catch (e) {}
+  sync.last = JSON.stringify({ ...syncBody(), at: 0, dev: "" });
+  // vẽ lại khi người dùng không đang gõ, để không mất chữ đang nhập
+  const typing = document.activeElement && /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && document.getElementById("view").contains(document.activeElement);
+  if (typing) sync.pending = true; else route();
+}
+document.addEventListener("focusout", () => { if (sync.pending) setTimeout(() => { const a = document.activeElement; if (sync.pending && !(a && /INPUT|SELECT|TEXTAREA/.test(a.tagName))) { sync.pending = false; route(); } }, 50); });
+(async () => {
+  if (!window.claude || typeof window.claude.use !== "function") return;
+  try {
+    const [db, user] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if (!db || !user) return;
+    const id = await user.id(); if (!id) return;
+    sync.ref = db.doc("data/users/" + id + "/sotay");
+    setSync("busy");
+    const snap = await sync.ref.get();
+    const d = snap.exists ? snap.data() : null;
+    if (d && +d.at > syncAt()) { syncApply(d); setSync("on"); }
+    else if (syncAt() || !d) syncPush(true); else setSync("on");
+    sync.ref.onSnapshot(sn => { const x = sn.exists ? sn.data() : null; if (x && x.dev !== sync.dev && +x.at > syncAt()) { syncApply(x); setSync("on"); } }, () => setSync("off"));
+  } catch (e) { setSync(sync.ref ? "off" : "local"); }
 })();
 /* ---------- routing ---------- */
 function route() {

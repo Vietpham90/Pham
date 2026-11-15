@@ -1315,6 +1315,17 @@ function q06Eval(t, v) {
     const fixed = r.out.flatMap(s => s.items).filter(x => x.lv === "bad").filter(x => !r2.out.flatMap(s => s.items).some(y => y.lv === "bad" && y.ref === x.ref));
     alt = { before: nBad(r.out), after: nBad(r2.out), fixed: fixed.map(x => x.ref), ok2: r2.out.flatMap(s => s.items).find(x => x.lv === "ok" && /phương án đạt/.test(x.txt)) };
   }
+  // Gara ngầm, hoặc nhà có phần để xe trong tầng hầm: bỏ mục chỉ dành cho nhà nổi, thêm yêu cầu riêng của tầng hầm, gara ngầm
+  const garaNgam = ["de-xe", "gara-ck"].includes(t.id) && v.bas;
+  const coHamXe = v.nb >= 1 && (v.pcar > 0 || v.parea > 0);
+  if (garaNgam) r.out.forEach(sec => { sec.items = sec.items.filter(x => !/buồng thang L1|lỗ lấy sáng|bãi đỗ xe chữa cháy|[Ll]ối vào từ trên cao|[Đđ]ai ngăn cháy giữa các tầng|chia cắt mặt ngoài|Lối lên mái/.test(x.txt)); });
+  if (garaNgam || coHamXe) r.out.push({ t: garaNgam ? "Gara ngầm (tầng hầm)" : "Phần để xe ô tô trong tầng hầm", items: [
+    { txt: "Lối ra từ tầng hầm là lối ra thoát nạn khi **thoát trực tiếp ra ngoài** và **ngăn cách với buồng thang bộ chung** của nhà; hoặc đi qua buồng thang chung có lối riêng ra ngoài, ngăn bằng vách đặc ngăn cháy", ref: "3.2.2", lv: "warn" },
+    { txt: "Đường xe chữa cháy nằm trong phạm vi **18 m** tính từ lối vào trên mặt đất của các khoang đệm thang máy chữa cháy hoặc buồng thang có họng chờ DN 65 của hệ thống ống khô", ref: "6.2.2", lv: "warn" },
+    { txt: "**Hút xả khói** cho gara giữ xe kín, ngầm (kể cả khi là một phần của nhà có công năng khác) và các đường dốc được ngăn cách", ref: "D.2 h)", lv: "warn" },
+    { txt: "**Khoang đệm ngăn cháy được cấp không khí chống khói**: tại lối ra từ thang máy vào gara ngầm; giữa gara ô tô kín với các gian công năng khác; giữa gian giữ ô tô với đường dốc kín", ref: "D.10 e), j), k); D.14.3", lv: "warn" },
+    { txt: "Nhà có tầng hầm 4, 5 để xe: áp dụng thêm quy chuẩn về gara ngầm", ref: "1.1.3", lv: "" }
+  ] });
   return { it: Q06.CT[i], dt1, sp, n06, out: r.out, alt, via };
 }
 const LV06 = { ok: ["ok", "Đạt"], warn: ["warn", "Lưu ý"], bad: ["bad", "Vượt / không đạt"] };

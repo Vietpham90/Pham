@@ -53,6 +53,14 @@ const { chromium } = require("playwright");
     return [f([["van-phong", 12000], ["cua-hang", 0], ["chung-cu", 6000]]), f([["van-phong", 6000], ["cua-hang", 0], ["chung-cu", 12000]]), f([["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]])];
   });
   if (JSON.stringify(hh) !== JSON.stringify(["F4.3", "F1.3", "F1.3"])) errs.push("Nhà hỗn hợp chọn sai dòng QCVN 06: " + JSON.stringify(hh)); else ok++;
+  // 3e — gara ngầm: không có buồng thang L1, bãi đỗ, lối vào từ trên cao; có 3.2.2, 6.2.2, D.2 h), D.14.3
+  const gn = await p10.evaluate(() => {
+    const txt = r => r.out.flatMap(s => s.items).map(i => i.txt + " (" + i.ref + ")").join(" | ");
+    const a = txt(q06Eval(TI["de-xe"], Object.assign({}, DEF, { n: 1, h: 0, a: 10000, dt1: 10000, nb: 1, bas: true })));
+    const c = txt(q06Eval(TI["chung-cu"], Object.assign({}, DEF, { n: 21, h: 66, a: 31500, dt1: 1500, nb: 1, pcar: 200, parea: 10000 })));
+    return { aBad: /buồng thang L1|bãi đỗ xe chữa cháy|ối vào từ trên cao/.test(a), aOk: ["3.2.2", "6.2.2", "D.2 h)", "D.14.3"].every(r => a.includes(r)), cOk: /Phần để xe ô tô trong tầng hầm/.test(c) || c.includes("D.2 h)") };
+  });
+  if (gn.aBad || !gn.aOk || !gn.cOk) errs.push("Gara ngầm QCVN 06: " + JSON.stringify(gn)); else ok++;
   // 4 — giao diện: bỏ chọn thì ẩn, ô tóm tắt, sao chép kèm QCVN 06
   await p10.goto("file://" + process.argv[2] + "#cong-trinh"); await p10.waitForTimeout(100);
   await p10.selectOption("#ct-id", "chung-cu"); await p10.waitForTimeout(60);

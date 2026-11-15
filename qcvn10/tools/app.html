@@ -367,7 +367,8 @@ const T = [
   { id: "ga-ds", n: "Nhà ga hành khách, đề-pô đường sắt, đường sắt đô thị", k: "ga tau metro depot hanh khach", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "all", pump: 1 },
   { id: "ga-hh", n: "Nhà ga hàng hóa cảng hàng không, đường sắt", k: "ga hang hoa cargo", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "all", e1: 1, g1: "cc", pump: 1 },
   { id: "ga-cap-treo", n: "Nhà ga cáp treo", k: "cap treo", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", e1: 1, g1: "cc", pump: 1 },
-  { id: "ben-xe", n: "Bến xe khách, trạm dừng nghỉ, cảng cạn, dịch vụ cảng, bến", k: "ben xe tram dung nghi cang", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "td", e1: 1, g1: "cc", pump: 1 },
+  { id: "ben-xe", n: "Bến xe khách, trạm dừng nghỉ, cảng cạn", k: "ben xe tram dung nghi cang can", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "td", e1: 1, g1: "cc" },
+  { id: "dv-cang", n: "Nhà dịch vụ thuộc bến cảng biển, cảng thủy nội địa", k: "cang bien ben thuy noi dia nha dich vu", g: "F3.3", a1: "22", b1: "1.12", h5: "cong", og: "F", c1: "cang", e1: 1, g1: "cc", pump: 1 },
   { id: "kslk", n: "Đài kiểm soát không lưu", k: "khong luu", g: "F4.3", a1: "23", b1: "1.12", h5: "cong", og: "F", g1: "cc" },
   { id: "dang-kiem", n: "Xưởng kiểm định, trung tâm đăng kiểm", k: "dang kiem", g: "F5.1", a1: "24", b1: "1.5", h5: "cong", og: "F" },
   { id: "de-xe", n: "Nhà để xe ô tô, xe máy; trưng bày ô tô, xe máy", k: "garage gara bai do xe parking", g: "F5.2", a1: "25", b1: "3", h5: "xe", og: "F5", g1: "xe", need: ["gara", "bacS", "cho", "kv"] },
@@ -522,17 +523,19 @@ function ctEvaluate(t, v) {
   if ((t.a1 === "kho" || t.a1 === "sx") && !(t.a1 === "kho" && (v.gia || (["B", "C"].includes(hangMain(v.hang)) && v.n >= 2)))) push(S1, "info", v.ga > 0 ? `Ngưỡng Bảng A.3 xét theo **gian lớn nhất ${fmtN(v.ga)} m²**; kiểm tra từng gian khác theo hạng của gian đó` : "Ngưỡng Bảng A.3 tính theo **diện tích gian phòng** — nhập “diện tích gian lớn nhất” nếu nhà chia nhiều gian (đang dùng tổng diện tích sàn)", "Bảng A.3; 1.5.10");
   if (t.a1 === "kho" && v.gia && spr.req) push(S1, "info", "Sprinkler kho xếp hàng trên giá cao **> 5,5 m đến 25 m**: thiết kế theo **TCVN 14496**", "2.5.2");
   if (t.og === "F5" && spr.req && v.ceil10) push(S1, "info", "Gian F5 cao ≤ 10 m có chữa cháy tự động liên động trung tâm báo cháy → được **không** lắp đầu báo cháy tự động", "1.5.6");
+  if (["nha-hang", "khach-san", "truong-hoc", "benh-vien", "mam-non", "duong-lao", "van-hoa", "vui-choi", "hon-hop", "ktx", "van-phong", "cho-tttm"].includes(t.id)) push(S1, "info", "**Bếp** nhà hàng, phòng nồi hơi, giặt là **≤ 100 m²**: được dùng bình bột tự kích hoạt loại treo (cảm biến cách trần ≤ 40 cm); lớn hơn → ngăn khu ≤ 100 m² bằng tường REI 45 / vách EI 45", "2.5.4");
+  if (alarm.req && !["F5", "ham"].includes(t.og)) push(S1, "info", "**Trần giả, sàn nâng cao ≥ 0,35 m** tại hành lang thoát nạn, hội trường, tiền sảnh, gian **≥ 50 người** có ống bọc vật liệu Ch2 – Ch4 hoặc máng cáp ≥ 220 V → đặt **đầu báo cháy** trong khoảng trần (tại vị trí ống, máng)", "Bảng A.2 mục 7");
   push(S1, "info", "Xét tiếp **hạng mục** (Bảng A.2: hầm cáp, trần giả ≥ 0,35 m…), **gian phòng** (Bảng A.3: kho, phòng máy chủ ≥ 24 m², gian thương mại…), **thiết bị** (Bảng A.4: máy biến áp dầu…). Loại trừ: khu ướt, vệ sinh, buồng thang, khoang đệm, gian hạng E (1.5.11)", "1.5.9; 1.5.11");
   out.push(S1);
 
-  const S2 = { t: "Nước chữa cháy trong nhà — Phụ lục B, H.2", items: [] };
+  const S2 = { t: "Nước chữa cháy trong nhà — Phụ lục B, H.2", items: [] }; let jMain = null;
   let hydr;
   if (!t.b1) hydr = { req: false, why: "loại nhà không có trong Bảng B.1 — xác định theo nhà có công năng tương tự (1.5.7)" };
   else hydr = B1[t.b1](v);
   if (t.id === "hon-hop" && v.kara) hydr = { req: true, why: "nhà hỗn hợp có karaoke, vũ trường từ tầng 3 → cho toàn bộ nhà (Bảng B.1 CT1)" };
   push(S2, hydr.req ? "req" : (t.b1 ? "no" : "info"), "**Hệ thống họng nước chữa cháy trong nhà** — " + hydr.why + (t.b1w ? " (nhà dưỡng lão: áp dụng mục 1.4 như nhà điều dưỡng — đối chiếu)" : ""), t.b1 ? "Bảng B.1 mục " + t.b1.replace("ck", "") : "1.5.7");
   if (hydr.req || spr.req) {
-    const j = indoorJets(t, v);
+    const j = indoorJets(t, v); jMain = j;
     if (j.n) {
       const tot = j.n * j.q + (j.add || 0);
       push(S2, "val", `**Số tia × lưu lượng**: ${j.n} × ${fmtN(j.q)} L/s = **${fmtN(tot)} L/s**. ${j.why}`, j.ref);
@@ -558,7 +561,8 @@ function ctEvaluate(t, v) {
   if (t.c1 === "bv") c1 = { req: v.n >= 5 || v.a >= 3000, why: "bệnh viện ≥ 5 tầng hoặc ≥ 3 000 m²", ref: "Bảng C.1 mục 1" };
   else if (t.c1 === "all") c1 = { req: true, why: "không phụ thuộc quy mô", ref: "Bảng C.1" };
   else if (t.c1 === "ham") c1 = { req: v.len >= 500, why: "hầm dài ≥ 500 m", ref: "Bảng C.1 mục 4" };
-  else if (t.c1 === "td") c1 = { req: false, info: true, why: "cảng cạn, cảng, bến cấp đặc biệt/cấp I, trạm dừng nghỉ trên **đường cao tốc**: không phụ thuộc quy mô; bến xe khách: không có trong C.1", ref: "Bảng C.1 mục 3" };
+  else if (t.c1 === "td") c1 = { req: false, info: true, why: "**cảng cạn** và **trạm dừng nghỉ trên đường cao tốc**: không phụ thuộc quy mô; bến xe khách: không có trong C.1", ref: "Bảng C.1 mục 3" };
+  else if (t.c1 === "cang") c1 = { req: false, info: true, why: "cảng, bến thủy nội địa và bến cảng biển **cấp đặc biệt, cấp I**: không phụ thuộc quy mô; cấp thấp hơn: không có trong C.1", ref: "Bảng C.1 mục 3" };
   if (c1) push(S3, c1.req ? "req" : (c1.info ? "info" : "no"), "**Hệ thống cấp nước chữa cháy ngoài nhà riêng** — " + c1.why, c1.ref);
   else push(S3, "info", "Không có trong mục 1 – 9 Bảng C.1: dùng hệ thống cấp nước chữa cháy của **khu dân cư, khu đô thị, KCN** (mục 10: trụ dọc đường ≤ 150 m)", "Bảng C.1 mục 10; H.1.4.7");
   push(S3, "info", "Được **miễn** khi mọi điểm của nhà nằm trong **bán kính 400 m** từ trụ nước hoặc bến lấy nước đủ lưu lượng", "2.3.2");
@@ -584,7 +588,15 @@ function ctEvaluate(t, v) {
       push(S5, v.pcar >= 3 ? "req" : "no", `**Chữa cháy tự động** cho phần để xe — ${v.pcar} xe ${v.pcar >= 3 ? "≥" : "<"} 3 xe ô tô`, "Bảng A.3 mục 4.4");
     }
     if (v.parea) push(S5, v.parea >= 18000 ? "req" : "no", `**Loa thông báo** — nhà để xe kín (kể cả trong nhà có chức năng khác) ${fmtN(v.parea)} m² ${v.parea >= 18000 ? "≥" : "<"} 18 000 m²`, "Bảng G.1 mục 3");
-    if (v.parea >= 150) push(S5, "val", `**Họng nước**: khu để xe kín cần 2 lăng; khoang cháy 500 – 5 000 m³ → 2 × 2,5 L/s, > 5 000 m³ → 2 × 5 L/s${v.parea * 3 > 5000 ? " (ước theo chiều cao tầng ≈ 3 m: khoang > 5 000 m³ → 2 × 5 L/s)" : ""}`, "Bảng H.5 CT2");
+    if (v.parea > 0) {
+      const hh = v.phh > 0 ? v.phh : 3.3, kv = v.parea * hh;
+      const pj = kv < 500 ? null : kv <= 5000 ? [2, 2.5] : [2, 5];
+      push(S5, "val", `**Họng nước khu để xe**: khoang ≈ ${fmtN(v.parea)} m² × ${fmtN(hh)} m${v.phh > 0 ? "" : " (ước)"} = ${fmtN(kv)} m³ → ` + (pj ? `**2 lăng × ${fmtN(pj[1])} L/s**` : "dưới 500 m³, Bảng H.5 CT2 không quy định") + " (khoang 500 – 5 000 m³: 2 × 2,5; > 5 000 m³: 2 × 5)", "Bảng H.5 CT2");
+      if (pj && jMain && jMain.n) {
+        const qa = jMain.n * jMain.q + (jMain.add || 0), qb = pj[0] * pj[1];
+        push(S5, "val", `**Lưu lượng thiết kế bơm họng nước = ${fmtN(Math.max(qa, qb))} L/s** — lấy phần lớn hơn: phần nhà ${fmtN(qa)} L/s, khu để xe ${fmtN(qb)} L/s${qb > qa ? " → **khu để xe quyết định**" : ""}`, "H.2.5");
+      }
+    }
     out.push(S5);
   }
   if (v.tmTr > 0 || v.tmHam > 0) {
@@ -622,7 +634,7 @@ function mixRule(mix) {
   return { tot, top: TI[top[0]], share, mixed: share <= 0.7, rows: rows.map(r => [TI[r[0]], +r[1], +r[1] / tot]) };
 }
 /* ---------- giao diện Tra theo công trình ---------- */
-const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
+const DEF = { id: "khach-san", n: 6, h: 19.5, a: 3000, vol: 10000, nb: 1, kids: 0, seats: 0, ppl: 0, room: 0, hl: false, bac: "I", S: "S0", hang: "C2", len: 0, cho: 0, gara: "kin", open12: false, xm: false, ngan: false, rural: false, bas: false, deep: false, gia: false, special: false, lanh: false, direct: false, open: false, roof: true, w60: false, wood: false, steel: false, combust: false, ceil10: false, kara: false, kc: 0, pcar: 0, parea: 0, phh: 0, ga: 0, bbi: false, kyNuoc: false, go: false, tmTr: 0, tmHam: 0, mix: [["van-phong", 0], ["cua-hang", 0], ["chung-cu", 0]] };
 let ctV = Object.assign({}, DEF, store.get("q10-ct", {}));
 if (!TI[ctV.id]) ctV.id = DEF.id;
 if (!Array.isArray(ctV.mix) || ctV.mix.length !== 3 || !ctV.mix.every(r => Array.isArray(r) && TI[r[0]])) ctV.mix = JSON.parse(JSON.stringify(DEF.mix));
@@ -655,7 +667,7 @@ function renderCT() {
   if (need.includes("bacS") || f5) extra.push(selF("S", "Cấp kết cấu (S)", ["S0", "S1", "S2", "S3"]));
   if (f5) extra.push(selF("hang", "Hạng cháy nổ", ["A", "B", "C1", "C2", "C3", "C4", "D", "E"]));
   if (need.includes("gara")) extra.push(selF("gara", "Dạng nhà để xe", [["kin", "Dạng kín"], ["ho", "Dạng hở"]]));
-  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín", "m²")); }
+  if (!["25", "26", "28"].includes(t.a1) && t.a1 !== "kho" && t.a1 !== "sx") { extra.push(numF("pcar", "Ô tô đỗ trong nhà (hầm, tầng)", "xe")); extra.push(numF("parea", "Diện tích phần để xe kín", "m²")); extra.push(numF("phh", "Chiều cao tầng để xe", "m", "", "3,3")); }
   if (need.includes("ga")) extra.push(numF("ga", "Gian lớn nhất", "m²", "", "= tổng"));
   if (need.includes("tm")) { extra.push(numF("tmTr", "Gian thương mại trên mặt đất", "m²")); extra.push(numF("tmHam", "Gian thương mại tầng hầm", "m²")); }
   const checks = [];
@@ -707,7 +719,7 @@ function mixHTML() {
 }
 function ctResult() {
   const t = TI[ctV.id];
-  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
+  const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; });
   if (v.n < 1 && !["ham"].includes(t.og)) v.n = 1;
   const out = ctEvaluate(t, v);
   const chips = [t.g, `${v.n} tầng`, `${fmtN(v.h)} m`, `${fmtN(v.a)} m²`, v.vol ? `${fmtN(v.vol)} m³` : "", v.nb ? `${v.nb} hầm` : "", `bậc ${v.bac}`].filter(Boolean);
@@ -720,7 +732,7 @@ function ctResult() {
   `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;
 }
 function ctText() {
-  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
+  const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "ga", "tmTr", "tmHam"].forEach(k => { v[k] = +v[k] || 0; }); if (v.n < 1) v.n = 1;
   const out = ctEvaluate(t, v);
   const lines = [`${t.n} — ${v.n} tầng, chiều cao PCCC ${fmtN(v.h)} m, ${fmtN(v.a)} m², ${fmtN(v.vol)} m³ (QCVN 10:2025/BCA)`];
   out.forEach(s => { lines.push("", s.t); s.items.forEach(i => lines.push(`- [${(LV[i.lv] || LV.val)[1] || "Giá trị"}] ${i.txt.replace(/\*\*/g, "")} (${i.ref})`)); });

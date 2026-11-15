@@ -328,3 +328,19 @@ Cửa hoặc lối đi qua vùng an toàn trong nhà, cùng tầng, ra khu vực
 
 - Đi qua khu vực không có hoặc có ít tải trọng cháy (quầy lễ tân, bàn ghế số lượng hạn chế), ngăn với hành lang, gian phòng bằng **vách ngăn cháy loại 1**, cửa tự đóng (hoặc giải pháp 4.35b, màn ngăn cháy);
 - Đi qua lối đi hở thông khí ngoài trời (hành lang bên, ram dốc), ngăn với khu liền kề bằng bộ phận ngăn cháy không cháy **≥ EI 30** (bậc I) hoặc không cháy/Ch1 **≥ EI 15** (bậc II–IV).
+
+## 3.11 Trình tự tính toán thoát nạn theo tầng
+
+Dùng cho thuyết minh hồ sơ thẩm duyệt. Công cụ **Công trình → Thoát nạn** tính tự động và xuất bảng sang Excel.
+
+| Bước | Nội dung | Điều khoản |
+| --- | --- | --- |
+| 1 | Số người trên tầng = Σ (diện tích ÷ hệ số Bảng G.9) hoặc số người thiết kế. Nhà trên 50 m (trừ F1.3): nhân 1,25 | Bảng G.9, A.2.16 |
+| 2 | Số lối ra yêu cầu: ≥ 2 với tầng nhà F1.1, F1.2, F2, F3, F4; tầng từ 50 người; tầng F1.3 > 500 m² căn hộ; tầng hầm > 300 m² hoặc > 15 người | 3.2.6.1 |
+| 3 | Chiều rộng cần = số người ÷ định mức: 165 người/m (bậc I, II), 115 (bậc III, IV), 80 (bậc V); nhà F5 theo Bảng G.8 | G.2.1.1, Bảng G.8 |
+| 4 | Có n ≥ 2 lối ra: giả thiết đám cháy chặn 1 lối → tổng chiều rộng = chiều rộng cần × n ÷ (n − 1) | 3.2.8 |
+| 5 | Mỗi lối ra ≥ 1,2 m (F1.1 > 15 người; nhóm khác > 50 người, trừ F1.3), còn lại ≥ 0,8 m | 3.2.9 |
+| 6 | Bản thang ≥ chiều rộng tính toán và ≥ 1,2 m (tầng bất kỳ trừ tầng một > 200 người), 0,9 m các trường hợp còn lại; nhà > 50 m phần ở: N1, N3 ≥ 1,2 m | 3.4.1, A.3.1.8 |
+| 7 | Khoảng cách từ cửa căn hộ, gian phòng đến lối ra gần nhất: Bảng G.1 (F1.2, F1.3), Bảng G.2a (nhà công cộng), nhà > 50 m: 15 m hành lang cụt, 20 m giữa các buồng thang N | Bảng G.1, G.2a, A.2.19 |
+
+> Các trường hợp được phép một lối ra (3.2.6.2), gian phòng có ghế khán giả và lối ra qua gian liền kề cần kiểm tra riêng.

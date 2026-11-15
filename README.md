@@ -75,3 +75,7 @@ node tools/test-bam-sau-khi-go.js /tmp/so-tay.html
 ```bash
 node tools/test-do-ben.js /tmp/so-tay.html /tmp/anh
 ```
+
+```bash
+node tools/test-tinh-thoat-nan.js /tmp/so-tay.html /tmp/anh
+```

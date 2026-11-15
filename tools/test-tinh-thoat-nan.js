@@ -1,0 +1,80 @@
+const { chromium } = require('playwright');
+(async () => {
+  const b = await chromium.launch(); const f = 'file://' + process.argv[2];
+  const res = []; const ok = (name, cond, info) => res.push((cond ? 'ĐẠT  ' : 'LỖI  ') + name + (cond ? '' : ' → ' + JSON.stringify(info).slice(0, 400)));
+  const ctx = await b.newContext({ viewport: { width: 390, height: 844 } }); const p = await ctx.newPage(); p.setDefaultTimeout(4000);
+  const errs = []; p.on('pageerror', e => errs.push(e.message));
+  await p.goto(f + '#tinh-thoat-nan'); await p.waitForTimeout(300);
+  // 1. Tính toán có đáp án
+  const calc = await p.evaluate(() => {
+    const pick = (v) => { const R = tnEvaluate(v); const o = {}; R.res.forEach(r => o[r.F.fl.label] = { P: r.P, ex: r.exReq, w: +r.wReqTotal.toFixed(3), st: +r.stReq.toFixed(3), d: r.dLim, pass: r.pass }); return o; };
+    const cp = x => JSON.parse(JSON.stringify(x));
+    const off = cp(TN_PRESETS["Văn phòng 10 tầng"]);
+    const off3 = cp(off); off3.bac = "III";
+    const offH = cp(off); offH.h = 60;
+    const apt = cp(TN_PRESETS["Chung cư 20 tầng"]);
+    const mall = cp(TN_PRESETS["Trung tâm thương mại 4 tầng"]);
+    const f5 = { g: "F5.1", bac: "I", s: "S0", h: 12, f5h: "C2", rows: [{ f: "1", k: 7, a: 0, p: 30, ex: 2, w: 2, st: 0, d: 0 }] };
+    const fl = ["2-10", "-1", "B2", "10-2", "1", "", "tầng"].map(x => { const r = tnFloors(x); return [r.from, r.to, r.count]; });
+    return { off: pick(off), off3: pick(off3), offH: pick(offH), apt: pick(apt), mall: pick(mall), f5: pick(f5), fl };
+  });
+  const eq = (name, got, exp) => { const bad = Object.entries(exp).filter(([k, v]) => got[k] !== v); ok(name, bad.length === 0, { got, exp }); };
+  eq('VP tầng 1: 600/3 + 200/1,5 = 334 người; 3 lối ra → ≥ 3,6 m', calc.off["1"], { P: 334, ex: 2, w: 3.6, st: 0.9, d: 60, pass: true });
+  eq('VP tầng 2-10: 150 người, rộng ≥ 2,4 m, thang 0,909 m, ≤ 60 m', calc.off["2-10"], { P: 150, ex: 2, w: 2.4, st: 0.909, d: 60, pass: true });
+  eq('VP tầng hầm: 1500/30 = 50 người → 2 lối ra, ≥ 1,6 m', calc.off["-1"], { P: 50, ex: 2, w: 1.6, st: 0.9, d: 60, pass: true });
+  eq('VP bậc III: 115 người/m → 2,609 m > 2,4 → không đạt', calc.off3["2-10"], { P: 150, w: 2.609, st: 1.304, pass: false });
+  eq('VP cao 60 m: ×1,25 = 188 người, khoảng cách ≤ 20 m → không đạt', calc.offH["2-10"], { P: 188, d: 20, pass: false });
+  eq('Chung cư 2-20: 80 người, rộng ≥ 1,6 m (0,8 m/lối), G.1 ≤ 40 m', calc.apt["2-20"], { P: 80, ex: 2, w: 1.6, st: 0.9, d: 40, pass: true });
+  eq('TTTM tầng 2-4: 1334 người, 5 lối → 10,106 m, thang 2,021 m', calc.mall["2-4"], { P: 1334, w: 10.106, st: 2.021, d: 50, pass: true });
+  eq('TTTM tầng 1: 6 lối → 9,702 m, thang 1,2 m (tầng trên > 200 người)', calc.mall["1"], { w: 9.702, st: 1.2, pass: true });
+  eq('F5 hạng C 30 người → 2 lối ra; G.8 173 người/m', calc.f5["1"], { P: 30, ex: 2, w: 1.8 });
+  ok('Đọc tầng "2-10", "-1", "B2", "10-2"', JSON.stringify(calc.fl.slice(0, 4)) === JSON.stringify([[2, 10, 9], [-1, -1, 1], [-2, -2, 1], [2, 10, 9]]), calc.fl);
+  // 2. Giao diện
+  ok('Có tab Thoát nạn', (await p.$$eval('.tabs button', x => x.map(e => e.textContent))).includes('Thoát nạn'));
+  ok('Bảng có 3 tầng, tất cả đạt', (await p.$$('.tn-tbl tbody tr')).length === 3 && /Tất cả các tầng đạt/.test(await p.innerText('#tnres')));
+  await p.selectOption('#tnbac', 'III'); await p.waitForTimeout(150);
+  ok('Đổi bậc III → có tầng không đạt', /Có tầng không đạt/.test(await p.innerText('#tnres')));
+  await p.selectOption('#tnbac', 'I'); await p.waitForTimeout(100);
+  const w = (await p.$$('.tnrow .tnw'))[2];
+  await w.click({ clickCount: 3 }); await p.keyboard.type('1,9'); await p.waitForTimeout(150);
+  ok('Gõ "1,9" m vào tổng rộng tầng 2-10 → không đạt', /Không đạt/.test(await p.$eval('.tn-tbl tbody', e => e.innerText)), await p.$eval('.tn-tbl tbody', e => e.innerText));
+  await p.click('#tnadd'); await p.waitForTimeout(150);
+  ok('Bấm "+ Thêm dòng" ngay sau khi gõ vẫn ăn', (await p.$$('.tnrow')).length === 5);
+  ok('Giá trị vừa gõ được giữ', (await (await p.$$('.tnrow .tnw'))[2].inputValue()) === '1,9');
+  await p.click('[data-tndel="4"]'); await p.waitForTimeout(150);
+  ok('Xóa dòng', (await p.$$('.tnrow')).length === 4);
+  await p.selectOption('#tnpreset', 'Trung tâm thương mại 4 tầng'); await p.waitForTimeout(200);
+  ok('Chọn ví dụ TTTM', (await p.$eval('#tng', e => e.value)) === 'F3.1' && (await p.$$('.tnrow')).length === 2);
+  await p.selectOption('#tng', 'F5.1'); await p.waitForTimeout(200);
+  ok('Nhóm F5 → hiện ô hạng (G.8)', !!(await p.$('#tnf5')));
+  await p.selectOption('#tng', 'F3.1'); await p.waitForTimeout(200);
+  await p.reload(); await p.waitForTimeout(250);
+  ok('Lưu dữ liệu sau khi tải lại', (await p.$eval('#tng', e => e.value)) === 'F3.1' && (await p.$$('.tnrow')).length === 2);
+  const tsv = await p.evaluate(() => tnTSV());
+  ok('Bảng sao chép Excel: 13 cột, 3 dòng', tsv.split('\n').length === 3 && tsv.split('\n')[0].split('\t').length === 13, tsv.slice(0, 200));
+  await p.click('[data-report="tn"]'); await p.waitForTimeout(250);
+  ok('Tạo phiếu kiểm tra từ bảng tính', (await p.$$('.rp-row')).length >= 8, (await p.$$('.rp-row')).length);
+  const ow = await p.evaluate(() => document.documentElement.scrollWidth);
+  await p.goto(f + '#tinh-thoat-nan'); await p.waitForTimeout(250);
+  ok('Không tràn ngang ở 390 px', (await p.evaluate(() => document.documentElement.scrollWidth)) <= 390, ow);
+  await p.screenshot({ path: process.argv[3] + '-tn1.png', fullPage: false });
+  await p.evaluate(() => document.getElementById('tnres').scrollIntoView()); await p.screenshot({ path: process.argv[3] + '-tn2.png' });
+  // 3. Dữ liệu hỏng
+  await p.evaluate(() => localStorage.setItem('pccc-tn', JSON.stringify({ g: 'ZZ', bac: 9, h: 'abc', den: -3, rows: [null, 5, { f: null, k: 999, a: 'x', ex: -2 }] })));
+  await p.reload(); await p.waitForTimeout(250);
+  ok('Dữ liệu lưu hỏng vẫn mở được', (await p.innerText('#view')).length > 100 && !/NaN|undefined/.test(await p.innerText('#tnres')), await p.innerText('#tnres'));
+  await p.evaluate(() => localStorage.setItem('pccc-tn', '"chuỗi"')); await p.reload(); await p.waitForTimeout(200);
+  ok('Dữ liệu lưu là chuỗi vẫn mở được', (await p.$$('#tng')).length === 1);
+  const fz = await p.evaluate(() => { const bad = []; const rnd = a => a[Math.floor(Math.random() * a.length)];
+    for (let i = 0; i < 4000; i++) { const v = { g: rnd(TN_GROUPS), bac: rnd(["I", "II", "III", "IV", "V"]), s: rnd(["S0", "S1", "S2", "S3"]), h: rnd([0, 10, 15, 30, 50, 51, 75, 76, 120]), den: rnd([1, 2, 3, 4, 5, 6]), f5h: rnd(["A", "B", "C1", "C4", "D", "E"]),
+        rows: Array.from({ length: 1 + Math.floor(Math.random() * 5) }, () => ({ f: rnd(["1", "2-5", "-1", "B2", "3", ""]), k: Math.floor(Math.random() * 13), a: rnd([0, 50, 300, 301, 900, 5000, ""]), p: rnd(["", 10, 51, 250]), ex: rnd([0, 1, 2, 3, ""]), w: rnd([0, 0.8, 2.4, ""]), st: rnd([0, 0.9, 1.2]), d: rnd([0, 15, 25, 70]), pos: rnd(["mid", "dead"]) })) };
+      try { const R = tnEvaluate(v); R.res.forEach(r => { [r.P, r.exReq, r.wReqTotal, r.stReq].forEach(x => { if (!Number.isFinite(x) || x < 0) bad.push([v, r]); });
+          if (r.exReq >= 2 && r.wReqTotal < r.wEachMin * 2 - 1e-9) bad.push(['wmin', v.g]);
+          if (r.F.P > 0 && (v.bac === 'I') && r.pass && r.wD && r.wD < r.P / 165 - 1e-9 && !v.g.startsWith('F5') && v.g !== 'F1.3') bad.push(['rate', v]); });
+        tnTSV.call(null); } catch (e) { bad.push(e.message); } }
+    return bad.slice(0, 3); });
+  ok('Ngẫu nhiên 4000 phương án: không lỗi, không giá trị âm/NaN, đúng bất biến', fz.length === 0, fz);
+  ok('Không lỗi JS', errs.length === 0, errs);
+  await b.close();
+  console.log(res.join('\n')); console.log(`${res.filter(r => r.startsWith('ĐẠT')).length}/${res.length}`);
+})();

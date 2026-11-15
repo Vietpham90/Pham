@@ -905,7 +905,7 @@ function renderCS() {
 function renderCompare() {
   setHeader("Điểm mới cần lưu ý"); setNav("");
   const rows = [
-    ["Văn bản", "QCVN 10:2025/BCA (bắt buộc) thay vai trò TCVN 3890:2023 trong trang bị phương tiện; TCVN 3890 là tài liệu tham khảo [3]", "Lời nói đầu; Thư mục"],
+    ["Văn bản", "QCVN 10:2025/BCA là quy chuẩn kỹ thuật quốc gia, bắt buộc áp dụng từ 30/12/2025; TCVN 3890:2023 nằm trong thư mục tài liệu tham khảo của quy chuẩn", "Tài liệu tham khảo"],
     ["Thiết bị báo cháy độc lập", "Được thay hệ thống báo cháy tự động cho nhà nhỏ (cột TBĐL Bảng A.1); phải liên kết nhau", "1.4.11; Bảng A.1"],
     ["Nhà ở riêng lẻ kết hợp KD", "Báo cháy từ 7 tầng (KD dịch vụ), từ 3 tầng hoặc 500 m² (SX, KD hàng dễ cháy); sprinkler từ 30 m", "Bảng A.1 mục 1, 2"],
     ["Chung cư", "Báo cháy ≥ 5 tầng hoặc ≥ 700 m²; sprinkler từ 30 m; ≤ 100 m chỉ cần đầu phun tại cửa căn hộ", "Bảng A.1 mục 3; 1.5.12"],
@@ -917,7 +917,7 @@ function renderCompare() {
     ["Mặt nạ", "Khách sạn ≥ 3 tầng: 1 mặt nạ lọc độc/người; karaoke: theo phòng lớn nhất", "Bảng F.1"],
     ["Hệ thống đóng gói", "Được dùng hệ thống chữa cháy, họng nước Package (TCVN 13926)", "Bảng A.1 ⁽¹⁾; Bảng B.1 CT2"]
   ];
-  view.innerHTML = `<p class="intro">Các điểm nổi bật khi chuyển từ TCVN 3890:2023 sang QCVN 10:2025/BCA, tóm tắt từ chính văn bản quy chuẩn. Bấm số điều để mở nội dung.</p>
+  view.innerHTML = `<p class="intro">Các điểm cần lưu ý khi áp dụng QCVN 10:2025/BCA, tóm tắt từ chính văn bản quy chuẩn. Bấm số điều để mở nội dung.</p>
   <section class="ct-sec"><ul>${rows.map(r => `<li><span class="tx"><b>${esc(r[0])}</b> — ${esc(r[1])}</span><span class="refs">${refHTML(r[2])}</span></li>`).join("")}</ul></section>
   <p class="disclaimer">Bảng này chỉ tóm tắt nội dung QCVN 10:2025/BCA, không so sánh từng con số với TCVN 3890:2023.</p>`;
   window.scrollTo(0, 0);

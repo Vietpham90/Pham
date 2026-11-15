@@ -1,6 +1,6 @@
 # Sổ tay QCVN 10:2025/BCA
 
-Tra cứu nhanh **trang bị, bố trí phương tiện PCCC và CNCH cho nhà và công trình** theo **QCVN 10:2025/BCA**, ban hành kèm **Thông tư 103/2025/TT-BCA** ngày **04/11/2025**, hiệu lực từ **30/12/2025**. Quy chuẩn xây dựng trên cơ sở **TCVN 3890:2023**.
+Tra cứu nhanh **trang bị, bố trí phương tiện PCCC và CNCH cho nhà và công trình** theo **QCVN 10:2025/BCA**, ban hành kèm **Thông tư 103/2025/TT-BCA** ngày **04/11/2025**, hiệu lực từ **30/12/2025**. Thư mục tài liệu tham khảo của quy chuẩn gồm **TCVN 3890:2023** cùng các tiêu chuẩn Nga, Trung Quốc, Singapore, Hàn Quốc.
 
 > **Nguồn đối chiếu**: bản scan QCVN 10:2025/BCA kèm Thông tư 103/2025/TT-BCA (64 trang). Mọi giá trị kèm số điều, số bảng để tra lại nguyên văn. Sổ tay là bản **tóm tắt**, không thay thế quy chuẩn.
 

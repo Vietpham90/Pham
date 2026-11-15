@@ -35,4 +35,4 @@
 
 ## 8.4 Tài liệu tham khảo của quy chuẩn
 
-QCVN 10:2025/BCA được xây dựng trên cơ sở **TCVN 3890:2023**, có tham khảo: SP 486.1311500.2020, SP 484.1311500.2020 (Nga); GB 55037-2022, GB 50229-2019, GB 50720-2011, JTS 165-2013, JTJ 165-5-2021 (Trung Quốc); Quy chuẩn PCCC Singapore 2018; NFPC 606 (Hàn Quốc).
+Thư mục tài liệu tham khảo của QCVN 10:2025/BCA gồm: **TCVN 3890:2023**; SP 486.1311500.2020, SP 484.1311500.2020 (Nga); GB 55037-2022, GB 50229-2019, GB 50720-2011, JTS 165-2013, JTJ 165-5-2021 (Trung Quốc); Quy chuẩn PCCC Singapore 2018; NFPC 606 (Hàn Quốc).

@@ -136,22 +136,29 @@ Khối tích trung gian: nội suy tuyến tính. Gian cao > 6 m: định mức 
 | C4, D, E | Không quy định | S2, S3 | 130 |
 - Lối đi chính trong gian thương mại: **1,4 m** (≤ 100 m²); **1,6 m** (≤ 150 m²); **2,0 m** (≤ 400 m²); **2,5 m** (> 400 m²) (G.2.1.5).
 
-**Số người tính toán — Bảng G.9 (m²/người):**
+**Số người tính toán — Bảng G.9 Hệ số không gian sàn (G.3):**
 
-| Không gian | m²/người |
-| --- | --- |
-| Khu vui chơi có mái, hội trường, câu lạc bộ, sàn nhảy, bar, karaoke | 1,0 |
-| Phòng họp, hội thảo, phòng ăn, đọc, học, căng-tin; triển lãm, trường quay | 1,5 |
-| Sảnh lớn, sảnh thông tầng, khu chờ; chợ, TTTM, siêu thị; cửa hàng dịch vụ | 3,0 |
-| Phòng trưng bày, bảo tàng | 5,0 |
-| Văn phòng | 6,0 |
-| Cửa hàng nội thất lớn; nhà bếp, thư viện | 7,0 |
-| Phòng ngủ | 8,0 |
-| Phòng khách, phòng giải trí | 10,0 |
-| Kho | 30,0 |
-| Nhà để xe ô tô | 2 người/chỗ đỗ |
+| TT | Không gian sử dụng | m²/người |
+| --- | --- | --- |
+| 1 | Khu vực vui chơi có mái che, hội trường, nơi đông người, câu lạc bộ, sàn nhảy, quầy bar, karaoke và các khu tương tự | 1,0 |
+| 2 | Sảnh lớn, sảnh thông tầng, khu tiếp đón, khu khách chờ và tương tự | 3,0 |
+| 3 | Phòng họp, phòng khách, phòng hội thảo, phòng ăn, phòng đọc, phòng học, căng-tin và các gian phòng tương tự | 1,5 |
+| 4 | Nhà chợ, trung tâm thương mại, siêu thị | 3,0 |
+| 5 | Phòng triển lãm hoặc trường quay (phim, thu phát sóng, truyền hình, ghi âm) | 1,5 |
+| 6 | Các cửa hàng mua bán, dịch vụ: bách hóa, dịch vụ cắt, uốn tóc, giặt là, sửa chữa hoặc tương tự | 3,0 |
+| 7 | Phòng trưng bày nghệ thuật, khu trưng bày sản phẩm, bảo tàng hoặc các khu tương tự | 5,0 |
+| 8 | Văn phòng | 6,0 |
+| 9 | Các cửa hàng bán đồ nội thất lớn như bàn ghế, đồ trải sàn và tương tự | 7,0 |
+| 10 | Nhà bếp hoặc thư viện | 7,0 |
+| 11 | Phòng ngủ hoặc phòng ngủ kết hợp phòng học | 8,0 |
+| 12 | Phòng khách, phòng giải trí | 10,0 |
+| 13 | Kho hoặc nơi chứa đồ | 30,0 |
+| 14 | Nhà để xe ô tô | 2 người/ô để xe |
 
-Diện tích sàn không kể thang bộ, thang máy, vệ sinh, phụ trợ.
+- Số người lớn nhất lấy theo thiết kế được duyệt; khi thiết kế không chỉ rõ thì lấy diện tích sàn chia hệ số trên. **Diện tích sàn không kể** cầu thang bộ, thang máy, khu vệ sinh và các phần phụ trợ khác.
+- Chú thích 1): có thể lấy hệ số theo số liệu thực tế của công trình tương tự, phản ánh mật độ trung bình tại thời điểm cao nhất trong năm.
+- Chú thích 2): không gian không có trong bảng thì chọn giá trị phù hợp của không gian tương tự.
+- Chú thích 3): khu vực dùng cho nhiều mục đích lấy hệ số cho số người lớn nhất; nhà có nhiều khu vực khác nhau thì tính riêng từng khu vực với hệ số tương ứng.
 
 ## 3.5 Cửa trên đường thoát nạn (3.2.9 – 3.2.11)
 

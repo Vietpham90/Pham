@@ -91,3 +91,7 @@ node tools/test-doi-chieu-f5.js /tmp/so-tay.html
 ```bash
 node tools/test-tom-tat-cong-trinh.js /tmp/so-tay.html /tmp/anh
 ```
+
+```bash
+node tools/test-doi-chieu-cong-nang.js /tmp/so-tay.html
+```

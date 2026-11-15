@@ -26,14 +26,20 @@ const { chromium } = require('playwright');
     const xw = tnEvaluate(cp(TN_PRESETS["Nhà xưởng 2 tầng (F5.1)"])).gians.map(x => ({ ex: x.exReq, rate: x.rate, w: +x.wReq.toFixed(3), g3: x.g3, g4: x.g4, pass: x.pass }));
     const xw2 = cp(TN_PRESETS["Nhà xưởng 2 tầng (F5.1)"]); xw2.rows[0].d = 90; xw2.rows[2].dc = 130; xw2.rows[2].gex = 1;
     const xwb = tnEvaluate(xw2).gians.map(x => x.notes.filter(n => n.bad).length);
+    const spc = tnEvaluate({ g: "F3.1", bac: "I", s: "S0", h: 12, den: 2, rows: [
+      { f: "1", k: 3, a: 3000, ch: 5, gex: 4, gw: 6, dr: 70, fl: true },
+      { f: "1", k: 3, a: 3000, ch: 5, gex: 4, gw: 6, dr: 70, fl: false },
+      { f: "2", k: 2, a: 400, ch: 4, gex: 2, gw: 2.4, dr: 30, fl: true },
+      { f: "2", k: 2, a: 60, ch: 3.6, p: 40, gex: 1, gw: 0.8, dr: 28 },
+      { f: "-1", k: 13, a: 2000, xe: 60, gex: 2, gw: 2.4, dr: 40 }] }).spaces.map(x => ({ P: x.P, ex: x.exReq, rate: x.rate, w: +x.wReq.toFixed(3), g2b: x.g2b, pass: x.pass }));
     const fl2 = ["T2-T10", "2–10", "tầng 3"].map(x => { const r = tnFloors(x); return [r.from, r.to]; });
     const fl = ["2-10", "-1", "B2", "10-2", "1", "", "tầng"].map(x => { const r = tnFloors(x); return [r.from, r.to, r.count]; });
-    return { xw, xwb, one: pick(one), one2: pick(one2), hos: pick(hos), gA: gtxt(gpA), gB: gtxt(gpB), f5e: pick(f5e), sch: pick(sch), low: pick(low), fl2, off: pick(off), off3: pick(off3), offH: pick(offH), apt: pick(apt), mall: pick(mall), f5: pick(f5), fl };
+    return { spc, xw, xwb, one: pick(one), one2: pick(one2), hos: pick(hos), gA: gtxt(gpA), gB: gtxt(gpB), f5e: pick(f5e), sch: pick(sch), low: pick(low), fl2, off: pick(off), off3: pick(off3), offH: pick(offH), apt: pick(apt), mall: pick(mall), f5: pick(f5), fl };
   });
   const eq = (name, got, exp) => { const bad = Object.entries(exp).filter(([k, v]) => got[k] !== v); ok(name, bad.length === 0, { got, exp }); };
   eq('VP tầng 1: 600/3 + 200/1,5 = 334 người; 3 lối ra → ≥ 3,6 m', calc.off["1"], { P: 334, ex: 2, w: 3.6, st: 0.9, d: 60, pass: true });
   eq('VP tầng 2-10: 150 người, rộng ≥ 2,4 m, thang ≥ cửa 1,2 m, ≤ 60 m', calc.off["2-10"], { P: 150, ex: 2, w: 2.4, st: 1.2, d: 60, pass: true });
-  eq('VP tầng hầm: 1500/30 = 50 người → 2 lối ra, ≥ 1,6 m', calc.off["-1"], { P: 50, ex: 2, w: 1.6, st: 0.9, d: 60, pass: true });
+  eq('VP tầng hầm để xe 45 ô × 2 = 90 người (G.9 mục 14) → 2 lối ra, ≥ 2,4 m', calc.off["-1"], { P: 90, ex: 2, w: 2.4, st: 1.2, d: 60, pass: true });
   eq('VP bậc III: 115 người/m → 2,609 m > 2,4 → không đạt', calc.off3["2-10"], { P: 150, w: 2.609, st: 1.304, pass: false });
   eq('VP cao 60 m: ×1,25 = 188 người, khoảng cách ≤ 20 m → không đạt', calc.offH["2-10"], { P: 188, d: 20, pass: false });
   eq('Chung cư 2-20: 80 người, rộng ≥ 1,6 m (0,8 m/lối), thang ≥ cửa 1,0 m, G.1 ≤ 40 m', calc.apt["2-20"], { P: 80, ex: 2, w: 1.6, st: 1, d: 40, pass: true });
@@ -43,6 +49,11 @@ const { chromium } = require('playwright');
   eq('F5 hạng E 600 người: G.8 dòng C4, D, E = 260 người/m → 4,615 m', calc.f5e["1"], { w: 4.615 });
   eq('Trường học: G.2a cột > 2 – 3 → ≤ 50 m dù nhập mật độ 1', calc.sch["2"], { d: 50, pass: false });
   eq('Tầng 10 người nhưng nhà có tầng > 200 người: thang ≥ 1,2 m (không lấy 0,7 m)', calc.low["2"], { P: 10, st: 1.2, pass: false });
+  eq('Siêu thị 3 000 m², cao 5 m (15 000 m³), lối đi ≥ 25 %: 1000 người, G.5 dòng 1 = 275, 4 lối → 4,85 m; G.2b ≤ 80 m', calc.spc[0], { P: 1000, ex: 2, rate: 275, w: 4.848, g2b: 80, pass: true });
+  eq('Siêu thị lối đi < 25 %: G.5 dòng 2 = 125 → 10,67 m > 6 m; G.2b ≤ 35 m < 70 m → không đạt', calc.spc[1], { rate: 125, w: 10.667, g2b: 35, pass: false });
+  eq('Phòng ăn 400 m² (267 người), đánh dấu: G.5 dòng 1 = 165 → 3,24 m > 2,4 m; G.2b ≤ 65 m', calc.spc[2], { P: 267, rate: 165, w: 3.236, g2b: 65, pass: false });
+  eq('Phòng học 40 người, 1 lối ra, đường đi 28 m > 25 m → cần 2 lối ra (3.2.5 d); cửa ≥ 0,9 m? (F3.1 không phải trường học → 0,8)', calc.spc[3], { P: 40, ex: 2, g2b: null, pass: false });
+  eq('Hầm để xe 60 ô → 120 người (G.9 mục 14), > 50 → mỗi lối ≥ 1,2 m', calc.spc[4], { P: 120, ex: 2, w: 2.4, g2b: null, pass: true });
   eq('Xưởng C2 19 200 m³ cao 8 m: G.3 = 67 m × 1,2 = 80 m; G.7 = 123 × 1,1 = 135 người/m; 3 lối ≥ 3,6 m', calc.xw[0], { ex: 2, rate: 135, w: 3.6, g3: 80, g4: null, pass: true });
   eq('Kho hạng D 600 m², 6 người: G.3 không hạn chế; G.7 260; G.4 ≤ 180 m; 1 lối ra', calc.xw[1], { ex: 1, rate: 260, w: 0.9, g3: Infinity, g4: 180, pass: true });
   eq('Gian C3 800 m², 40 người: 2 lối ra; G.7 110; ≥ 1,8 m; G.3 ≤ 60 m; G.4 ≤ 120 m', calc.xw[2], { ex: 2, rate: 110, w: 1.8, g3: 60, g4: 120, pass: true });
@@ -56,9 +67,9 @@ const { chromium } = require('playwright');
   ok('Đọc tầng "2-10", "-1", "B2", "10-2"', JSON.stringify(calc.fl.slice(0, 4)) === JSON.stringify([[2, 10, 9], [-1, -1, 1], [-2, -2, 1], [2, 10, 9]]), calc.fl);
   // 2. Giao diện
   ok('Có tab Thoát nạn', (await p.$$eval('.tabs button', x => x.map(e => e.textContent))).includes('Thoát nạn'));
-  ok('Bảng có 3 tầng, tất cả đạt', (await p.$$('.tn-tbl tbody tr')).length === 3 && /Tất cả các tầng đạt/.test(await p.innerText('#tnres')));
+  ok('Bảng có 3 tầng, tất cả đạt', (await p.$$('#tnres > .tbl tbody tr')).length === 3 && /Tất cả các tầng, các gian đạt/.test(await p.innerText('#tnres')));
   await p.selectOption('#tnbac', 'III'); await p.waitForTimeout(150);
-  ok('Đổi bậc III → có tầng không đạt', /Có tầng không đạt/.test(await p.innerText('#tnres')));
+  ok('Đổi bậc III → có tầng không đạt', /Có tầng hoặc gian không đạt/.test(await p.innerText('#tnres')));
   await p.selectOption('#tnbac', 'I'); await p.waitForTimeout(100);
   const w = (await p.$$('.tnrow .tnw'))[2];
   await w.click({ clickCount: 3 }); await p.keyboard.type('1,9'); await p.waitForTimeout(150);
@@ -76,7 +87,7 @@ const { chromium } = require('playwright');
   await p.reload(); await p.waitForTimeout(250);
   ok('Lưu dữ liệu sau khi tải lại', (await p.$eval('#tng', e => e.value)) === 'F3.1' && (await p.$$('.tnrow')).length === 2);
   const tsv = await p.evaluate(() => tnTSV());
-  ok('Bảng sao chép Excel: 13 cột, 3 dòng', tsv.split('\n').length === 3 && tsv.split('\n')[0].split('\t').length === 13, tsv.slice(0, 200));
+  ok('Bảng sao chép Excel: 13 cột, 3 dòng', tsv.split('\n\n')[0].split('\n').length === 3 && tsv.split('\n')[0].split('\t').length === 13, tsv.slice(0, 200));
   await p.click('[data-report="tn"]'); await p.waitForTimeout(250);
   ok('Tạo phiếu kiểm tra từ bảng tính', (await p.$$('.rp-row')).length >= 8, (await p.$$('.rp-row')).length);
   const ow = await p.evaluate(() => document.documentElement.scrollWidth);

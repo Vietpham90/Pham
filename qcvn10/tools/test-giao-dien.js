@@ -120,16 +120,16 @@ const { chromium } = require("playwright");
   check(fig[0].has && fig[0].brk && fig[0].floors === 7 && fig[0].cars === 4 && ["Báo", "Sprinkler", "Họng", "Ống", "Loa", "Nước"].every(k => fig[0].on.includes(k)), "hình khách sạn 14 tầng: 7 tầng vẽ + ngắt, hầm có xe, đủ 6 hệ thống " + JSON.stringify(fig[0]));
   check(fig[1].has && fig[1].floors === 5 && !fig[1].brk && fig[1].on.includes("Báo") && !fig[1].on.includes("Sprinkler"), "hình chung cư 5 tầng: 5 tầng, báo cháy có, sprinkler gạch " + JSON.stringify(fig[1]));
   check(!fig[2].has, "hầm đường bộ: không vẽ mặt cắt nhà");
-  const det = await p.evaluate(() => {
+  const ic = await p.evaluate(() => {
     const r = [];
-    for (const x of [{ id: "nha-hat", n: 3, h: 12, a: 3000, vol: 15000, seats: 800, nb: 0 }, { id: "khach-san", n: 3, h: 10, a: 900, vol: 3000, nb: 0 }, { id: "chung-cu", n: 4, h: 12, a: 1200, vol: 4000, nb: 0 }]) {
+    for (const x of [{ id: "nha-hat", n: 3, h: 12, a: 3000, vol: 15000, seats: 800, nb: 0 }, { id: "khach-san", n: 3, h: 10, a: 900, vol: 3000, nb: 0 }]) {
       Object.assign(ctV, DEF, x); renderCT();
-      const d = document.querySelector(".dt"); r.push(d ? d.innerText.replace(/\s+/g, " ") : "");
+      r.push({ dt: !!document.querySelector(".dt"), leg: document.querySelector(".fg-leg").innerText.replace(/\s+/g, " ") });
     }
     return r;
   });
-  check(/Đầu báo cháy/.test(det[0]) && /van DN65/.test(det[0]) && /5 L\/s > 4 L\/s/.test(det[0]) && /1,20 m/.test(det[0]) && /nút ấn/.test(det[0]), "chi tiết rạp 800 chỗ: đầu báo + nút ấn, tủ họng van DN65 (5 L/s), cao 1,20 m");
-  check(/Thiết bị báo cháy độc lập/.test(det[1]) && !/nút ấn/.test(det[1]) && !/Tủ họng nước/.test(det[1]), "chi tiết khách sạn 3 tầng: thiết bị báo cháy độc lập, không nút ấn, không tủ họng");
+  check(!ic[0].dt && /Báo cháy \+ nút ấn/.test(ic[0].leg) && /Họng nước 2 × 5 L\/s/.test(ic[0].leg), "rạp 800 chỗ: không còn khung chi tiết; chú giải 'Báo cháy + nút ấn', 'Họng nước 2 × 5 L/s' " + ic[0].leg);
+  check(/Báo cháy độc lập/.test(ic[1].leg), "khách sạn 3 tầng: chú giải 'Báo cháy độc lập' " + ic[1].leg);
   await p.close();
   // 8. Tràn ngang ở 320 px, sáng và tối
   for (const scheme of ["light", "dark"]) {

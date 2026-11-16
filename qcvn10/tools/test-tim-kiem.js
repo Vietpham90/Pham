@@ -10,6 +10,7 @@ const C = [
   ["nhà xưởng 2 tầng 12000m2 hạng C3", /2 tầng · 12\.000 m² · hạng C3/, "san-xuat", null, true],
   ["nha xuong hang C", /hạng C2 \(hạng C tạm lấy C2/, "san-xuat", null, true],
   ["chung cu 25 tang 80m 2 ham 300 xe", /25 tầng · 80 m · 2 hầm · 300 xe/, "chung-cu", null, true],
+  ["chung cư 20 tầng 65m hành lang 60m", /hành lang 60 m · 20 tầng · 65 m/, "chung-cu", null, true],
   ["chua chay tu dong kho", null, "kho", null, true],
   ["phong may bien ap", null, null, null, true],
   ["tru nuoc", null, null, /Trụ nước/, true],

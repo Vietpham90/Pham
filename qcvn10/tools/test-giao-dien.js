@@ -129,6 +129,19 @@ const { chromium } = require("playwright");
     return r;
   });
   check(!ic[0].dt && /Báo cháy \+ nút ấn/.test(ic[0].leg) && /Họng nước 2 × 5 L\/s/.test(ic[0].leg), "rạp 800 chỗ: không còn khung chi tiết; chú giải 'Báo cháy + nút ấn', 'Họng nước 2 × 5 L/s' " + ic[0].leg);
+  const tu = await p.evaluate(() => {
+    const r = [];
+    for (const x of [{ id: "chung-cu", n: 20, h: 65, a: 30000, vol: 100000, nb: 0, hlLen: 60, vong: 20 }, { id: "chung-cu", n: 12, h: 40, a: 12000, vol: 40000, nb: 0, hlLen: 8, vong: 20 }, { id: "khach-san", n: 6, h: 20, a: 6000, vol: 20000, nb: 0, hlLen: 100, vong: 15 }, { id: "khach-san", n: 8, h: 28, a: 6000, vol: 20000, nb: 0, hlLen: 0 }]) {
+      Object.assign(ctV, DEF, x); renderCT();
+      const it = [...document.querySelectorAll("#ctres li")].map(l => l.innerText.replace(/\s+/g, " "));
+      r.push({ tia: (it.find(t => /Số tia × lưu lượng/.test(t)) || "").slice(0, 40), tu: (it.find(t => /Số tủ họng nước mỗi tầng|Nhập chiều dài hành lang/.test(t)) || "").slice(0, 60), cab: document.querySelectorAll(".ctfig svg > rect[rx='1.2']").length });
+    }
+    return r;
+  });
+  check(/3 × 2,5/.test(tu[0].tia) && /≈ 4/.test(tu[0].tu), "chung cư 20 tầng hành lang 60 m: 3 tia (hành lang > 10 m), 4 tủ/tầng " + JSON.stringify(tu[0]));
+  check(/1 × 2,5/.test(tu[1].tia) && /≈ 1/.test(tu[1].tu), "chung cư 12 tầng hành lang 8 m: 1 tia, 1 tủ/tầng " + JSON.stringify(tu[1]));
+  check(/≈ 4/.test(tu[2].tu), "khách sạn hành lang 100 m, vòi 15 m: 4 vị trí → 4 tủ/tầng " + JSON.stringify(tu[2]));
+  check(/Nhập chiều dài hành lang/.test(tu[3].tu), "chưa nhập hành lang → nhắc nhập " + JSON.stringify(tu[3]));
   check(/Báo cháy độc lập/.test(ic[1].leg), "khách sạn 3 tầng: chú giải 'Báo cháy độc lập' " + ic[1].leg);
   await p.close();
   // 8. Tràn ngang ở 320 px, sáng và tối

@@ -142,6 +142,12 @@ const { chromium } = require("playwright");
   });
   check(tu[0].tia === "3" && tu[1].tia === "1" && !tu[0].tu && !tu[1].tu && tu[0].field, "chung cư: chiều dài hành lang 60 m → 3 tia, 8 m → 1 tia; không còn số tủ/tầng " + JSON.stringify(tu));
   check(!tu[2].field, "khách sạn: không có ô hành lang (Bảng H.5 dòng 4 không phụ thuộc hành lang)");
+  const ck = await p.evaluate(() => [
+    { id: "chung-cu", n: 20, h: 10, a: 20000, vol: 60000 }, { id: "chung-cu", n: 3, h: 60, a: 900, vol: 3000 }, { id: "van-phong", n: 10, h: 35, a: 500, vol: 900000 },
+    { id: "chung-cu", n: 10, h: 33, a: 10000, vol: 33000, dt1: 50000 }, { id: "chung-cu", n: 10, h: 33, a: 10000, vol: 33000, dt1: 1000 }, { id: "san-xuat", n: 2, h: 12, a: 24000, vol: 180000 }
+  ].map(x => { Object.assign(ctV, DEF, { nb: 0, bas: false }, x); renderCT(); return [...document.querySelectorAll(".ct-chk li")].map(l => l.innerText).join(" | "); }));
+  check(/thấp bất thường cho 20 tầng/.test(ck[0]) && /lớn bất thường cho 3 tầng/.test(ck[1]) && /Khối tích .* lớn bất thường/.test(ck[2]) && /lớn hơn tổng diện tích sàn/.test(ck[3]), "kiểm tra số liệu nhập: chiều cao/số tầng, khối tích, diện tích 1 tầng " + JSON.stringify(ck.slice(0, 4)).slice(0, 160));
+  check(ck[4] === "" && ck[5] === "", "số liệu hợp lý (chung cư 10 tầng 33 m; xưởng 2 tầng 12 m): không cảnh báo nhầm " + JSON.stringify(ck.slice(4)));
   check(/Báo cháy độc lập/.test(ic[1].leg), "khách sạn 3 tầng: chú giải 'Báo cháy độc lập' " + ic[1].leg);
   await p.close();
   // 8. Tràn ngang ở 320 px, sáng và tối

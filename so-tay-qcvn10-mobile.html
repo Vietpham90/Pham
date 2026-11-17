@@ -299,6 +299,8 @@ details.sub summary { cursor: pointer; font-weight: 600; font-size: 13.5px; colo
 ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } ul.plain li + li { margin-top: 6px; }
 .ct-sec .tx strong { color: var(--ink); }
 .quick textarea:focus, .fld input:focus, .fld select:focus { outline: 2px solid var(--fire); outline-offset: 0; }
+.ct-chk { border: 1px solid var(--amber); background: var(--amber-bg); color: var(--amber-ink); border-radius: 10px; padding: 10px 12px; margin: 0 0 10px; font-size: 13px; }
+.ct-chk ul { margin: 4px 0 0; padding-left: 18px; } .ct-chk li + li { margin-top: 3px; }
 .ctfig { margin: 10px 0 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px 8px; }
 .ctfig > svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; }
 .fg-fl { fill: var(--bg); stroke: var(--ink); stroke-width: 1.2; } .fg-win { fill: var(--tint); }
@@ -534,7 +536,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v36 · cập nhật 16/11/2026</p>
+    <p class="ver">Phiên bản v37 · cập nhật 17/11/2026</p>
     <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
@@ -1789,6 +1791,26 @@ function ctFigure(t, v, all, partS) {
   return `<figure class="ctfig"><svg viewBox="0 0 340 ${H}" role="img" aria-label="Mặt cắt minh họa — ${esc(lbl)}">${g}</svg>
   <figcaption class="fg-leg">${lg.map(([l, s2, ic, note]) => `<span class="${s2 === "on" ? "on" : "off"}"><svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">${IC[ic]}</svg>${esc(l)}${note ? ` (${note})` : ""}</span>`).join("")}</figcaption><p class="fg-note">Hình minh họa theo kết quả tra, không theo tỉ lệ. Gạch ngang: không bắt buộc với quy mô đã nhập.</p></figure>`;
 }
+/* Kiểm tra số liệu nhập có hợp lý không (bắt lỗi gõ nhầm) — chỉ cảnh báo, không đổi kết quả */
+function ctCheck(t, v) {
+  const w = [];
+  if (t.og === "ham") return w;
+  if (v.n >= 2 && v.h > 0) {
+    const per = v.h / (v.n - 1);
+    if (per < 2.4) w.push(`Chiều cao PCCC ${fmtN(v.h)} m thấp bất thường cho ${v.n} tầng (≈ ${fmtN(Math.round(per * 10) / 10)} m/tầng). Chiều cao PCCC xác định theo QCVN 06 (1.4.23) — kiểm tra lại số tầng hoặc chiều cao.`);
+    else if (per > 8 && !["F5", "F5-"].includes(t.og) && t.og !== "F5") w.push(`Chiều cao PCCC ${fmtN(v.h)} m lớn bất thường cho ${v.n} tầng (≈ ${fmtN(Math.round(per * 10) / 10)} m/tầng) — kiểm tra lại.`);
+  }
+  if (v.n >= 3 && v.h === 0 && !v.bas) w.push(`Chưa nhập chiều cao PCCC — nhiều ngưỡng (sprinkler ≥ 25 m, ống khô, bơm) phụ thuộc giá trị này.`);
+  if (v.a > 0 && v.vol > 0) {
+    const hh = v.vol / v.a;
+    if (hh < 2) w.push(`Khối tích ${fmtN(v.vol)} m³ nhỏ bất thường so với tổng sàn ${fmtN(v.a)} m² (≈ ${fmtN(Math.round(hh * 10) / 10)} m cao/tầng) — kiểm tra lại.`);
+    else if (hh > 25) w.push(`Khối tích ${fmtN(v.vol)} m³ lớn bất thường so với tổng sàn ${fmtN(v.a)} m² (≈ ${fmtN(Math.round(hh))} m cao/tầng) — kiểm tra lại.`);
+  }
+  if (v.dt1 > 0 && v.a > 0 && v.dt1 > v.a) w.push(`Diện tích 1 tầng (${fmtN(v.dt1)} m²) lớn hơn tổng diện tích sàn (${fmtN(v.a)} m²) — kiểm tra lại.`);
+  if (v.dt1 > 0 && v.a > 0 && v.n >= 2 && v.dt1 * v.n < v.a * 0.5) w.push(`Diện tích 1 tầng lớn nhất × số tầng (${fmtN(v.dt1 * v.n)} m²) nhỏ hơn nhiều so với tổng sàn ${fmtN(v.a)} m² — kiểm tra lại.`);
+  if (v.parea > 0 && v.a > 0 && v.parea > v.a && !(v.nb > 0)) w.push(`Diện tích phần để xe (${fmtN(v.parea)} m²) lớn hơn tổng sàn nổi (${fmtN(v.a)} m²) mà chưa chọn tầng hầm — kiểm tra lại.`);
+  return w;
+}
 function ctResult() {
   const t = TI[ctV.id];
   const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "dt1", "ga", "tmTr", "tmHam", "hlLen"].forEach(k => { v[k] = +v[k] || 0; }); if (t.h5 === "cc") v.hl = v.hlLen > 10;
@@ -1807,7 +1829,8 @@ function ctResult() {
   const sprMain = all.find(i => /^\*\*Hệ thống chữa cháy tự động/.test(i.txt));
   const sprTile = sprMain && sprMain.lv === "no" && partS ? `<div class="tile t"><b>Một phần</b><span>Chữa cháy tự động</span></div>` : tile("Chữa cháy tự động", /^\*\*Hệ thống chữa cháy tự động/);
   const tiles = `<div class="tiles" id="ctsum">${tile("Báo cháy tự động", /^\*\*Hệ thống báo cháy/)}${sprTile}${tile("Họng nước trong nhà", /^\*\*Hệ thống họng nước/)}${tile("Nước ngoài nhà riêng", /^\*\*Hệ thống cấp nước chữa cháy ngoài nhà riêng/)}${all.some(i => /^\*\*Đường ống khô/.test(i.txt)) ? tile("Đường ống khô", /^\*\*Đường ống khô/) : `<div class="tile n"><b>Không</b><span>Đường ống khô</span></div>`}${tile("Loa thông báo", /^\*\*Loa thông báo/)}${t06}</div><p class="note">Có* — được thay bằng thiết bị báo cháy độc lập. Một phần — chỉ bắt buộc cho khu vực (để xe, thương mại…). “—” — không xét hoặc xem chi tiết.</p>`;
-  return `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>${tiles}${ctFigure(t, v, all, partS)}
+  const chk = ctCheck(t, v);
+  return (chk.length ? `<div class="ct-chk" role="alert"><b>Kiểm tra số liệu nhập</b><ul>${chk.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : "") + `<div class="ct-sum">${chips.map(c => `<span class="chip">${esc(c)}</span>`).join("")}<span class="chip hot">${req} mục phải trang bị</span></div>${tiles}${ctFigure(t, v, all, partS)}
   <div class="row-btns"><button class="btn2" id="ctcopy">Sao chép kết quả</button></div><p class="note" id="ctmsg" role="status"></p>` + itemsHTML(out) +
   q13Block(t, v) + q06Block(t, v) +
   `<p class="disclaimer">Kết quả suy ra từ các bảng, điều đã dẫn của QCVN 10:2025/BCA. Số tầng tính theo 1.4.24, diện tích và khối tích theo TCVN 9255. Kiểm tra nguyên văn, ghi chú và các Bảng A.2 – A.4 trước khi dùng trong hồ sơ.</p>`;

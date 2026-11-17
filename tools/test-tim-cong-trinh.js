@@ -21,7 +21,7 @@ const { chromium } = require('playwright');
     ["nhà xưởng", "Nhà sản xuất"], ["nhà máy", "Nhà sản xuất"], ["xưởng sản xuất", "Nhà sản xuất"], ["kho", "Nhà kho"], ["kho hàng", "Nhà kho"], ["logistics", "Nhà kho"],
     ["bãi xe", "Gara để xe"], ["nhà để xe", "Gara để xe"], ["parking", "Gara để xe"], ["gara sửa chữa", "Gara có sửa chữa"], ["rửa xe", "Gara có sửa chữa"],
     ["data center", "Kho lưu trữ"], ["trung tâm dữ liệu", "Kho lưu trữ"], ["trang trại", "Nhà phục vụ nông nghiệp"], ["dưỡng lão", "Nhà dưỡng lão"],
-    ["rạp xiếc", "Nhà hát"], ["nhà văn hóa", "Nhà hát"], ["Chung cư 25 tầng cao 80m", "Nhà chung cư"], ["khách sạn 15 tầng 50 m 1200m2", "Khách sạn"], ["F1.3", "Nhà chung cư"], ["F5.2", "Nhà kho"]
+    ["rạp xiếc", "Nhà hát"], ["nhà văn hóa", "Nhà hát"], ["Chung cư 25 tầng cao 80m", "Nhà chung cư"], ["khách sạn 15 tầng 50 m 1200m2", "Khách sạn"], ["F1.3", "Nhà chung cư"], ["F5.2", "Nhà kho"], ["nhà xưởng hạng C 2 tầng 12m", "Nhà sản xuất"], ["kho hàng hạng B 1 tầng có sprinkler", "Nhà kho"], ["văn phòng 20 tầng có chữa cháy tự động", "Văn phòng"]
   ];
   const got = await p.evaluate(cs => cs.map(([q]) => { const r = ctFind(q, 3); return r.length ? r[0].c.n : "(không có)"; }), cases);
   const bad = cases.map(([q, exp], k) => got[k].startsWith(exp) ? null : `${q} → ${got[k]} (cần ${exp})`).filter(Boolean);
@@ -32,6 +32,8 @@ const { chromium } = require('playwright');
   ok('Đọc quy mô: "25 tầng cao 80m 2 hầm 1500m2"', JSON.stringify(qt[0]) === JSON.stringify({ nb: 2, n: 25, a: 1500, h: 80 }), qt[0]);
   ok('Đọc quy mô: "15 tầng 50,5 m"', qt[1].n === 15 && qt[1].h === 50.5, qt[1]);
   ok('Đọc quy mô: "1 tầng 9m 12000 m3"', qt[2].n === 1 && qt[2].h === 9 && qt[2].v === 12000, qt[2]);
+  const q5 = await p.evaluate(() => ctQty("nhà xưởng hạng C 2 tầng 12m có sprinkler"));
+  ok('Đọc "hạng C" và "sprinkler" → điền sẵn hạng C, có sprinkler', q5.hang === 'C' && q5.sp === true && q5.n === 2 && q5.h === 12, q5);
   ok('Không có số → không điền gì', Object.keys(qt[3]).length === 0, qt[3]);
   // Giao diện: ô tìm chính → chọn → mở Toàn nhà đã điền sẵn
   await p.fill('#q', 'khach san 15 tang 50m 1200m2'); await p.waitForTimeout(300);

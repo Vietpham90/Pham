@@ -31,6 +31,7 @@ const cases = [
   T("Mầm non 2 tầng 4 m", {i:8,h:4,n:2,a:600}, [/Bảng H\.5/, /cột > 5 người/]),
   T("Mầm non 10 m vượt", {i:8,h:10,n:4,a:600}, [/Bảng H\.5 cho phép chiều cao PCCC lớn nhất \*\*9 m/]),
   T("Nhà hát 2 tầng 6000 m² không sprinkler: vượt H.2 (≤ 5.000)", {i:10,h:12,n:2,a:6000}, [/theo Bảng H\.2 \(bậc I, S0, 2 tầng\): \*\*≤ 5\.000 m²\*\*\. Diện tích nhập 6\.000 m² \*\*vượt/, /≥ R 45\*\*/]),
+  T("Nhà hát bậc I vượt H.2: gợi ý chia khoang cháy / sprinkler, không gợi ý nâng bậc", {i:10,h:12,n:2,a:6000}, [/chia khoang cháy bằng tường ngăn cháy loại 1, hoặc trang bị chữa cháy tự động/], [/nâng bậc chịu lửa/]),
   T("Nhà hát 2 tầng 6000 m² có sprinkler: H.2 × 2 = 10.000 đạt", {i:10,h:12,n:2,a:6000,sp:true}, [/≤ 10\.000 m²\*\*\. Diện tích nhập 6\.000 m² đạt/]),
   T("Trường học 4 tầng 3000 m²: H.2 bậc I 4 tầng ≤ 5.000", {i:23,h:14,n:4,a:3000}, [/theo Bảng H\.2 \(bậc I, S0, 4 tầng\): \*\*≤ 5\.000 m²/]),
   T("Trường 18 m", {i:23,h:18,n:5,a:1200,sp:true}, [/I – S0/, /3\.2\.6\.2 d\)|Trường học: cột 2 – 3/]),

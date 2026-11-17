@@ -535,7 +535,8 @@ function setHeader(title) {
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 
-const APP_VER = { so: "1.29", ngay: "15/11/2026", moi: [
+const APP_VER = { so: "1.30", ngay: "17/11/2026", moi: [
+  "Ô tìm kiếm hiểu \"hạng A – E\" và \"sprinkler\" gõ kèm tên (ví dụ: nhà xưởng hạng C 2 tầng 12m có sprinkler); tóm tắt hiện giới hạn diện tích tầng theo Bảng H.2.",
   "Đồng bộ theo tài khoản Claude: mục đã lưu ★ và thông số Toàn nhà, Hỗn hợp, Gian phòng tự đồng bộ giữa các máy (khi mở trên claude.ai).",
   "Sơ đồ sinh động hơn: màu chuyển sắc, đổ bóng, bầu trời, cây xanh; mũi tên thoát nạn chuyển động, biển EXIT sáng, lửa và khói, đèn xe chữa cháy nhấp nháy; chú giải màu.",
   "Bỏ phiếu kiểm tra và mục Dự án; tab công cụ còn Toàn nhà, Hỗn hợp, Gian phòng.",
@@ -917,7 +918,7 @@ function ctEvaluate(v) {
           const ix = floorIdxH2(n);
           if (r2) { let a2 = ix < 0 ? null : r2.f[ix]; const x2 = a2 && sp && ["I", "II"].includes(bb) && r2.s === "S0"; if (x2) a2 *= 2;
             if (!a2) add(s2, `Bảng H.2 không có diện tích cho bậc ${bb}, ${r2.s} với ${n} tầng — chọn bậc chịu lửa cao hơn.`, "Bảng H.2", "warn");
-            else add(s2, `Diện tích tầng trong khoang cháy theo Bảng H.2 (bậc ${bb}, ${r2.s}, ${n} tầng${x2 ? ", đã nhân 2 do có chữa cháy tự động" : ""}): **≤ ${a2.toLocaleString("vi-VN")} m²**.` + (A ? (A > a2 ? ` Diện tích nhập ${A.toLocaleString("vi-VN")} m² **vượt** — chia khoang cháy hoặc nâng bậc chịu lửa.` : ` Diện tích nhập ${A.toLocaleString("vi-VN")} m² đạt.`) : ""), "Bảng H.2, H.2.12.2", A ? (A > a2 ? "bad" : "ok") : ""); }
+            else add(s2, `Diện tích tầng trong khoang cháy theo Bảng H.2 (bậc ${bb}, ${r2.s}, ${n} tầng${x2 ? ", đã nhân 2 do có chữa cháy tự động" : ""}): **≤ ${a2.toLocaleString("vi-VN")} m²**.` + (A ? (A > a2 ? ` Diện tích nhập ${A.toLocaleString("vi-VN")} m² **vượt** — ${bb === "I" ? (x2 ? "chia khoang cháy bằng tường ngăn cháy loại 1" : "chia khoang cháy bằng tường ngăn cháy loại 1, hoặc trang bị chữa cháy tự động toàn nhà (diện tích được nhân 2)") : (x2 ? "chia khoang cháy hoặc nâng bậc chịu lửa" : "chia khoang cháy, nâng bậc chịu lửa hoặc trang bị chữa cháy tự động (bậc I, II – S0: diện tích × 2)")}.` : ` Diện tích nhập ${A.toLocaleString("vi-VN")} m² đạt.`) : ""), "Bảng H.2, H.2.12.2", A ? (A > a2 ? "bad" : "ok") : ""); }
         }
       } else {
         if (!sp && !v._probe) { const alt = ctEvaluate(Object.assign({}, v, { sp: true, _probe: true })); const okAlt = alt.out[1] && alt.out[1].items.find(x => x.lv === "ok"); if (okAlt) add(s2, "Nếu trang bị **chữa cháy tự động toàn nhà**: " + okAlt.txt.replace(/^Theo [^:]+: /, ""), name + (it.t === "H9" ? ", H.4.1" : it.t === "H11" ? ", H.5.3" : ", H.2.12.2"), "warn"); }
@@ -1091,10 +1092,12 @@ function ctQty(q) {
   m = t.match(/(\d+(?:\.\d+)?)\s*(?:m2|m²|met vuong)/); if (m) o.a = +m[1];
   m = t.match(/(\d+(?:\.\d+)?)\s*(?:m3|m³|khoi)/); if (m) o.v = +m[1];
   m = t.match(/(?:cao|h)\s*(\d+(?:\.\d+)?)\s*m\b|(\d+(?:\.\d+)?)\s*m(?![\d²³a-z])/); if (m) o.h = +(m[1] || m[2]);
+  m = t.match(/\bhang\s*([a-e])\b/); if (m) o.hang = m[1].toUpperCase();
+  if (/sprinkler|chua chay tu dong|spinkler/.test(t)) o.sp = true;
   return o;
 }
 function ctFind(q, lim) {
-  const raw = norm(q).replace(/\d+(?:[.,]\d+)?\s*(?:tang\s*ham|tang|ham|m2|m²|m3|m³|met vuong|khoi|m)\b/g, " ").replace(/\bcao\b/g, " ");
+  const raw = norm(q).replace(/\d+(?:[.,]\d+)?\s*(?:tang\s*ham|tang|ham|m2|m²|m3|m³|met vuong|khoi|m)\b/g, " ").replace(/\bhang\s*[a-e]\b/g, " ").replace(/\b(?:co\s+)?(?:sprinkler|spinkler|chua chay tu dong)\b/g, " ").replace(/\bcao\b/g, " ");
   const terms = raw.split(/[\s,;:/()]+/).map(x => x.replace(/^[.-]+|[.-]+$/g, "")).filter(x => x && !/^\d+$/.test(x));
   const key = terms.filter(x => !CT_STOP.has(x) && x.length > 1);
   if (!key.length) return [];
@@ -1125,7 +1128,7 @@ function ctFind(q, lim) {
   return out.filter(x => x.sc >= top * 0.35).slice(0, lim || 8);
 }
 function ctPickHTML(rs, attr, qty) {
-  const qtxt = qty && Object.keys(qty).length ? [qty.h != null ? `cao ${fmtIn(qty.h)} m` : "", qty.n ? `${qty.n} tầng` : "", qty.nb != null ? `${qty.nb} hầm` : "", qty.a ? `${qty.a.toLocaleString("vi-VN")} m²/tầng` : "", qty.v ? `${qty.v.toLocaleString("vi-VN")} m³` : ""].filter(Boolean).join(" · ") : "";
+  const qtxt = qty && Object.keys(qty).length ? [qty.h != null ? `cao ${fmtIn(qty.h)} m` : "", qty.n ? `${qty.n} tầng` : "", qty.nb != null ? `${qty.nb} hầm` : "", qty.a ? `${qty.a.toLocaleString("vi-VN")} m²/tầng` : "", qty.v ? `${qty.v.toLocaleString("vi-VN")} m³` : "", qty.hang ? `hạng ${qty.hang}` : "", qty.sp ? "có sprinkler" : ""].filter(Boolean).join(" · ") : "";
   return rs.map(({ c, i, via }, k) => `<button class="pick${k === 0 ? " best" : ""}" ${attr}="${i}"><span>${esc(c.n)}${via ? `<small>theo Bảng 6: ${esc(via)}</small>` : ""}${k === 0 && qtxt ? `<small>→ điền sẵn: ${esc(qtxt)}</small>` : ""}</span><b>${c.g}</b></button>`).join("");
 }
 function ctList() {
@@ -1151,7 +1154,8 @@ const CT_KEYS = [
 function ctSummaryRows(out) {
   const all = out.flatMap(s => s.items.map(x => ({ ...x, s: s.t })));
   const used = new Set();
-  return CT_KEYS.map(([grp, label, f, many]) => { const hit = all.filter(x => !used.has(x.txt) && f(x, x.s)); const items = many ? hit : hit.slice(0, 1); items.forEach(x => used.add(x.txt)); return { grp, label, items }; }).filter(r => r.items.length);
+  return CT_KEYS.map(([grp, label, f, many]) => { const hit = all.filter(x => !used.has(x.txt) && f(x, x.s));
+    if (label === "Diện tích tầng, khoang cháy") hit.sort((a, b) => /Diện tích tầng trong khoang cháy|Diện tích 1 tầng \/ khoang cháy/.test(b.txt) - /Diện tích tầng trong khoang cháy|Diện tích 1 tầng \/ khoang cháy/.test(a.txt)); const items = many ? hit : hit.slice(0, 1); items.forEach(x => used.add(x.txt)); return { grp, label, items }; }).filter(r => r.items.length);
 }
 function ctSummary(out) {
   const rows = ctSummaryRows(out);

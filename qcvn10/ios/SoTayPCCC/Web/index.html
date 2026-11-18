@@ -550,7 +550,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v37 · cập nhật 17/11/2026</p>
+    <p class="ver">Phiên bản v38 · cập nhật 18/11/2026</p>
     <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
@@ -973,6 +973,24 @@ function indoorJets(t, v) {
   const k = v.n <= 10 ? (big ? 2 : 1) : (big ? 3 : 2);
   return { n: k, q: 2.5, why: `${t.h5 === "hc" ? "Nhà hành chính (mục 2)" : "Nhà công cộng (mục 4)"}, ${v.n <= 10 ? "≤ 10" : "> 10"} tầng, khối tích ${big ? "> 25 000" : "≤ 25 000"} m³: ${k} × 2,5 L/s (Bảng H.5)`, ref: "Bảng H.5" };
 }
+/* Đối chiếu Bảng H.7: lưu lượng mỗi tia đủ tia đặc yêu cầu (lăng nhỏ nhất có trong bảng), vòi 20 m */
+function h7Pick(dn, T) {
+  const hi = H7H.findIndex(x => x >= T); if (hi < 0) return null;
+  const opts = [13, 16, 19].map(tip => { const r = H7[dn][tip][hi]; return r ? { tip, q: r[0], p: r[3] } : null; }).filter(Boolean);
+  return opts.length ? { T: H7H[hi], opts, min: opts.reduce((a, b) => (b.q < a.q ? b : a)) } : null;
+}
+function h7Lines(v, j, mj) {
+  const out = [], one = (T, lead) => {
+    let dn = j.q > 4 ? "65" : "50", r = h7Pick(dn, T);
+    if (r && dn === "50" && r.min.q > 4) { const r65 = h7Pick("65", T); if (r65) { dn = "65"; r = r65; } }
+    if (!r) return [ "info", `${lead}Bảng H.7 chỉ đến tia đặc 20 m (DN 65) — tia ${T} m vượt bảng, cần tính riêng`, "Bảng H.7" ];
+    const qd = Math.max(j.q, r.min.q), up = r.min.q > j.q;
+    return [ "val", `${lead}**${lead ? "lưu" : "Lưu"} lượng mỗi tia theo Bảng H.7** (DN ${dn}, tia đặc ≥ ${r.T} m, vòi 20 m): ` + r.opts.map(o => `lăng ${o.tip} mm → ${fmtN(o.q)} L/s, ${o.p.toFixed(3).replace(".", ",")} MPa`).join("; ") + `. Lăng nhỏ nhất đạt tia: **${fmtN(r.min.q)} L/s** ${up ? `> ${fmtN(j.q)} L/s của bảng số tia → lưu lượng thiết kế lấy **${fmtN(qd)} L/s/tia**, tổng ${j.n} × ${fmtN(qd)} = **${fmtN(Math.round(j.n * qd * 10) / 10 + (j.add || 0))} L/s**` : `≤ ${fmtN(j.q)} L/s → giữ ${fmtN(j.q)} L/s/tia`}${dn === "65" && j.q <= 4 ? " (lưu lượng > 4 L/s → họng DN 65)" : ""}`, "Bảng H.7; H.2.7" ];
+  };
+  out.push(one(mj, ""));
+  if (v.n === 1 && v.h > mj) { const T = Math.ceil(v.h); out.push(one(T, `Nhà 1 tầng: nếu gian cao **${fmtN(v.h)} m** tới điểm cao nhất của xà, trần thì tia đặc ≥ **${T} m** → `)); }
+  return out;
+}
 function minJet(t, v) {
   if (t.h5 === "ham") return 6;
   if (v.h > 50) return t.og === "F13" ? 8 : 16;
@@ -1033,6 +1051,7 @@ function ctEvaluate(t, v) {
     } else push(S2, "info", j.why, j.ref);
     const mj = minJet(t, v);
     push(S2, "val", `**Tia nước đặc tối thiểu ${mj} m** (không nhỏ hơn chiều cao khu vực tới xà, trần). Tia ≤ 4 L/s → họng **DN 50**; > 4 L/s → **DN 65**`, "H.2.7");
+    if (jMain && jMain.n) h7Lines(v, jMain, mj).forEach(x => push(S2, x[0], x[1], x[2]));
     push(S2, "val", "Miệng họng cao **1,20 m ± 0,15 m**, trong tủ có niêm phong; áp suất tĩnh tại họng thấp nhất **≤ 0,6 MPa** (hệ riêng), giảm áp dư khi **> 0,45 MPa**", "H.2.12; H.2.6");
     push(S2, "val", v.n >= 17 ? "**Họng chờ tiếp nước** ≥ DN65 ngoài nhà; nhà **≥ 17 tầng** → chia vùng theo chiều cao **≤ 50 m**, có van một chiều" : "**Họng chờ tiếp nước** ngoài nhà, đầu nối ≥ **DN65**, có van một chiều", "H.2.13");
     if (hydr.req && spr.req) push(S2, "req", "Có cả họng nước và sprinkler → ống nối từ trạm bơm đến **≥ 01 họng lấy nước hai cửa DN65** ở mặt ngoài tường, phía đường giao thông", "H.2.19");

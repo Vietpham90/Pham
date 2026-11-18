@@ -17,6 +17,10 @@ const C = [
     [/^\*\*Hệ thống báo cháy tự động/, "req"], [/^\*\*Hệ thống họng nước/, "req"], [/^\*\*Hệ thống chữa cháy tự động/, "no"]]],
   ["Chung cư 30 tầng, hành lang > 10 m → H.5 tối thiểu 3 × 2,5 L/s", "chung-cu", { n: 30, h: 99, a: 30000, vol: 100000, nb: 0, hl: true }, [[/Số tia × lưu lượng\*\*: 3 × 2,5 L\/s.*chỉ quy định chung cư đến 25 tầng/, "val"]]],
   ["Nhà để xe hở 5 tầng → báo cháy (≥ 4 tầng), không sprinkler", "de-xe", { n: 5, h: 15, a: 15000, vol: 50000, nb: 0, gara: "ho", cho: 500 }, [[/^\*\*Hệ thống báo cháy tự động\*\* — dạng hở/, "req"], [/^\*\*Hệ thống chữa cháy tự động\*\* — dạng hở/, "no"]]],
+  ["Chung cư 9 tầng 30 m → H.7: tia 6 m, lăng 16 mm 2,6 L/s > 2,5", "chung-cu", { n: 9, h: 30, a: 9000, vol: 30000, nb: 0 }, [[/Lưu lượng mỗi tia theo Bảng H\.7\*\* \(DN 50, tia đặc ≥ 6 m.*lăng 16 mm → 2,6 L\/s, 0,100 MPa.*\*\*2,6 L\/s\/tia\*\*/, "val"]]],
+  ["Văn phòng 95 m → tia 16 m: lăng 13 mm 3,2 L/s, tổng 4 × 3,2 = 12,8", "van-phong", { n: 25, h: 95, a: 50000, vol: 180000, nb: 0 }, [[/tia đặc ≥ 16 m.*lăng 13 mm → 3,2 L\/s.*4 × 3,2 = \*\*12,8 L\/s/, "val"]]],
+  ["Rạp 800 chỗ 5 L/s → H.7 không làm tăng", "nha-hat", { n: 3, h: 12, a: 3000, vol: 15000, seats: 800, nb: 0 }, [[/Lăng nhỏ nhất đạt tia: \*\*2,6 L\/s\*\* ≤ 5 L\/s → giữ 5 L\/s\/tia/, "val"]]],
+  ["Kho 1 tầng cao 12 m → thêm dòng tia ≥ 12 m", "kho", { n: 1, h: 12, a: 6000, vol: 72000, nb: 0, hang: "C1" }, [[/Nhà 1 tầng: nếu gian cao \*\*12 m\*\*.*tia đặc ≥ 12 m.*lăng 13 mm → 2,6 L\/s/, "val"]]],
   ["Khách sạn 3 tầng 900 m² → TBĐL, mặt nạ, không họng nước", "khach-san", { n: 3, h: 10, a: 900, vol: 3000, nb: 0 }, [[/^\*\*Hệ thống báo cháy tự động/, "alt"], [/Mặt nạ lọc độc/, "req"], [/^\*\*Hệ thống họng nước/, "no"]]]
 ];
 (async () => {

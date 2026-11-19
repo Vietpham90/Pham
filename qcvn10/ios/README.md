@@ -35,4 +35,8 @@ cd qcvn10/ios && xcodegen generate
 
 ## Cập nhật nội dung
 
-Nội dung nằm trong `noi-dung/*.md` ở thư mục gốc. Sau khi sửa, chạy các lệnh trong `README.md` gốc để tạo lại `qcvn10/ios/SoTayPCCC/Web/index.html`, rồi build lại ứng dụng.
+Nội dung nằm trong `qcvn10/noi-dung/*.md`. Sau khi sửa, chạy `sh qcvn10/tools/build-all.sh` (đặt biến `FONTS` như hướng dẫn trong tệp) để tạo lại `qcvn10/ios/SoTayPCCC/Web/index.html`, rồi build lại ứng dụng.
+
+## Khác với bản mở qua link claude.ai
+
+Ứng dụng chạy offline, dữ liệu (mục đã lưu, thông số đã nhập) chỉ lưu trên máy đó — **không đồng bộ** theo tài khoản Claude.

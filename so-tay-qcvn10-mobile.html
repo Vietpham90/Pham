@@ -543,7 +543,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v40 · cập nhật 19/11/2026</p>
+    <p class="ver">Phiên bản v41 · cập nhật 19/11/2026</p>
     <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
@@ -1769,7 +1769,6 @@ function ctFigure(t, v, all, partS) {
   let jt = (all.find(i => /^\*\*Số tia × lưu lượng/.test(i.txt)) || { txt: "" }).txt.replace(/\*\*/g, "").match(/:\s*(\d+) × ([\d,]+) L\/s/);
   { const qd = (((all.find(i => /^\*\*Lưu lượng mỗi tia theo Bảng H\.7/.test(i.txt)) || { txt: "" }).txt.match(/lấy \*\*([\d,]+) L\/s\/tia/)) || [])[1]; if (jt && qd) jt = [jt[0], jt[1], qd]; }
   const gara = v.pcar > 0 || v.parea > 0 || (["de-xe", "gara-ck"].includes(t.id) && (v.bas || v.nb > 0));
-  const pump = all.some(i => /^Bơm chữa cháy: \*\*điều khiển/.test(i.txt) && i.lv === "req") || all.some(i => /Lưu lượng ≥ 25 L\/s → ≥ 02 trụ/.test(i.txt));
   const sia = hn === "on" && all.some(i => /Họng chờ tiếp nước/.test(i.txt));
   const sprOn = spr === "on" || spr === "part";
   const n = Math.max(1, v.n), brk = n > 8, nd = brk ? 7 : n, fh = Math.max(22, Math.min(36, Math.floor(200 / nd)));
@@ -1777,9 +1776,8 @@ function ctFigure(t, v, all, partS) {
   const G = top + nd * fh + (brk ? 14 : 0), H = G + Math.max(nb * bh, 0) + 18;
   const fy = k => G - (k + 1) * fh - (brk && k >= 6 ? 14 : 0), roof = fy(nd - 1);
   const lab = k => brk && k === nd - 1 ? "T" + n : "T" + (k + 1);
-  const riserX = R - 9, sRiserX = X + 38, nums = {}; let num = 0; const badge = [];
-  const pumpOn = pump && (hn === "on" || sprOn);
-  [["bc", bc === "on"], ["loa", loa === "on"], ["spr", sprOn], ["hn", hn === "on"], ["ok", ok === "on"], ["tru", !!qo], ["pump", pumpOn]].forEach(([k, on]) => { if (on) nums[k] = ++num; });
+  const riserX = R - 9, sRiserX = X + 38, /* vị trí tủ họng, đầu ống nhánh sprinkler */ nums = {}; let num = 0; const badge = [];
+  [["bc", bc === "on"], ["loa", loa === "on"], ["spr", sprOn], ["hn", hn === "on"], ["ok", ok === "on"], ["tru", !!qo]].forEach(([k, on]) => { if (on) nums[k] = ++num; });
   const mark = (key, x, y) => { badge.push(`<g class="fg-bdg"><circle cx="${x}" cy="${y}" r="6.2"/><text x="${x}" y="${y + 3.4}">${nums[key]}</text></g>`); };
   let g = `<defs><linearGradient id="fgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
     <pattern id="fgHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--line)" stroke-width="1.2"/></pattern></defs>
@@ -1788,7 +1786,7 @@ function ctFigure(t, v, all, partS) {
   for (let k = 0; k < nb; k++) {
     const y = G + k * bh;
     g += `<rect x="${X - 18}" y="${y}" width="${W + 36}" height="${bh}" class="fg-bas"/><text x="${X - 14}" y="${y + bh - 5}" class="fg-fn">B${k + 1}</text>`;
-    if (gara) for (let j = 0; j < (pumpOn && k === nb - 1 ? 3 : 4); j++) { const cx = X + 4 + j * 40; g += `<path d="M${cx} ${y + bh - 6} v-5 q1 -4 6 -4 h12 q5 0 7 4 l3 1 v4z" class="fg-car"/><circle cx="${cx + 6}" cy="${y + bh - 5}" r="2.3" class="fg-whl"/><circle cx="${cx + 21}" cy="${y + bh - 5}" r="2.3" class="fg-whl"/>`; }
+    if (gara) for (let j = 0; j < 4; j++) { const cx = X + 4 + j * 40; g += `<path d="M${cx} ${y + bh - 6} v-5 q1 -4 6 -4 h12 q5 0 7 4 l3 1 v4z" class="fg-car"/><circle cx="${cx + 6}" cy="${y + bh - 5}" r="2.3" class="fg-whl"/><circle cx="${cx + 21}" cy="${y + bh - 5}" r="2.3" class="fg-whl"/>`; }
     if (bc === "on" || (gara && v.pcar > 0)) g += det(X - 4, y);
     if (sprOn || (gara && v.pcar > 0)) { g += `<path d="M${X - 10} ${y + 3} H${R + 6}" class="fg-sp"/>`; for (let j = 0; j < 5; j++) g += head(X + 6 + j * 38, y + 3); }
   }
@@ -1802,23 +1800,12 @@ function ctFigure(t, v, all, partS) {
     if (sprOn && (spr === "on" || k === 0)) { g += `<path d="M${sRiserX} ${y + 4} H${R - 22}" class="fg-sp"/>`; for (let j = 0; j < 3; j++) g += head(X + 52 + j * 40, y + 4); }
     if (bc === "on") { g += det(X + 12, y + 2); if (!alt) { const by = y + fh * .5, bs = Math.min(7, fh * .26); g += `<rect x="${X + 4}" y="${by}" width="${bs}" height="${bs}" rx="1.2" fill="var(--fire)"/><circle cx="${X + 4 + bs / 2}" cy="${by + bs / 2}" r="${bs * .27}" fill="var(--on-fire)"/>`; } }
     if (loa === "on") g += `<path d="M${X + 22} ${y + 4} h3 l4 -2.5 v8 l-4 -2.5 h-3z" fill="var(--fire)"/><path d="M${X + 31} ${y + 3} q2 2.5 0 5" stroke="var(--fire)" stroke-width="1" fill="none"/>`;
-    if (hn === "on") { const cs = Math.min(15, fh - 7), cx = riserX - cs - 5, cy = y + fh - cs - 2; g += `<path d="M${cx + cs} ${cy + cs * .5} H${riserX}" class="fg-rp" style="stroke-width:1.6"/>` + cab(cx, cy, cs); }
+    if (hn === "on") { const cs = Math.min(15, fh - 7), cx = riserX - cs - 5, cy = y + fh - cs - 2; g += cab(cx + 4, cy, cs); }
   }
   if (brk) { const y = fy(5) - 14; g += `<rect x="${X}" y="${y}" width="${W}" height="14" class="fg-brk"/><path d="M${X - 7} ${y + 11} l7 -8 l7 8 M${R - 7} ${y + 11} l7 -8 l7 8" class="fg-zig"/><text x="${X + W / 2}" y="${y + 10.5}" class="fg-t fg-c">… ${n - 7} tầng nữa …</text>`; }
   g += `<rect x="${X - 3}" y="${roof - 5}" width="${W + 6}" height="5" rx="1" class="fg-roof"/><rect x="${X}" y="${roof}" width="${W}" height="${G - roof}" class="fg-out"/>`;
-  // ống đứng sprinkler, họng nước; dây báo cháy về tủ trung tâm
-  const yBot = nb ? G + nb * bh - 4 : G - 2;
-  if (sprOn && spr === "on") g += `<path d="M${sRiserX} ${yBot} V${roof + 4}" class="fg-sp" style="stroke-width:2.2"/>`;
-  if (hn === "on") g += `<path d="M${riserX} ${yBot} V${roof + fh - 9}" class="fg-rp"/>`;
+  // dây báo cháy về tủ trung tâm
   if (bc === "on" && !alt) { g += `<path d="M${X + 3} ${roof + 4} V${G - 14}" class="fg-wire"/><path d="M${X + 3} ${G - 14} H${X + 16}" class="fg-wire"/><rect x="${X + 16}" y="${G - 14}" width="15" height="11" rx="1.5" fill="var(--fire)"/><text x="${X + 23.5}" y="${G - 5.8}" class="fg-tt">TT</text>`; }
-  // trạm bơm
-  if (pumpOn) {
-    const py = nb ? G + nb * bh - bh + 3 : G - 14, px = nb ? R - 52 : R + 22, pw = nb ? 40 : 32, ph = nb ? 17 : 14;
-    const pr = ph * .3, pcx = px + pr + 4, pcy = py + ph / 2;
-    g += `<rect x="${px}" y="${py}" width="${pw}" height="${ph}" rx="2" class="fg-pump"/><circle cx="${pcx}" cy="${pcy}" r="${pr}" fill="none" stroke="var(--fire)" stroke-width="1.5"/><path d="M${pcx} ${pcy - pr} v${2 * pr} M${pcx - pr} ${pcy} h${2 * pr}" stroke="var(--fire)" stroke-width=".9"/><text x="${px + pw - 4}" y="${pcy + 3}" class="fg-fn" style="text-anchor:end">bơm</text>`;
-    g += nb ? `<path d="M${px + pw} ${py + 9} H${riserX}" class="fg-rp" style="stroke-width:1.8"/>` : `<path d="M${px} ${G - 2} H${riserX}" class="fg-rp" style="stroke-width:1.8"/>`;
-    if (nb) mark("pump", px - 9, py + 8); else mark("pump", px + pw / 2, py - 9);
-  }
   // họng chờ tiếp nước (H.2.13)
   if (sia) { const sy = G - 9; g += `<path d="M${R} ${sy} h7 m0 -4 v8" stroke="var(--fire)" stroke-width="2"/><circle cx="${R + 10}" cy="${sy - 3}" r="2.6" fill="var(--fire)"/><circle cx="${R + 10}" cy="${sy + 4}" r="2.6" fill="var(--fire)"/>`; }
   // ống khô
@@ -1845,11 +1832,11 @@ function ctFigure(t, v, all, partS) {
     pump: '<rect x="1" y="3" width="12" height="9" rx="1.5" fill="none" stroke="var(--fire)" stroke-width="1.3"/><circle cx="5" cy="7.5" r="2.4" fill="none" stroke="var(--fire)" stroke-width="1.2"/>'
   };
   const KEY = { bc: "bc", spr: "spr", hn: "hn", ok: "ok", loa: "loa", tru: "tru", pump: "pump" };
-  const lg0 = [[alt ? "Báo cháy độc lập" : "Báo cháy" + (bc === "on" ? " + nút ấn" : ""), bc, "bc"], ["Sprinkler", spr === "part" ? "on" : spr, "spr", spr === "part" ? "một phần" : ""], ["Họng nước" + (jt ? ` ${jt[1]} × ${jt[2]} L/s` : "") , hn, "hn"], ["Ống khô", ok, "ok"], ["Loa", loa, "loa"], ["Nước ngoài nhà" + (qo ? ` ${qo[1]} L/s` : ""), qo ? "on" : "na", "tru"], ["Trạm bơm chữa cháy", nums.pump ? "on" : "na", "pump"]].filter(x => x[1] !== "na" || x[0].startsWith("Báo") || x[0].startsWith("Spr"));
-  const ORD = ["bc", "loa", "spr", "hn", "ok", "tru", "pump"], lg = ORD.map(k => lg0.find(x => x[2] === k)).filter(Boolean);
+  const lg0 = [[alt ? "Báo cháy độc lập" : "Báo cháy" + (bc === "on" ? " + nút ấn" : ""), bc, "bc"], ["Sprinkler", spr === "part" ? "on" : spr, "spr", spr === "part" ? "một phần" : ""], ["Họng nước" + (jt ? ` ${jt[1]} × ${jt[2]} L/s` : "") , hn, "hn"], ["Ống khô", ok, "ok"], ["Loa", loa, "loa"], ["Nước ngoài nhà" + (qo ? ` ${qo[1]} L/s` : ""), qo ? "on" : "na", "tru"]].filter(x => x[1] !== "na" || x[0].startsWith("Báo") || x[0].startsWith("Spr"));
+  const ORD = ["bc", "loa", "spr", "hn", "ok", "tru"], lg = ORD.map(k => lg0.find(x => x[2] === k)).filter(Boolean);
   const lbl = lg.map(x => x[0] + (x[1] === "on" ? ": phải trang bị" : ": không bắt buộc")).join("; ");
   return `<figure class="ctfig"><svg viewBox="0 0 340 ${H}" role="img" aria-label="Mặt cắt minh họa — ${esc(lbl)}">${g}</svg>
-  <figcaption class="fg-leg">${lg.map(([l, s2, ic, note]) => `<span class="${s2 === "on" ? "on" : "off"}">${s2 === "on" && nums[KEY[ic]] ? `<b class="fg-n">${nums[KEY[ic]]}</b>` : ""}<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">${IC[ic]}</svg>${esc(l)}${note ? ` (${note})` : ""}</span>`).join("")}</figcaption><p class="fg-note">Hình minh họa theo kết quả tra, không theo tỉ lệ. Số trên hình khớp số trong chú giải; gạch ngang: không bắt buộc với quy mô đã nhập. Đỏ: ống đứng chữa cháy, dây báo cháy về tủ trung tâm (TT); xanh: ống sprinkler.</p></figure>`;
+  <figcaption class="fg-leg">${lg.map(([l, s2, ic, note]) => `<span class="${s2 === "on" ? "on" : "off"}">${s2 === "on" && nums[KEY[ic]] ? `<b class="fg-n">${nums[KEY[ic]]}</b>` : ""}<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">${IC[ic]}</svg>${esc(l)}${note ? ` (${note})` : ""}</span>`).join("")}</figcaption><p class="fg-note">Hình minh họa theo kết quả tra, không theo tỉ lệ. Số trên hình khớp số trong chú giải; gạch ngang: không bắt buộc với quy mô đã nhập. Nét đứt đỏ: dây báo cháy về tủ trung tâm (TT); xanh: ống nhánh sprinkler.</p></figure>`;
 }
 /* Kiểm tra số liệu nhập có hợp lý không (bắt lỗi gõ nhầm) — chỉ cảnh báo, không đổi kết quả */
 function ctCheck(t, v) {

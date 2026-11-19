@@ -117,7 +117,7 @@ const { chromium } = require("playwright");
     }
     return r;
   });
-  check(fig[0].has && fig[0].brk && fig[0].floors === 7 && fig[0].cars >= 3 && ["Báo", "Sprinkler", "Họng", "Ống", "Loa", "Nước"].every(k => fig[0].on.includes(k)), "hình khách sạn 14 tầng: 7 tầng vẽ + ngắt, hầm có xe, đủ 6 hệ thống " + JSON.stringify(fig[0]));
+  check(fig[0].has && fig[0].brk && fig[0].floors === 7 && fig[0].cars === 4 && ["Báo", "Sprinkler", "Họng", "Ống", "Loa", "Nước"].every(k => fig[0].on.includes(k)), "hình khách sạn 14 tầng: 7 tầng vẽ + ngắt, hầm có xe, đủ 6 hệ thống " + JSON.stringify(fig[0]));
   check(fig[1].has && fig[1].floors === 5 && !fig[1].brk && fig[1].on.includes("Báo") && !fig[1].on.includes("Sprinkler"), "hình chung cư 5 tầng: 5 tầng, báo cháy có, sprinkler gạch " + JSON.stringify(fig[1]));
   check(!fig[2].has, "hầm đường bộ: không vẽ mặt cắt nhà");
   const ic = await p.evaluate(() => {

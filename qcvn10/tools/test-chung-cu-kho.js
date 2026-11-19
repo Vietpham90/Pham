@@ -34,7 +34,7 @@ const C = [
   // ---------- KHÁCH SẠN có gara hầm (tình huống hỏi đáp) ----------
   ["Khách sạn 14 tầng, 46 m, gara hầm 1 200 m² cao 3,3 m", "khach-san", { n: 14, h: 46, a: 18000, vol: 59400, nb: 1, pcar: 30, parea: 1200, phh: 3.3 }, [
     [/^\*\*Hệ thống chữa cháy tự động/, "req"], [/^\*\*Số tia × lưu lượng\*\*: 3 × 2,5/, "val"], [/Họng nước khu để xe.*2 lăng × 2,5/, "val"],
-    [/Lưu lượng thiết kế bơm họng nước = 7,5 L\/s/, "val"], [/^\*\*Lưu lượng ngoài nhà 35 L\/s/, "val"], [/^\*\*Bếp\*\*/, "info"], [/Trần giả, sàn nâng/, "info"],
+    [/Lưu lượng thiết kế bơm họng nước = 7,8 L\/s/, "val"], [/^\*\*Lưu lượng ngoài nhà 35 L\/s/, "val"], [/^\*\*Bếp\*\*/, "info"], [/Trần giả, sàn nâng/, "info"],
     [/^\*\*Loa thông báo và hướng dẫn/, "req"], [/Mặt nạ lọc độc/, "req"], [/^\*\*Đường ống khô/, "req"]]],
   ["Khách sạn, gara hầm 1 600 m² cao 3,5 m — gara quyết định bơm 10 L/s", "khach-san", { n: 14, h: 46, a: 18000, vol: 59400, nb: 1, pcar: 40, parea: 1600, phh: 3.5 }, [
     [/Họng nước khu để xe.*2 lăng × 5/, "val"], [/Lưu lượng thiết kế bơm họng nước = 10 L\/s.*khu để xe quyết định/, "val"]]],

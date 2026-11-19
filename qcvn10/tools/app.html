@@ -590,6 +590,12 @@ function h7Pick(dn, T) {
   const opts = [13, 16, 19].map(tip => { const r = H7[dn][tip][hi]; return r ? { tip, q: r[0], p: r[3] } : null; }).filter(Boolean);
   return opts.length ? { T: H7H[hi], opts, min: opts.reduce((a, b) => (b.q < a.q ? b : a)) } : null;
 }
+/* Lưu lượng thiết kế mỗi tia = lớn hơn giữa bảng số tia (H.5/H.6) và Bảng H.7 (lăng nhỏ nhất đạt tia đặc mj) */
+function h7Design(j, mj) {
+  let r = h7Pick(j.q > 4 ? "65" : "50", mj);
+  if (r && j.q <= 4 && r.min.q > 4) r = h7Pick("65", mj) || r;
+  return r ? Math.max(j.q, r.min.q) : j.q;
+}
 function h7Lines(v, j, mj) {
   const out = [], one = (T, lead) => {
     let dn = j.q > 4 ? "65" : "50", r = h7Pick(dn, T);
@@ -655,8 +661,9 @@ function ctEvaluate(t, v) {
     const j = indoorJets(t, v); jMain = j;
     if (j.n) {
       const tot = j.n * j.q + (j.add || 0);
+      j.qd = h7Design(j, minJet(t, v)); const totD = Math.round((j.n * j.qd + (j.add || 0)) * 10) / 10; j.totD = totD;
       push(S2, "val", `**Số tia × lưu lượng**: ${j.n} × ${fmtN(j.q)} L/s = **${fmtN(tot)} L/s**. ${j.why}`, j.ref);
-      push(S2, "val", `**Thời gian** làm việc **1 h**${spr.req ? " (có chữa cháy tự động bằng nước: bằng thời gian của hệ thống tự động)" : ""} → nước dự trữ cho họng ≈ **${fmtN(tot * 3.6)} m³**`, "H.2.9");
+      push(S2, "val", `**Thời gian** làm việc **1 h**${spr.req ? " (có chữa cháy tự động bằng nước: bằng thời gian của hệ thống tự động)" : ""} → nước dự trữ cho họng ≈ **${fmtN(Math.round(totD * 3.6 * 10) / 10)} m³**${totD > tot ? ` (theo lưu lượng thiết kế ${fmtN(totD)} L/s, Bảng H.7)` : ""}`, "H.2.9");
       if ((t.h5 === "cc" && j.n >= 2) || (t.h5 !== "cc" && j.n >= 3)) push(S2, "info", "Được lắp **họng kép** trên ống đứng (" + (t.h5 === "cc" ? "nhà ở: số tia ≥ 2" : "nhà SX, công cộng: số tia ≥ 3") + "); mỗi tủ ≤ 2 tia, họng dưới cao ≥ 1,0 m", "H.2.11; H.2.12");
       if (j.n >= 2) push(S2, "info", "Số tia ≥ 2 → mỗi điểm cháy được **2 tia** từ " + (t.h5 === "cc" && !v.hl ? "một ống đứng (hành lang ≤ 10 m)" : "**2 tủ, 2 ống đứng khác nhau**"), "H.2.4; H.2.11");
     } else push(S2, "info", j.why, j.ref);
@@ -721,7 +728,7 @@ function ctEvaluate(t, v) {
       const pj = kv < 500 ? null : kv <= 5000 ? [2, 2.5] : [2, 5];
       push(S5, "val", `**Họng nước khu để xe**: khoang ≈ ${fmtN(a1x)} m²${Lx > 1 ? ` (${fmtN(v.parea)} m² / ${Lx} tầng hầm)` : ""} × ${fmtN(hh)} m${v.phh > 0 ? "" : " (ước)"} = ${fmtN(kv)} m³ → ` + (pj ? `**2 lăng × ${fmtN(pj[1])} L/s**` : "dưới 500 m³, Bảng H.5 CT2 không quy định") + " (khoang 500 – 5 000 m³: 2 × 2,5; > 5 000 m³: 2 × 5)", "Bảng H.5 CT2");
       if (pj && jMain && jMain.n) {
-        const qa = jMain.n * jMain.q + (jMain.add || 0), qb = pj[0] * pj[1];
+        const qa = jMain.totD || (jMain.n * jMain.q + (jMain.add || 0)), qb = pj[0] * pj[1];
         push(S5, "val", `**Lưu lượng thiết kế bơm họng nước = ${fmtN(Math.max(qa, qb))} L/s** — lấy phần lớn hơn: phần nhà ${fmtN(qa)} L/s, khu để xe ${fmtN(qb)} L/s${qb > qa ? " → **khu để xe quyết định**" : ""}`, "H.2.5");
       }
     }
@@ -1077,7 +1084,8 @@ function ctFigure(t, v, all, partS) {
   const bc = st(/^\*\*Hệ thống báo cháy/), hn = st(/^\*\*Hệ thống họng nước/), loa = st(/^\*\*Loa thông báo và hướng dẫn/), ok = st(/^\*\*Đường ống khô/);
   let spr = st(/^\*\*Hệ thống chữa cháy tự động/); if (spr !== "on" && partS) spr = "part";
   const qo = (all.find(i => /Lưu lượng ngoài nhà/.test(i.txt)) || { txt: "" }).txt.match(/Lưu lượng ngoài nhà\*?\*?\s*([\d,]+) L\/s/);
-  const jt = (all.find(i => /^\*\*Số tia × lưu lượng/.test(i.txt)) || { txt: "" }).txt.replace(/\*\*/g, "").match(/:\s*(\d+) × ([\d,]+) L\/s/);
+  let jt = (all.find(i => /^\*\*Số tia × lưu lượng/.test(i.txt)) || { txt: "" }).txt.replace(/\*\*/g, "").match(/:\s*(\d+) × ([\d,]+) L\/s/);
+  { const qd = (((all.find(i => /^\*\*Lưu lượng mỗi tia theo Bảng H\.7/.test(i.txt)) || { txt: "" }).txt.match(/lấy \*\*([\d,]+) L\/s\/tia/)) || [])[1]; if (jt && qd) jt = [jt[0], jt[1], qd]; }
   const gara = v.pcar > 0 || v.parea > 0 || (["de-xe", "gara-ck"].includes(t.id) && (v.bas || v.nb > 0));
   const n = Math.max(1, v.n), brk = n > 8, nd = brk ? 7 : n, fh = Math.max(18, Math.min(34, Math.floor(170 / nd)));
   const nb = Math.min(3, v.nb || (v.bas ? 1 : 0)), bh = 20, X = 96, W = 150, top = 30;
@@ -1363,7 +1371,7 @@ const CS = [
     d: (x, o) => { const k = o.auto ? 1 : 2; return x > 500000 ? { xe: 2 * k, why: "> 500 000 m³" } : x >= 100000 ? { xe: 1 * k, why: "100 000 – 500 000 m³" } : { bom: 1 * k, why: "< 100 000 m³" }; },
     f: x => x >= 100000, c: () => true, ref: "Bảng D.1 mục 1" },
   { id: "cang-hk", n: "Cảng hàng không (cấp PCCC theo ICAO Doc 9137)", u: "cấp", lbl: "Cấp PCCC sân bay (1 – 10)",
-    d: x => x >= 8 ? { xe: 3, why: "cấp 8 – 10" } : x >= 6 ? { xe: 2, why: "cấp 6, 7" } : x >= 1 ? { xe: 1, why: "cấp 1 – 5" } : { why: "nhập cấp 1 – 10" }, f: () => false, c: () => true, ref: "Bảng D.1 mục 2.1" },
+    d: x => x > 10 || (x > 0 && x % 1) ? { bad: 1, why: "cấp PCCC sân bay là số nguyên 1 – 10 (ICAO Doc 9137) — kiểm tra lại" } : x >= 8 ? { xe: 3, why: "cấp 8 – 10" } : x >= 6 ? { xe: 2, why: "cấp 6, 7" } : x >= 1 ? { xe: 1, why: "cấp 1 – 5" } : { bad: 1, why: "nhập cấp 1 – 10" }, f: () => false, c: () => true, ref: "Bảng D.1 mục 2.1" },
   { id: "cang-bien", n: "Bến cảng biển xuất, nhập hàng nguy hiểm (chất nổ, khí, lỏng, rắn dễ cháy)", u: "", lbl: "Cấp công trình", sel: [["db", "Cấp đặc biệt"], ["1", "Cấp I"], ["2", "Cấp II, III"]],
     d: (x, o) => o.cap === "db" ? { xe: 2, why: "cấp đặc biệt" } : o.cap === "1" ? { xe: 1, why: "cấp I" } : { bom: 1, why: "cấp II, III" }, f: (x, o) => o.cap !== "2", c: (x, o) => o.cap !== "2", ref: "Bảng D.1 mục 2.2" },
   { id: "lng", n: "Bến cảng chuyên dùng LNG", u: "m³", lbl: "Dung tích tàu, thiết bị tiếp nhận", d: x => x >= 8000 ? { tau: 1, why: "≥ 8 000 m³" } : { why: "< 8 000 m³: Bảng D.1 không quy định" }, f: () => false, c: () => false, ref: "Bảng D.1 mục 2.2" },
@@ -1384,6 +1392,7 @@ if (!CS[csxV.i]) csxV.i = 0;
 function csxEval(V) {
   const c = CS[V.i], x = +V.x || 0, d = c.d(x, V), items = [];
   const parts = [d.xe ? `**${d.xe} xe ô tô chữa cháy**` : "", d.tau ? `**${d.tau} tàu chữa cháy**` : "", d.bom ? `**${d.bom} máy bơm chữa cháy khiêng tay** (loại B-1, TCVN 12110)` : ""].filter(Boolean);
+  if (d.bad) items.push({ lv: "info", txt: "**Kiểm tra số liệu nhập**: " + d.why, ref: c.ref || "Bảng D.1" }); else
   items.push({ lv: parts.length ? "req" : "no", txt: (parts.length ? parts.join(" + ") : "**Phương tiện chữa cháy cơ giới** — không quy định") + " — " + d.why + (c.ex && !V.auto ? " (kho **không có** chữa cháy tự động, làm mát cố định: **gấp hai lần** định mức)" : ""), ref: c.ref });
   if (d.bom) items.push({ lv: "info", txt: "Được thay máy bơm khiêng tay bằng **xe ô tô chữa cháy**", ref: "Bảng D.1 CT2" });
   if (d.tau) items.push({ lv: "info", txt: "Được thay tàu chữa cháy bằng **tàu lai dắt có chức năng chữa cháy**", ref: "Bảng D.1 CT4" });

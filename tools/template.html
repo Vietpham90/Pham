@@ -513,7 +513,9 @@ function setHeader(title) {
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 
-const APP_VER = { so: "1.30", ngay: "17/11/2026", moi: [
+const APP_VER = { so: "1.31", ngay: "19/11/2026", moi: [
+  "Nhà hỗn hợp: cảnh báo khi hai phần khai báo trùng tầng, hoặc phần vượt số tầng / số hầm của nhà.",
+  "Ô tìm kiếm hiểu số kiểu Việt Nam: dấu chấm hàng nghìn (1.500 m2), dấu phẩy thập phân (25,5 m).",
   "Ô tìm kiếm hiểu \"hạng A – E\" và \"sprinkler\" gõ kèm tên (ví dụ: nhà xưởng hạng C 2 tầng 12m có sprinkler); tóm tắt hiện giới hạn diện tích tầng theo Bảng H.2.",
   "Đồng bộ theo tài khoản Claude: mục đã lưu ★ và thông số Toàn nhà, Hỗn hợp, Gian phòng tự đồng bộ giữa các máy (khi mở trên claude.ai).",
   "Sơ đồ sinh động hơn: màu chuyển sắc, đổ bóng, bầu trời, cây xanh; mũi tên thoát nạn chuyển động, biển EXIT sáng, lửa và khói, đèn xe chữa cháy nhấp nháy; chú giải màu.",
@@ -1064,7 +1066,8 @@ const CT_STOP = new Set(["nha", "toa", "cong", "trinh", "khu", "cao", "tang", "v
 function ctAlias(c) { const k = Object.keys(CT_ALIAS).find(x => c.n.startsWith(x)); return k ? CT_ALIAS[k] : ""; }
 /* Đọc quy mô gõ kèm tên: "chung cư 25 tầng cao 80m 1500m2 2 hầm" */
 function ctQty(q) {
-  const t = norm(q).replace(/,/g, "."), o = {};
+  // dấu chấm hàng nghìn (1.500), dấu phẩy thập phân (25,5) — như các ô nhập số
+  const t = norm(q).replace(/(\d)\.(?=\d{3}(?!\d))/g, "$1").replace(/(\d),(?=\d)/g, "$1."), o = {};
   let m = t.match(/(\d+)\s*tang\s*ham|(\d+)\s*ham/); if (m) o.nb = Math.min(4, +(m[1] || m[2]));
   m = t.match(/(\d+)\s*tang(?!\s*ham)/); if (m) o.n = +m[1];
   m = t.match(/(\d+(?:\.\d+)?)\s*(?:m2|m²|met vuong)/); if (m) o.a = +m[1];
@@ -1255,6 +1258,15 @@ function mxEvaluate(m) {
   if (H > lim[0] || NB > lim[1]) add(s0, `Vượt phạm vi điều chỉnh (≤ ${lim[0]} m, ≤ ${lim[1]} tầng hầm${lim[0] === 50 ? " — do có phần sản xuất, kho trên mặt đất" : ""}).`, "1.1.2, 1.1.3", "bad");
   else add(s0, `Trong phạm vi áp dụng (≤ ${lim[0]} m, ≤ ${lim[1]} tầng hầm).`, "1.1.2", "ok");
   if (H > 150 || NB >= 4) add(s0, "Nhà hỗn hợp cao trên 150 m hoặc từ 4 tầng hầm: bổ sung yêu cầu theo tài liệu chuẩn.", "1.1.3", "bad");
+  { // kiểm tra khai báo tầng của các phần
+    const rng = p => { const a = +p.from || 0, b = +p.to || 0; return [Math.min(a, b), Math.max(a, b)]; };
+    const fl = x => x < 0 ? `hầm ${-x}` : `tầng ${x}`;
+    for (let x = 0; x < parts.length; x++) for (let y = x + 1; y < parts.length; y++) {
+      const [a1, b1] = rng(parts[x]), [a2, b2] = rng(parts[y]); const lo = Math.max(a1, a2), hi = Math.min(b1, b2);
+      if (lo <= hi) add(s0, `Phần ${CT[parts[x].i].n.split(",")[0]} và ${CT[parts[y].i].n.split(",")[0]} cùng khai báo ${lo === hi ? fl(lo) : fl(lo) + " → " + fl(hi)}: nếu cùng một tầng có hai công năng thì ngăn cách theo 4.5 (trừ khi công năng chính chiếm ≥ 90 % diện tích tầng); nếu nhập nhầm, sửa lại số tầng của phần.`, "4.5, 4.6", "warn");
+    }
+    parts.forEach(pt => { const [a, b] = rng(pt); if (b > N) add(s0, `Phần ${CT[pt.i].n.split(",")[0]} khai báo tới tầng ${b}, vượt số tầng nổi của nhà (${N}). Kiểm tra lại số tầng.`, "", "warn"); if (a < 0 && -a > NB) add(s0, `Phần ${CT[pt.i].n.split(",")[0]} khai báo tới hầm ${-a}, vượt số tầng hầm của nhà (${NB}). Kiểm tra lại số tầng hầm.`, "", "warn"); });
+  }
   // bậc chịu lửa chung = yêu cầu cao nhất giữa các phần
   const rank = { "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5 };
   const topTo = Math.max(...parts.map(p => +p.to));
@@ -1406,6 +1418,8 @@ function g3Row(cls, bac, S) {
   return { val: G3T.E_S23, label: "E – bậc IV, V – S2, S3" };
 }
 function gpEvaluate(v) {
+  v = Object.assign({}, v); if (!["A", "B", "C1", "C2", "C3", "C4", "D", "E", "C"].includes(v.f5h)) v.f5h = "C2"; if (!["S0", "S1", "S2", "S3"].includes(v.f5s)) v.f5s = "S0";
+  if (typeof v.g !== "string" || !/^F[1-5]\.\d$/.test(v.g)) v.g = "F3.1";
   const out = []; const sec = t => { const s = { t, items: [] }; out.push(s); return s; };
   const add = (s, txt, ref, lv) => s.items.push({ txt, ref, lv: lv || "" });
   const g = v.g, G = g.slice(0, 2), A = +v.a || 0, ch = +v.ch || 3, bac = v.bac || "I", isF5 = G === "F5";
@@ -1664,7 +1678,7 @@ function thresholdsCT(v) {
 }
 
 /* Làm sạch dữ liệu lưu (bị hỏng hoặc từ phiên bản cũ) */
-(function sanitizeStored() {
+function sanitizeStored() {
   const obj = x => x && typeof x === "object" && !Array.isArray(x);
   if (!obj(ctV) || !CT[ctV.i]) ctV = Object.assign({}, obj(ctV) ? ctV : {}, { i: 0 });
   if (!obj(mxV) || !Array.isArray(mxV.parts)) mxV = Object.assign({}, obj(mxV) ? mxV : {}, { parts: [] });
@@ -1678,7 +1692,8 @@ function thresholdsCT(v) {
   if (!["I", "II", "III", "IV", "V"].includes(gpV.bac)) gpV.bac = "I";
   saved = (Array.isArray(saved) ? saved : []).filter(x => typeof x === "string");
   if (typeof checks !== "object" || !checks || Array.isArray(checks)) checks = {};
-})();
+}
+sanitizeStored();
 /* ---------- Đồng bộ giữa các máy cùng tài khoản Claude (chỉ khi mở trên claude.ai) ----------
    Lưu mục đã lưu ★ và thông số Toàn nhà / Hỗn hợp / Gian phòng vào kho riêng của người xem
    (data/users/<id>/sotay — chỉ chính người đó đọc được). Mở ngoài claude.ai: chỉ lưu trên máy. */
@@ -1713,6 +1728,7 @@ function syncApply(d) {
     if (obj(d.gp) && !Array.isArray(d.gp)) { localStorage.setItem(SYNC_KEYS.gp, JSON.stringify(d.gp)); gpV = Object.assign({}, gpV, d.gp); if (!G9[gpV.k]) gpV.k = 0; }
     localStorage.setItem("pccc-sync-at", String(+d.at || Date.now()));
   } catch (e) {}
+  try { sanitizeStored(); } catch (e) {}
   sync.last = JSON.stringify({ ...syncBody(), at: 0, dev: "" });
   // vẽ lại khi người dùng không đang gõ, để không mất chữ đang nhập
   const typing = document.activeElement && /INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName) && document.getElementById("view").contains(document.activeElement);

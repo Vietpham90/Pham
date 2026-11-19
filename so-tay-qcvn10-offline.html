@@ -557,7 +557,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v41 · cập nhật 19/11/2026</p>
+    <p class="ver">Phiên bản v42 · cập nhật 19/11/2026</p>
     <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
@@ -597,6 +597,8 @@ function parseParams(q) {
   const take = (re, f) => { s = s.replace(re, (...m) => { f(m); return " "; }); };
   take(/\s(\d+)\s*(?:tang ham|ham)(?=\s)/g, m => { p.nb = Math.min(5, +m[1]); });
   take(/\shanh lang(?: dai)?\s+([\d.,]+)\s*m?(?=\s)/g, m => { p.hlLen = parseNum(m[1]); });
+  take(/\s([\d.,]+)\s*(?:m2|m²|m\^2)\s*(?:\/\s*|moi\s+|mot\s+|1\s+)(?:tang|san)(?=\s)/g, m => { p.dt1 = parseNum(m[1]); });
+  take(/\s(?:dien tich\s+)?(?:1|mot|moi)\s+(?:tang|san)\s+([\d.,]+)\s*(?:m2|m²)(?=\s)/g, m => { p.dt1 = parseNum(m[1]); });
   take(/\s([\d.,]+)\s*(?:m2|m²|m\^2)(?=\s)/g, m => { p.a = parseNum(m[1]); });
   take(/\s([\d.,]+)\s*(?:m3|m³)(?=\s)/g, m => { p.vol = parseNum(m[1]); });
   take(/\s(\d+)\s*(?:tang|t)(?=\s)/g, m => { p.n = +m[1]; });
@@ -606,7 +608,11 @@ function parseParams(q) {
   take(/\shang\s+(c1|c2|c3|c4|a|b|c|d|e)(?=\s)/g, m => { p.hang = m[1] === "c" ? "C2" : m[1].toUpperCase(); if (m[1] === "c") p.hangC = 1; });
   take(/\sbac\s+(iv|v|i{1,3}|[1-5])(?=\s)/g, m => { const r = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V" }; p.bac = r[m[1]] || m[1].toUpperCase(); });
   Object.keys(p).forEach(k => { if (p[k] === "" || Number.isNaN(p[k])) delete p[k]; });
-  return { p, rest: s.replace(/\s+/g, " ").trim() };
+  const rest = s.replace(/\s+/g, " ").trim();
+  // "gara ngầm 2 tầng", "hầm để xe 3 tầng" → số tầng hầm
+  if (/(^| )(ngam|ham de xe|ham xe)( |$)/.test(rest) && p.n && !p.nb) { p.nb = Math.min(5, p.n); delete p.n; }
+  if (p.dt1 && p.n && !p.a) p.a = p.dt1 * p.n;
+  return { p, rest };
 }
 let VOCAB = null;
 function vocab() {
@@ -644,7 +650,7 @@ function findTypesLoose(terms, n) {
   for (const a of ANCH) if (q.includes(" " + a + " ")) { const x = findTypes(a.split(" "), n); if (x.length) return x; }
   return [];
 }
-const PRE_LBL = { hlLen: v => "hành lang " + fmtN(v) + " m", n: v => v + " tầng", h: v => fmtN(v) + " m", a: v => fmtN(v) + " m²", vol: v => fmtN(v) + " m³", nb: v => v + " hầm", xe: v => v + " xe", ppl: v => v + " người", hang: v => "hạng " + v, bac: v => "bậc " + v };
+const PRE_LBL = { hlLen: v => "hành lang " + fmtN(v) + " m", n: v => v + " tầng", dt1: v => fmtN(v) + " m²/tầng", h: v => fmtN(v) + " m", a: v => fmtN(v) + " m²", vol: v => fmtN(v) + " m³", nb: v => v + " hầm", xe: v => v + " xe", ppl: v => v + " người", hang: v => "hạng " + v, bac: v => "bậc " + v };
 function preHTML(t, p) {
   const ks = Object.keys(PRE_LBL).filter(k => p[k] !== undefined); if (!t || !ks.length) return "";
   const lbl = ks.map(k => PRE_LBL[k](p[k])).join(" · ") + (p.hangC ? " (hạng C tạm lấy C2 — chọn lại nếu khác)" : "");
@@ -652,9 +658,10 @@ function preHTML(t, p) {
 }
 function applyPre(p) {
   const t = TI[p.id]; if (!t) return;
-  Object.assign(ctV, { id: p.id, n: 1, h: 0, a: 0, vol: 0, nb: 0, dt1: 0, bas: false });
+  Object.assign(ctV, { id: p.id, n: 1, h: 0, a: 0, vol: 0, nb: 0, dt1: 0, bas: false, cho: 0, pcar: 0, parea: 0, pmoto: 0, ppl: 0 });
   ctV.hlLen = 0;
-  ["n", "h", "a", "vol", "nb", "ppl", "hang", "bac", "hlLen"].forEach(k => { if (p[k] !== undefined) ctV[k] = p[k]; });
+  ["n", "h", "a", "vol", "nb", "ppl", "hang", "bac", "hlLen", "dt1"].forEach(k => { if (p[k] !== undefined) ctV[k] = p[k]; });
+  if (p.nb && p.n === undefined && ["de-xe", "gara-ck"].includes(p.id)) { ctV.n = 1; ctV.bas = true; if (p.dt1 === undefined && p.a) ctV.dt1 = Math.round(p.a / p.nb); }
   if (p.nb) ctV.bas = ["de-xe"].includes(p.id) ? ctV.bas : (t.need || []).includes("bas") ? true : ctV.bas;
   if (p.xe !== undefined) { if (["de-xe", "gara-ck"].includes(p.id)) ctV.cho = p.xe; else ctV.pcar = p.xe; }
   if (p.h === undefined && p.n) ctV.h = Math.round(p.n * 3.3 * 10) / 10;
@@ -1906,6 +1913,7 @@ function ctText() {
   const t = TI[ctV.id]; const v = Object.assign({}, ctV); ["n", "h", "a", "vol", "kids", "seats", "ppl", "room", "len", "cho", "nb", "kc", "pcar", "parea", "phh", "pmoto", "srv", "mba", "mbaKv", "pdien", "dt1", "ga", "tmTr", "tmHam", "hlLen"].forEach(k => { v[k] = +v[k] || 0; }); if (t.h5 === "cc") v.hl = v.hlLen > 10; if (v.n < 1) v.n = 1;
   const out = ctEvaluate(t, v);
   const lines = [`${t.n} — ${v.n} tầng, chiều cao PCCC ${fmtN(v.h)} m, ${fmtN(v.a)} m², ${fmtN(v.vol)} m³ (QCVN 10:2025/BCA)`];
+  const chk = ctCheck(t, v); if (chk.length) lines.push("", "KIỂM TRA SỐ LIỆU NHẬP:", ...chk.map(x => "- " + x));
   out.forEach(s => { lines.push("", s.t); s.items.forEach(i => lines.push(`- [${(LV[i.lv] || LV.val)[1] || "Giá trị"}] ${i.txt.replace(/\*\*/g, "")} (${i.ref})`)); });
   const r13 = q13Eval(t, v);
   if (r13) { lines.push("", "=== GARA Ô TÔ THEO QCVN 13:2018/BXD — " + r13.kindTxt + " ==="); r13.items.forEach(i => lines.push(`- ${i.txt.replace(/\*\*/g, "")} (QCVN 13: ${i.ref})`)); }

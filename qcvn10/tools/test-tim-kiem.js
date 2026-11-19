@@ -10,6 +10,8 @@ const C = [
   ["nhà xưởng 2 tầng 12000m2 hạng C3", /2 tầng · 12\.000 m² · hạng C3/, "san-xuat", null, true],
   ["nha xuong hang C", /hạng C2 \(hạng C tạm lấy C2/, "san-xuat", null, true],
   ["chung cu 25 tang 80m 2 ham 300 xe", /25 tầng · 80 m · 2 hầm · 300 xe/, "chung-cu", null, true],
+  ["chung cư 1.500m2/tầng 20 tầng", /20 tầng · 1\.500 m²\/tầng · 30\.000 m²/, "chung-cu", null, true],
+  ["gara ngầm 2 tầng 300 xe", /2 hầm · 300 xe/, "de-xe", null, true],
   ["chung cư 20 tầng 65m hành lang 60m", /hành lang 60 m · 20 tầng · 65 m/, "chung-cu", null, true],
   ["chua chay tu dong kho", null, "kho", null, true],
   ["phong may bien ap", null, null, null, true],
@@ -47,12 +49,18 @@ const C = [
   await p.click("#view .precard"); await p.waitForTimeout(150);
   const st = await p.evaluate(() => ({ h: location.hash, id: ctV.id, a: ctV.a, n: ctV.n, q: document.getElementById("q").value, res: document.getElementById("ctres").innerText }));
   if (!(st.h === "#cong-trinh" && st.id === "kho" && st.a === 5000 && st.n === 1 && st.q === "" && /5\.000 m²/.test(st.res))) fail.push("bấm thẻ tra ngay: " + JSON.stringify(st).slice(0, 200));
+  // thẻ tra ngay đặt lại số xe của lần trước; gara ngầm → số tầng hầm
+  await p.evaluate(() => { renderSearch("gara ngầm 2 tầng 300 xe"); }); await p.click("#view .precard"); await p.waitForTimeout(100);
+  const g1 = await p.evaluate(() => ({ nb: ctV.nb, bas: ctV.bas, cho: ctV.cho, n: ctV.n }));
+  await p.evaluate(() => { location.hash = "home"; }); await p.waitForTimeout(100); await p.evaluate(() => renderSearch("chung cư 20 tầng 1500 m2 mỗi tầng")); await p.click("#view .precard"); await p.waitForTimeout(100);
+  const g2 = await p.evaluate(() => ({ cho: ctV.cho, a: ctV.a, dt1: ctV.dt1 }));
+  if (!(g1.nb === 2 && g1.bas && g1.cho === 300 && g1.n === 1 && g2.cho === 0 && g2.a === 30000 && g2.dt1 === 1500)) fail.push("gara ngầm / đặt lại số xe: " + JSON.stringify([g1, g2]));
   // gõ trong ô loại nhà của form
   await p.fill("#ctq", "chung cu 20 tang 60m"); await p.waitForTimeout(80);
   if (!/20 tầng · 60 m/.test(await p.innerText("#ctlist"))) fail.push("ô loại nhà trong form không hiện thẻ tra ngay");
   await p.click("#ctlist .precard"); await p.waitForTimeout(120);
   if (!(await p.evaluate(() => ctV.id === "chung-cu" && ctV.n === 20 && ctV.h === 60))) fail.push("thẻ trong form không điền thông số");
   fail.concat(errs).forEach(f => console.log("✗", f));
-  console.log(`${C.length + 3 - fail.length}/${C.length + 3} kiểm tra tìm kiếm đạt`);
+  console.log(`${C.length + 4 - fail.length}/${C.length + 4} kiểm tra tìm kiếm đạt`);
   await b.close(); process.exit(fail.length || errs.length ? 1 : 0);
 })();

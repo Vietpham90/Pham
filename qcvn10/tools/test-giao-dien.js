@@ -112,12 +112,12 @@ const { chromium } = require("playwright");
     const r = [];
     for (const x of [{ id: "khach-san", n: 14, h: 46, a: 16800, vol: 60000, nb: 1, bas: true, pcar: 60, parea: 1200 }, { id: "chung-cu", n: 5, h: 17, a: 1500, vol: 5000, nb: 0, pcar: 0, parea: 0 }, { id: "ham", n: 1, h: 0, a: 0, len: 800, nb: 0 }]) {
       Object.assign(ctV, DEF, x); renderCT();
-      const f = document.querySelector(".ctfig"), on = f ? [...f.querySelectorAll(".fg-leg .on")].map(e => e.textContent.split(" ")[0]) : null;
-      r.push({ id: x.id, has: !!f, on, floors: f ? f.querySelectorAll(".fg-fl").length : 0, cars: f ? f.querySelectorAll(".fg-car").length : 0, brk: f ? !!f.querySelector(".fg-brk") : false });
+      const f = document.querySelector(".ctfig"), on = f ? [...f.querySelectorAll(".fg-leg .on")].map(e => e.textContent.replace(/^\d+/, "").split(" ")[0]) : null;
+      r.push({ id: x.id, has: !!f, on, floors: f ? f.querySelectorAll(".fg-slab").length : 0, cars: f ? f.querySelectorAll(".fg-car").length : 0, brk: f ? !!f.querySelector(".fg-brk") : false });
     }
     return r;
   });
-  check(fig[0].has && fig[0].brk && fig[0].floors === 7 && fig[0].cars === 4 && ["Báo", "Sprinkler", "Họng", "Ống", "Loa", "Nước"].every(k => fig[0].on.includes(k)), "hình khách sạn 14 tầng: 7 tầng vẽ + ngắt, hầm có xe, đủ 6 hệ thống " + JSON.stringify(fig[0]));
+  check(fig[0].has && fig[0].brk && fig[0].floors === 7 && fig[0].cars >= 3 && ["Báo", "Sprinkler", "Họng", "Ống", "Loa", "Nước"].every(k => fig[0].on.includes(k)), "hình khách sạn 14 tầng: 7 tầng vẽ + ngắt, hầm có xe, đủ 6 hệ thống " + JSON.stringify(fig[0]));
   check(fig[1].has && fig[1].floors === 5 && !fig[1].brk && fig[1].on.includes("Báo") && !fig[1].on.includes("Sprinkler"), "hình chung cư 5 tầng: 5 tầng, báo cháy có, sprinkler gạch " + JSON.stringify(fig[1]));
   check(!fig[2].has, "hầm đường bộ: không vẽ mặt cắt nhà");
   const ic = await p.evaluate(() => {

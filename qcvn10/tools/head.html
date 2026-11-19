@@ -10,7 +10,7 @@
   --ink: #1f1a17; --muted: #5e554d;
   --fire: #b42318; --fire-bg: #fde4e1; --on-fire: #ffffff;
   --exit: #067647; --exit-bg: #dcf5e7;
-  --water: #1f6fd1; --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
+  --water: #1f6fd1; --sky1: #d6e4f0; --sky2: #f4ecda; --win: #c9dcec; --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
   --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --nav-h: 60px;
@@ -21,14 +21,14 @@
   --ink: #f3ece3; --muted: #b8ada1;
   --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
   --exit: #47cd89; --exit-bg: #0f3a26;
-  --water: #6aa9f0; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  --water: #6aa9f0; --sky1: #1b2633; --sky2: #171310; --win: #2a3a4a; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
   color-scheme: dark; } }
 :root[data-mau="toi"] {
   --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
   --ink: #f3ece3; --muted: #b8ada1;
   --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
   --exit: #47cd89; --exit-bg: #0f3a26;
-  --water: #6aa9f0; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  --water: #6aa9f0; --sky1: #1b2633; --sky2: #171310; --win: #2a3a4a; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
   color-scheme: dark; }
 
 * { box-sizing: border-box; }
@@ -293,12 +293,19 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .ct-chk ul { margin: 4px 0 0; padding-left: 18px; } .ct-chk li + li { margin-top: 3px; }
 .ctfig { margin: 10px 0 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px 8px; }
 .ctfig > svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; }
-.fg-fl { fill: var(--bg); stroke: var(--ink); stroke-width: 1.2; } .fg-win { fill: var(--tint); }
-.fg-roof { fill: var(--ink); } .fg-brk { fill: var(--tint); stroke: var(--ink); stroke-width: 1.2; stroke-dasharray: 3 3; }
+.fg-body { fill: var(--panel); } .fg-out { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+.fg-slab { fill: var(--ink); opacity: .75; } .fg-win { fill: var(--win); stroke: var(--line); stroke-width: .8; } .fg-mul { stroke: var(--line); stroke-width: .8; }
+.fg-roof { fill: var(--ink); } .fg-brk { fill: var(--tint); stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; }
 .fg-zig { fill: none; stroke: var(--muted); stroke-width: 1.2; }
 .fg-soil { fill: var(--tint); } .fg-bas { fill: var(--panel); stroke: var(--muted); stroke-width: 1; stroke-dasharray: 4 2; }
 .fg-car { fill: var(--muted); } .fg-whl { fill: var(--ink); }
-.fg-gnd { stroke: var(--ink); stroke-width: 2; } .fg-dim { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.fg-gnd { stroke: var(--ink); stroke-width: 2; } .fg-dim { fill: none; stroke: var(--muted); stroke-width: 1.1; }
+.fg-sp { fill: none; stroke: var(--water); stroke-width: 1.3; } .fg-rp { fill: none; stroke: var(--fire); stroke-width: 2.4; stroke-linecap: round; }
+.fg-wire { fill: none; stroke: var(--fire); stroke-width: 1; stroke-dasharray: 2.5 2; opacity: .8; }
+.fg-pump { fill: var(--panel); stroke: var(--fire); stroke-width: 1.4; }
+.fg-fn { font: 600 8.5px var(--mono); fill: var(--muted); } .fg-tt { font: 800 7.5px var(--sans); fill: var(--on-fire); text-anchor: middle; }
+.fg-bdg circle { fill: var(--ink); } .fg-bdg text { font: 800 8.5px var(--sans); fill: var(--bg); text-anchor: middle; }
+.fg-n { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 10px; font-weight: 800; }
 .fg-t { font: 500 10.5px var(--sans); fill: var(--ink); } .fg-c { text-anchor: middle; } .fg-r { text-anchor: end; } .fg-b { font-weight: 700; }
 .fg-leg { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; margin-top: 8px; font-size: 12.5px; }
 .fg-leg span { display: inline-flex; align-items: center; gap: 5px; } .fg-leg svg { width: 14px; height: 14px; flex: none; } .fg-leg i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }

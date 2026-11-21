@@ -105,3 +105,11 @@ node tools/test-nguong.js /tmp/so-tay.html
 ```bash
 node tools/test-nhap-bien.js /tmp/so-tay.html
 ```
+
+```bash
+node tools/test-tim-so-tay.js /tmp/so-tay.html
+```
+
+```bash
+node tools/test-man-hinh.js /tmp/so-tay.html
+```

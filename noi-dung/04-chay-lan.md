@@ -90,7 +90,7 @@ E.4b: khoảng cách > 3,0 m là 100 %. Giá trị trung gian nội suy tuyến 
 - **Tường ngăn cháy loại 2, vách ngăn cháy loại 1 và loại 2** giao với tường ngoài: tiếp giáp dải tường đặc đứng rộng **≥ 1 m**, GHCL theo tường ngoài (Bảng 4 hoặc Bảng A.1).
 - Nhà có **chữa cháy tự động**: không bắt buộc áp dụng 4.32.1.
 
-## 4.5 Cháy lan theo phương đứng mặt ngoài (4.33)
+## 4.5 Cháy lan theo phương đứng mặt ngoài — đai ngăn cháy (4.33)
 
 Tường ngoài có lỗ mở không phải cửa ngăn cháy phải có **đai ngăn cháy giữa các tầng**, theo một trong ba cách:
 

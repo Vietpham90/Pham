@@ -513,7 +513,8 @@ function setHeader(title) {
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 
-const APP_VER = { so: "1.31", ngay: "19/11/2026", moi: [
+const APP_VER = { so: "1.32", ngay: "21/11/2026", moi: [
+  "Tìm trong sổ tay xếp kết quả đúng cụm từ lên đầu, ưu tiên khớp đúng dấu khi gõ có dấu (ví dụ \"đai ngăn cháy\" không lẫn \"dải ngăn cháy\"); đoạn trích hiện đúng chỗ có cụm từ.",
   "Nhà hỗn hợp: cảnh báo khi hai phần khai báo trùng tầng, hoặc phần vượt số tầng / số hầm của nhà.",
   "Ô tìm kiếm hiểu số kiểu Việt Nam: dấu chấm hàng nghìn (1.500 m2), dấu phẩy thập phân (25,5 m).",
   "Ô tìm kiếm hiểu \"hạng A – E\" và \"sprinkler\" gõ kèm tên (ví dụ: nhà xưởng hạng C 2 tầng 12m có sprinkler); tóm tắt hiện giới hạn diện tích tầng theo Bảng H.2.",
@@ -692,8 +693,17 @@ function renderSearch(term) {
   setNav("");
   const terms = norm(term).split(/\s+/).filter(Boolean);
   const res = [];
+  // xếp hạng: cả cụm từ trong tiêu đề > cả cụm từ trong nội dung (càng nhiều lần càng cao) > từng từ trong tiêu đề
+  const phrase = terms.join(" ");
+  const exact = term.toLowerCase().trim().replace(/\s+/g, " ");
+  const cnt = (h, x) => { let n = 0, k = h.indexOf(x); while (k >= 0 && n < 6) { n++; k = h.indexOf(x, k + x.length); } return n; };
   for (const id of ORDER) for (const b of SECTIONS[id].blocks) {
-    if (terms.every(t => b.text.includes(t))) res.push({ id, b, score: terms.filter(t => norm(b.title).includes(t)).length });
+    if (!terms.every(t => b.text.includes(t))) continue;
+    const tt = norm(b.title);
+    let score = terms.filter(t => tt.includes(t)).length * 10;
+    if (terms.length > 1 || phrase.length > 2) { if (tt.includes(phrase)) score += 100; const c = cnt(b.text, phrase); if (c) score += 40 + c * 4; }
+    if (exact && /[^\x00-\x7f]/.test(exact)) { if (b.title.toLowerCase().includes(exact)) score += 60; else if (b.raw.toLowerCase().includes(exact)) score += 30; } // gõ có dấu: ưu tiên khớp đúng dấu
+    res.push({ id, b, score });
   }
   res.sort((a, b) => b.score - a.score);
   setHeader(null);
@@ -706,7 +716,7 @@ function renderSearch(term) {
   }
   const mk = s => { let h = esc(s); for (const t of terms) { if (t.length < 2) continue; const re = buildRe(t); h = h.replace(re, m => `<mark>${m}</mark>`); } return h; };
   view.innerHTML = ctBox + `<p class="label">${res.length} kết quả</p><ul class="results">${res.slice(0, 60).map(({ id, b }) => {
-    const nraw = norm(b.raw); const pos = Math.max(0, nraw.indexOf(terms[0]) - 40);
+    const nraw = norm(b.raw); const at = nraw.indexOf(phrase); const pos = Math.max(0, (at >= 0 ? at : nraw.indexOf(terms[0])) - 40);
     const snip = (pos ? "…" : "") + b.raw.slice(pos, pos + 150) + "…";
     return `<li><button data-open="${b.id}"><span class="sec">${META[id].t}</span><span class="ttl">${mk(b.title.replace(/[⚑✱]/g, ""))}</span><span class="snip">${mk(snip.replace(/[⚑✱]/g, ""))}</span></button></li>`;
   }).join("")}</ul>`;

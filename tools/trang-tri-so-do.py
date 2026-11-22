@@ -76,5 +76,48 @@ for k in D:
     if k == 'bai-do': post += mtruck(206, 9, .9, rev=True)
     if k == 'duong-tranh': post += mtruck(94, 7, .8) 
     if post: D[k] = before_close(D[k], post)
+
+# ---- Vòng 3: quầng lửa, cửa sổ sáng đèn, nước sprinkler, vùng nóng, nét kích thước vẽ dần ----
+import random
+def glow(svg):
+    def f(m):
+        x, y, w, h = (float(m.group(i)) for i in range(1, 5))
+        return f'<circle class="glow" cx="{x+w/2:.1f}" cy="{y+h*.7:.1f}" r="{h*.95:.1f}"/>' + m.group(0)
+    return re.sub(r'<use class="flame" href="#dg-flame" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/>', f, svg)
+def wins(xs, ys, w, h, seed):
+    rnd = random.Random(seed); o = ''
+    for y in ys:
+        for x in xs:
+            lit = rnd.random() < .35
+            o += f'<rect class="wn{" lit l" + str(rnd.randint(0, 2)) if lit else ""}" x="{x}" y="{y}" width="{w}" height="{h}" rx="1"/>'
+    return o
+WINS = {
+ 'chieu-cao': wins([176, 204, 232], [54, 92, 130, 168, 206], 16, 16, 1),
+ 'loi-ra-mai': wins([62, 94, 126, 158, 186], [92, 198], 16, 16, 2) + wins([228, 260, 292], [146, 190], 16, 16, 3),
+ 'tang-ham': wins([54, 82, 110], [72], 16, 14, 4) + wins([214, 242, 270], [92], 16, 14, 5),
+ 'bai-do': wins([44, 78, 112, 146, 180, 214, 248, 278], [26], 14, 14, 6),
+ 'lanh-nan': ''.join(f'<rect class="wcol" x="{x}" y="22" width="9" height="226"/>' for x in (130, 152, 196, 216)),
+}
+def after_first(svg, pat, add):
+    m = re.search(pat, svg); return svg[:m.end()] + add + svg[m.end():]
+def after_last(svg, pat, add):
+    m = list(re.finditer(pat, svg))[-1]; return svg[:m.end()] + add + svg[m.end():]
+for k, add in WINS.items():
+    D[k] = after_last(D[k], r'<rect class="w"[^>]*/>', add)
+# vùng nóng phía khoang cháy 1, tường ngăn cháy chặn lại
+D['tuong-ngan-chay'] = after_first(D['tuong-ngan-chay'], r'<rect class="w"[^>]*/>', '<rect class="heat" x="20" y="40" width="154" height="140"/>')
+D['tuong-ngan-chay'] = before_close(D['tuong-ngan-chay'], '<g class="safe"><circle cx="300" cy="140" r="9"/><path d="M295.5 140.5 l3 3 l6 -6.5"/></g>')
+# giọt nước rơi dưới đầu phun
+def drops(svg):
+    o = ''
+    for m in re.finditer(r'<circle class="spk" cx="([\d.]+)" cy="([\d.]+)"', svg):
+        cx, cy = float(m.group(1)), float(m.group(2))
+        for j, dx in enumerate((-8, -4, 0, 4, 8, -6, 6)):
+            o += f'<circle class="drop d{j % 4}" cx="{cx+dx:.1f}" cy="{cy+6:.1f}" r="1.6"/>'
+    return o
+D['dai-ngan-chay'] = before_close(D['dai-ngan-chay'], drops(D['dai-ngan-chay']))
+for k in D:
+    D[k] = glow(D[k])
+    D[k] = D[k].replace('<line class="dim" ', '<line class="dim" pathLength="1" ')
 json.dump(D, open(sys.argv[3], 'w', encoding='utf-8'), ensure_ascii=False)
 print(len(D))

@@ -9,10 +9,10 @@ def tree(x, y, s=1.0):
     return f'<use href="#dg-tree" x="{x-10*s:.1f}" y="{y-30*s:.1f}" width="{20*s:.1f}" height="{30*s:.1f}"/>'
 def flame(x, y, s=1.0):
     # gốc ngọn lửa tại (x, y)
-    w, h = 18 * s, 26 * s
+    w, h = 21 * s, 30 * s
     o = f'<use class="flame" href="#dg-flame" x="{x-w/2:.1f}" y="{y-h:.1f}" width="{w:.1f}" height="{h:.1f}"/>'
     for k in range(3):
-        o += f'<circle class="smoke s{k}" cx="{x + (k-1)*5*s:.1f}" cy="{y-h-4*s:.1f}" r="{(4+k)*s:.1f}"/>'
+        o += f'<circle class="smoke s{k}" cx="{x + (k-1)*5*s:.1f}" cy="{y-h+6*s:.1f}" r="{(4+k)*s:.1f}"/>'
     return o
 def walker(x, y, s=1.0, flip=False):
     tr = f' transform="translate({2*x:.1f} 0) scale(-1 1)"' if flip else ''

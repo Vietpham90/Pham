@@ -9,7 +9,7 @@ const { chromium } = require('playwright');
       await p.goto(f + pg); await p.waitForTimeout(250);
       const r = await p.evaluate(W => {
         const sw = document.documentElement.scrollWidth;
-        const wide = [...document.querySelectorAll('#view *')].filter(e => { const r = e.getBoundingClientRect(); if (!r.width) return false; if (e.closest('.tbl, .dgov, pre, table')) return false; return r.right > W + 1; }).slice(0, 3).map(e => e.tagName + '.' + (e.className || '') + ':' + Math.round(e.getBoundingClientRect().right));
+        const wide = [...document.querySelectorAll('#view *')].filter(e => { const r = e.getBoundingClientRect(); if (!r.width) return false; if (e.closest('.tbl, .dgov, pre, table, svg')) return false; return r.right > W + 1; }).slice(0, 3).map(e => e.tagName + '.' + (e.className || '') + ':' + Math.round(e.getBoundingClientRect().right));
         const small = [...document.querySelectorAll('#view button, nav.bottom a, nav.bottom button')].filter(e => { const r = e.getBoundingClientRect(); return r.width && r.height && r.height < 28 && !e.classList.contains('ref') && !e.classList.contains('star') && !e.closest('.dg-index, .chips'); }).slice(0, 3).map(e => (e.textContent || '').trim().slice(0, 20) + ':' + Math.round(e.getBoundingClientRect().height));
         return { sw, wide, small };
       }, w);

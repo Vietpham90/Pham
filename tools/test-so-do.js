@@ -17,6 +17,12 @@ const { chromium } = require('playwright');
   ok('Hiệu ứng: mũi tên thoát nạn chuyển động, có lửa, bầu trời, chú giải 6 mục', an.flow === 'dgflow' && an.flame >= 5 && an.sky >= 4 && an.legend === 6, an);
   { const q = await (await b.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })).newPage(); await q.goto('file://' + process.argv[2] + '#so-do'); await q.waitForTimeout(300);
     ok('Máy bật "Giảm chuyển động" → tắt hiệu ứng', await q.evaluate(() => getComputedStyle(document.querySelector('.dgbox .flow')).animationName === 'none')); await q.context().close(); }
+  const pos = async () => p.evaluate(() => [...document.querySelectorAll('#dg-khoang-cach .mover')].map(c => { const r = c.getBoundingClientRect(); return Math.round(r.x); }).join(','));
+  const p1 = await pos(); await p.waitForTimeout(700); const p2 = await pos();
+  ok('Người di chuyển theo hướng thoát nạn (vị trí thay đổi theo thời gian)', p1 && p1 !== p2, [p1, p2]);
+  ok('Có xe chữa cháy chạy, mây trôi, thảm cỏ, sàn vân gạch', await p.evaluate(() => document.querySelectorAll('.dgbox .mtruck').length >= 2 && document.querySelectorAll('.dgbox .cloud').length >= 4 && document.querySelectorAll('.dgbox .grass').length >= 4 && getComputedStyle(document.querySelector('#dg-khoang-cach .corr')).fill.includes('dg-floor')));
+  { const q = await (await b.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' })).newPage(); await q.goto('file://' + process.argv[2] + '#so-do'); await q.waitForTimeout(300);
+    ok('Giảm chuyển động → ẩn người chạy, xe chạy', await q.evaluate(() => [...document.querySelectorAll('.dgbox .mover, .dgbox .mtruck')].every(e => getComputedStyle(e).display === 'none'))); await q.context().close(); }
   ok('Không tràn ngang', (await p.evaluate(() => document.documentElement.scrollWidth)) <= 390);
   ok('Không lỗi JS', errs.length === 0, errs);
   console.log(res.join('\n')); console.log(`${res.filter(r => r.startsWith('ĐẠT')).length}/${res.length}`); await b.close(); })();

@@ -1,7 +1,8 @@
 """Làm sơ đồ sinh động: bầu trời, cây, lửa, khói, người — chèn thêm vào SVG đã sinh.
 Dùng: python3 decorate.py d1.json d2.json out.json"""
 import json, sys, re
-D = json.load(open(sys.argv[1], encoding='utf-8')); D.update({k: v['svg'] for k, v in json.load(open(sys.argv[2], encoding='utf-8')).items()})
+D = json.load(open(sys.argv[1], encoding='utf-8'))
+for f in sys.argv[2:-1]: D.update({k: v['svg'] for k, v in json.load(open(f, encoding='utf-8')).items()})
 
 def sky(h, w=360):
     return f'<rect class="sky" x="0" y="0" width="{w}" height="{h}"/>'
@@ -39,6 +40,9 @@ ADD = {
  'thang-may-cc': ('', ''),
  'bai-do': ('', tree(320, 120, .8) + tree(14, 120, .7)),
  'duong-tranh': ('', tree(110, 60, .7) + tree(300, 60, .8)),
+ 'khoang-cach-nha': (sky(196), tree(350, 196, .8) + tree(12, 196, .7) + flame(75, 152, .8)),
+ 'thang-loai-3': (sky(220), tree(40, 220, 1.1) + tree(70, 220, .8)),
+ 'khoang-dem': ('', flame(52, 162, 1.0)),
 }
 for k, (pre, post) in ADD.items():
     if pre: D[k] = after_open(D[k], pre)
@@ -63,8 +67,8 @@ def cloud(x, y, s=1.0, d=0):
 def mtruck(y, dur, s=1.0, rev=False):
     path = "M420 0 H-80" if rev else "M-80 0 H420"
     return f'<g class="mtruck"><animateMotion dur="{dur}s" repeatCount="indefinite" path="{path}"/>{truck(0, y, s, -1 if rev else 1)}</g>'
-SKY = {'chieu-cao': 232, 'tang-ham': 140, 'loi-ra-mai': 232, 'lanh-nan': 250}
-CLOUDS = {'chieu-cao': [(20, 30, 1.0, 0), (250, 12, .8, 1)], 'tang-ham': [(260, 52, .8, 1)], 'loi-ra-mai': [(250, 48, .8, 0)], 'lanh-nan': [(20, 40, .9, 0), (270, 26, .8, 1)]}
+SKY = {'khoang-cach-nha': 196, 'thang-loai-3': 220, 'chieu-cao': 232, 'tang-ham': 140, 'loi-ra-mai': 232, 'lanh-nan': 250}
+CLOUDS = {'chieu-cao': [(20, 30, 1.0, 0), (250, 12, .8, 1)], 'tang-ham': [(260, 52, .8, 1)], 'loi-ra-mai': [(250, 48, .8, 0)], 'lanh-nan': [(20, 40, .9, 0), (270, 26, .8, 1)], 'khoang-cach-nha': [(150, 40, .9, 0), (300, 52, .7, 1)], 'thang-loai-3': [(20, 30, .9, 0), (230, 6, .7, 1)]}
 for k in D:
     pre = ''
     if k in SKY: pre += ''.join(cloud(*c) for c in CLOUDS.get(k, [])) + f'<rect class="grass" x="0" y="{SKY[k]-3}" width="360" height="3"/>'
@@ -96,6 +100,7 @@ WINS = {
  'loi-ra-mai': wins([62, 94, 126, 158, 186], [92, 198], 16, 16, 2) + wins([228, 260, 292], [146, 190], 16, 16, 3),
  'tang-ham': wins([54, 82, 110], [72], 16, 14, 4) + wins([214, 242, 270], [92], 16, 14, 5),
  'bai-do': wins([44, 78, 112, 146, 180, 214, 248, 278], [26], 14, 14, 6),
+ 'khoang-cach-nha': wins([36, 62, 88, 112], [76, 104, 160], 14, 16, 7) + wins([36, 88, 112], [132], 14, 16, 8) + wins([238, 264, 290, 314], [108, 136, 164], 14, 16, 9),
  'lanh-nan': ''.join(f'<rect class="wcol" x="{x}" y="22" width="9" height="226"/>' for x in (130, 152, 196, 216)),
 }
 def after_first(svg, pat, add):
@@ -119,5 +124,5 @@ D['dai-ngan-chay'] = before_close(D['dai-ngan-chay'], drops(D['dai-ngan-chay']))
 for k in D:
     D[k] = glow(D[k])
     D[k] = D[k].replace('<line class="dim" ', '<line class="dim" pathLength="1" ')
-json.dump(D, open(sys.argv[3], 'w', encoding='utf-8'), ensure_ascii=False)
+json.dump(D, open(sys.argv[-1], 'w', encoding='utf-8'), ensure_ascii=False)
 print(len(D))

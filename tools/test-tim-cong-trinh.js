@@ -34,6 +34,13 @@ const { chromium } = require('playwright');
   ok('Đọc quy mô: "1 tầng 9m 12000 m3"', qt[2].n === 1 && qt[2].h === 9 && qt[2].v === 12000, qt[2]);
   const q5 = await p.evaluate(() => ctQty("nhà xưởng hạng C 2 tầng 12m có sprinkler"));
   ok('Đọc "hạng C" và "sprinkler" → điền sẵn hạng C, có sprinkler', q5.hang === 'C' && q5.sp === true && q5.n === 2 && q5.h === 12, q5);
+  const outs = await p.evaluate(() => [["cây xăng", "xăng dầu"], ["kho xăng dầu", "Kho chứa dầu"], ["ga tàu điện ngầm", "tàu điện ngầm"], ["nhà thờ", "thờ cúng"], ["chùa", "thờ cúng"], ["nhà kính trồng rau", "nhà kính"], ["nhà máy thủy điện", "năng lượng"], ["hầm chui", "hầm giao thông"]].filter(([q, w]) => { const o = ctOut(q); return !o || !o.what.includes(w) || ctFind(q, 3).length; }));
+  ok('Công trình QCVN 06 không áp dụng (cây xăng, kho xăng dầu, ga ngầm, nơi thờ cúng, nhà kính, thủy điện, hầm chui) → báo đúng, không gợi ý nhầm', outs.length === 0, outs);
+  const keep = await p.evaluate(() => ["trạm chữa cháy", "khách sạn", "chung cư", "nhà chăn nuôi", "trang trại", "gara sửa chữa", "phòng khám chữa bệnh", "xưởng sửa chữa ô tô"].filter(q => ctOut(q) || !ctFind(q, 1).length));
+  ok('Tên có chữ "chữa cháy", "chăn nuôi" vẫn ra công trình (không bị coi là ngoài phạm vi)', keep.length === 0, keep);
+  await p.fill('#q', 'cây xăng'); await p.waitForTimeout(250);
+  ok('Ô tìm chính: gõ "cây xăng" → khung "QCVN 06 không áp dụng" (1.1.5)', /QCVN 06 không áp dụng/.test(await p.innerText('#view')) && /1\.1\.5/.test(await p.innerText('#view')));
+  await p.fill('#q', '');
   ok('Không có số → không điền gì', Object.keys(qt[3]).length === 0, qt[3]);
   // Giao diện: ô tìm chính → chọn → mở Toàn nhà đã điền sẵn
   await p.fill('#q', 'khach san 15 tang 50m 1200m2'); await p.waitForTimeout(300);

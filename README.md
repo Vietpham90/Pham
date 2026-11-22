@@ -40,7 +40,7 @@ Sau đó tăng `VERSION` trong `docs/sw.js` để máy đã cài nhận bản m�
 
 ## Kiểm thử công cụ "Tra theo công trình"
 
-Bộ kiểm thử có đáp án (72 trường hợp: toàn nhà, nhà hỗn hợp, gian phòng, Bảng G.3 – G.8) nằm ở `tools/test-cong-trinh.js`. Cần Node.js và Playwright:
+Bộ kiểm thử có đáp án (78 trường hợp: toàn nhà, nhà hỗn hợp, gian phòng, Bảng G.3 – G.8) nằm ở `tools/test-cong-trinh.js`. Cần Node.js và Playwright:
 
 ```bash
 python3 tools/build.py noi-dung tools/template.html /tmp/so-tay.html

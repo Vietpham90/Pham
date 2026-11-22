@@ -583,7 +583,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v47 · cập nhật 22/11/2026</p>
+    <p class="ver">Phiên bản v48 · cập nhật 22/11/2026</p>
     <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
@@ -1013,25 +1013,36 @@ function indoorJets(t, v) {
   const k = v.n <= 10 ? (big ? 2 : 1) : (big ? 3 : 2);
   return { n: k, q: 2.5, why: `${t.h5 === "hc" ? "Nhà hành chính (mục 2)" : "Nhà công cộng (mục 4)"}, ${v.n <= 10 ? "≤ 10" : "> 10"} tầng, khối tích ${big ? "> 25 000" : "≤ 25 000"} m³: ${k} × 2,5 L/s (Bảng H.5)`, ref: "Bảng H.5" };
 }
-/* Đối chiếu Bảng H.7: lưu lượng mỗi tia đủ tia đặc yêu cầu (lăng nhỏ nhất có trong bảng), vòi 20 m */
-function h7Pick(dn, T) {
-  const hi = H7H.findIndex(x => x >= T); if (hi < 0) return null;
-  const opts = [13, 16, 19].map(tip => { const r = H7[dn][tip][hi]; return r ? { tip, q: r[0], p: r[3] } : null; }).filter(Boolean);
-  return opts.length ? { T: H7H[hi], opts, min: opts.reduce((a, b) => (b.q < a.q ? b : a)) } : null;
+/* Bảng H.7: với mỗi lăng, dòng đầu tiên có tia đặc ≥ T VÀ lưu lượng ≥ lưu lượng yêu cầu mỗi tia (vòi 20 m).
+   Chọn lăng cho lưu lượng nhỏ nhất; chênh ≤ 0,3 L/s thì lấy lăng có áp suất họng thấp hơn. DN theo H.2.7 (> 4 L/s → DN 65). */
+function h7Select(qReq, T) {
+  const hi0 = H7H.findIndex(x => x >= T); if (hi0 < 0) return null;
+  const tryDn = dn => {
+    const opts = [], miss = [];
+    for (const tip of [13, 16, 19]) {
+      let o = null;
+      for (let hi = hi0; hi < H7H.length; hi++) { const r = H7[dn][tip][hi]; if (r && r[0] >= qReq - 1e-9) { o = { tip, T: H7H[hi], q: r[0], p: r[3] }; break; } }
+      if (o) opts.push(o); else miss.push(tip);
+    }
+    if (!opts.length) return null;
+    const best = opts.reduce((a, b) => (Math.abs(b.q - a.q) <= .3 ? (b.p < a.p ? b : a) : (b.q < a.q ? b : a)));
+    return { dn, T0: H7H[hi0], opts, miss, best };
+  };
+  let r = tryDn(qReq > 4 ? "65" : "50");
+  if (r && r.dn === "50" && r.best.q > 4) { const r65 = tryDn("65"); if (r65) { r = r65; r.up65 = true; } }
+  if (!r && qReq <= 4) { r = tryDn("65"); if (r) r.up65 = true; }
+  return r;
 }
-/* Lưu lượng thiết kế mỗi tia = lớn hơn giữa bảng số tia (H.5/H.6) và Bảng H.7 (lăng nhỏ nhất đạt tia đặc mj) */
-function h7Design(j, mj) {
-  let r = h7Pick(j.q > 4 ? "65" : "50", mj);
-  if (r && j.q <= 4 && r.min.q > 4) r = h7Pick("65", mj) || r;
-  return r ? Math.max(j.q, r.min.q) : j.q;
-}
+function h7Design(j, mj) { const r = h7Select(j.q, mj); return r ? r.best.q : j.q; }
 function h7Lines(v, j, mj) {
-  const out = [], one = (T, lead) => {
-    let dn = j.q > 4 ? "65" : "50", r = h7Pick(dn, T);
-    if (r && dn === "50" && r.min.q > 4) { const r65 = h7Pick("65", T); if (r65) { dn = "65"; r = r65; } }
-    if (!r) return [ "info", `${lead}Bảng H.7 chỉ đến tia đặc 20 m (DN 65) — tia ${T} m vượt bảng, cần tính riêng`, "Bảng H.7" ];
-    const qd = Math.max(j.q, r.min.q), up = r.min.q > j.q;
-    return [ "val", `${lead}**${lead ? "lưu" : "Lưu"} lượng mỗi tia theo Bảng H.7** (DN ${dn}, tia đặc ≥ ${r.T} m, vòi 20 m): ` + r.opts.map(o => `lăng ${o.tip} mm → ${fmtN(o.q)} L/s, ${o.p.toFixed(3).replace(".", ",")} MPa`).join("; ") + `. Lăng nhỏ nhất đạt tia: **${fmtN(r.min.q)} L/s** ${up ? `> ${fmtN(j.q)} L/s của bảng số tia → lưu lượng thiết kế lấy **${fmtN(qd)} L/s/tia**, tổng ${j.n} × ${fmtN(qd)} = **${fmtN(Math.round(j.n * qd * 10) / 10 + (j.add || 0))} L/s**` : `≤ ${fmtN(j.q)} L/s → giữ ${fmtN(j.q)} L/s/tia`}${dn === "65" && j.q <= 4 ? " (lưu lượng > 4 L/s → họng DN 65)" : ""}`, "Bảng H.7; H.2.7" ];
+  const out = [], mpa = x => x.toFixed(3).replace(".", ","), one = (T, lead) => {
+    const r = h7Select(j.q, T);
+    if (!r) return [ "info", `${lead}Bảng H.7 không có dòng nào cho tia đặc ≥ ${T} m với lưu lượng ≥ ${fmtN(j.q)} L/s/tia (bảng đến tia 20 m) — cần tính riêng`, "Bảng H.7" ];
+    const b = r.best, tot = Math.round((j.n * b.q + (j.add || 0)) * 10) / 10;
+    return [ "val", `${lead}**${lead ? "lưu" : "Lưu"} lượng, áp suất mỗi tia theo Bảng H.7** (DN ${r.dn}; yêu cầu mỗi tia ≥ ${fmtN(j.q)} L/s và tia đặc ≥ ${T} m; vòi 20 m): ` +
+      r.opts.map(o => `lăng ${o.tip} mm → tia ${o.T} m, ${fmtN(o.q)} L/s, ${mpa(o.p)} MPa`).join("; ") + (r.miss.length ? `; lăng ${r.miss.join(", ")} mm: không đạt trong bảng` : "") +
+      `. Chọn **lăng ${b.tip} mm**: lưu lượng thiết kế lấy **${fmtN(b.q)} L/s/tia**, áp suất họng **${mpa(b.p)} MPa** (tia đặc ${b.T} m); tổng ${j.n} × ${fmtN(b.q)}${j.add ? ` + ${fmtN(j.add)}` : ""} = **${fmtN(tot)} L/s**` +
+      (r.up65 ? ". Lưu lượng mỗi tia > 4 L/s → họng **DN 65**" : ""), "Bảng H.7; H.2.7" ];
   };
   out.push(one(mj, ""));
   if (v.n === 1 && v.h > mj) { const T = Math.ceil(v.h); out.push(one(T, `Nhà 1 tầng: nếu gian cao **${fmtN(v.h)} m** tới điểm cao nhất của xà, trần thì tia đặc ≥ **${T} m** → `)); }
@@ -1814,7 +1825,7 @@ function ctFigure(t, v, all, partS) {
   let spr = st(/^\*\*Hệ thống chữa cháy tự động/); if (spr !== "on" && partS) spr = "part";
   const qo = (all.find(i => /Lưu lượng ngoài nhà/.test(i.txt)) || { txt: "" }).txt.match(/Lưu lượng ngoài nhà\*?\*?\s*([\d,]+) L\/s/);
   let jt = (all.find(i => /^\*\*Số tia × lưu lượng/.test(i.txt)) || { txt: "" }).txt.replace(/\*\*/g, "").match(/:\s*(\d+) × ([\d,]+) L\/s/);
-  { const qd = (((all.find(i => /^\*\*Lưu lượng mỗi tia theo Bảng H\.7/.test(i.txt)) || { txt: "" }).txt.match(/lấy \*\*([\d,]+) L\/s\/tia/)) || [])[1]; if (jt && qd) jt = [jt[0], jt[1], qd]; }
+  { const qd = (((all.find(i => /^\*\*Lưu lượng, áp suất mỗi tia theo Bảng H\.7/.test(i.txt)) || { txt: "" }).txt.match(/lấy \*\*([\d,]+) L\/s\/tia/)) || [])[1]; if (jt && qd) jt = [jt[0], jt[1], qd]; }
   const gara = v.pcar > 0 || v.parea > 0 || (["de-xe", "gara-ck"].includes(t.id) && (v.bas || v.nb > 0));
   const sprOn = spr === "on" || spr === "part";
   const n = Math.max(1, v.n), brk = n > 8, nd = brk ? 7 : n, fh = Math.max(22, Math.min(36, Math.floor(200 / nd)));

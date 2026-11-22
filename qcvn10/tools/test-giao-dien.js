@@ -128,7 +128,7 @@ const { chromium } = require("playwright");
     }
     return r;
   });
-  check(!ic[0].dt && /Báo cháy \+ nút ấn/.test(ic[0].leg) && /Họng nước 2 × 5 L\/s/.test(ic[0].leg), "rạp 800 chỗ: không còn khung chi tiết; chú giải 'Báo cháy + nút ấn', 'Họng nước 2 × 5 L/s' " + ic[0].leg);
+  check(!ic[0].dt && /Báo cháy \+ nút ấn/.test(ic[0].leg) && /Họng nước 2 × 5,2 L\/s/.test(ic[0].leg), "rạp 800 chỗ: không còn khung chi tiết; chú giải Báo cháy + nút ấn, Họng nước 2 × 5,2 L/s (H.7) " + ic[0].leg);
   const tu = await p.evaluate(() => {
     const r = [];
     for (const x of [{ id: "chung-cu", n: 20, h: 65, a: 30000, vol: 100000, nb: 0, hlLen: 60 }, { id: "chung-cu", n: 12, h: 40, a: 12000, vol: 40000, nb: 0, hlLen: 8 }]) {

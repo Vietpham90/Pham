@@ -148,6 +148,8 @@ const { chromium } = require("playwright");
   ].map(x => { Object.assign(ctV, DEF, { nb: 0, bas: false }, x); renderCT(); return [...document.querySelectorAll(".ct-chk li")].map(l => l.innerText).join(" | "); }));
   check(/thấp bất thường cho 20 tầng/.test(ck[0]) && /lớn bất thường cho 3 tầng/.test(ck[1]) && /Khối tích .* lớn bất thường/.test(ck[2]) && /lớn hơn tổng diện tích sàn/.test(ck[3]), "kiểm tra số liệu nhập: chiều cao/số tầng, khối tích, diện tích 1 tầng " + JSON.stringify(ck.slice(0, 4)).slice(0, 160));
   check(ck[4] === "" && ck[5] === "", "số liệu hợp lý (chung cư 10 tầng 33 m; xưởng 2 tầng 12 m): không cảnh báo nhầm " + JSON.stringify(ck.slice(4)));
+  const loaTile = await p.evaluate(() => { Object.assign(ctV, DEF, { id: "chung-cu", n: 25, h: 80, a: 37500, vol: 120000, nb: 2, bas: true, pcar: 300, parea: 9000 }); renderCT(); const t = [...document.querySelectorAll("#ctsum .tile")].find(x => /Loa thông báo/.test(x.innerText)); return t ? t.innerText.replace(/\s+/g, " ") : ""; });
+  check(/^Có Loa thông báo/.test(loaTile), "ô tóm tắt loa lấy theo G.1 mục 1 (> 10 tầng, ≥ 2 hầm), không lấy dòng loa khu để xe: " + loaTile);
   check(/Báo cháy độc lập/.test(ic[1].leg), "khách sạn 3 tầng: chú giải 'Báo cháy độc lập' " + ic[1].leg);
   await p.close();
   // 8. Tràn ngang ở 320 px, sáng và tối

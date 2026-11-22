@@ -293,7 +293,26 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .ct-chk ul { margin: 4px 0 0; padding-left: 18px; } .ct-chk li + li { margin-top: 3px; }
 .ctfig { margin: 10px 0 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px 8px; }
 .ctfig > svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; }
-.fg-body { fill: var(--panel); } .fg-out { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+.fg-body { fill: var(--panel); } .fg-shadow { fill: var(--ink); opacity: .12; }
+.fg-sun { fill: #f6c453; opacity: .85; } .fg-cloud path { fill: var(--panel); opacity: .85; }
+.fg-grass { fill: #7fae5b; opacity: .8; } .fg-lit { fill: #f7dc8c !important; }
+.fg-led { fill: var(--fire); } .fg-drop { stroke: var(--water); stroke-width: 1; fill: none; opacity: .8; }
+.fg-wave { stroke: var(--fire); stroke-width: 1; fill: none; }
+.ctfig svg [class^="s-"], .ctfig svg .fg-sp { transition: opacity .25s; }
+.ctfig[data-hl] svg [class*="s-"] { opacity: .12; }
+.ctfig[data-hl="bc"] svg .s-bc, .ctfig[data-hl="spr"] svg .s-spr, .ctfig[data-hl="hn"] svg .s-hn, .ctfig[data-hl="ok"] svg .s-ok, .ctfig[data-hl="loa"] svg .s-loa, .ctfig[data-hl="tru"] svg .s-tru { opacity: 1; }
+.fg-leg [data-sys] { cursor: pointer; border-radius: 999px; padding: 2px 8px 2px 2px; }
+.fg-leg [data-sys]:hover { background: var(--tint); } .fg-leg [aria-pressed="true"] { background: var(--fire-bg); outline: 1.5px solid var(--fire); }
+@media (prefers-reduced-motion: no-preference) {
+  .fg-led { animation: fgBlink 1.6s steps(2, jump-none) infinite; }
+  .fg-drop { animation: fgDrop 1.1s linear infinite; }
+  .fg-wave { animation: fgPulse 1.4s ease-in-out infinite; } .fg-wave2 { animation-delay: .35s; }
+  .fg-cloud { animation: fgDrift 24s ease-in-out infinite alternate; }
+}
+@keyframes fgBlink { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+@keyframes fgDrop { 0% { transform: translateY(-1px); opacity: 0; } 30% { opacity: .9; } 100% { transform: translateY(3px); opacity: 0; } }
+@keyframes fgPulse { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
+@keyframes fgDrift { from { transform: translateX(-6px); } to { transform: translateX(10px); } } .fg-out { fill: none; stroke: var(--ink); stroke-width: 1.6; }
 .fg-slab { fill: var(--ink); opacity: .75; } .fg-win { fill: var(--win); stroke: var(--line); stroke-width: .8; } .fg-mul { stroke: var(--line); stroke-width: .8; }
 .fg-roof { fill: var(--ink); } .fg-brk { fill: var(--tint); stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; }
 .fg-zig { fill: none; stroke: var(--muted); stroke-width: 1.2; }

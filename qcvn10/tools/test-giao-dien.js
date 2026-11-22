@@ -150,6 +150,12 @@ const { chromium } = require("playwright");
   check(ck[4] === "" && ck[5] === "", "số liệu hợp lý (chung cư 10 tầng 33 m; xưởng 2 tầng 12 m): không cảnh báo nhầm " + JSON.stringify(ck.slice(4)));
   const loaTile = await p.evaluate(() => { Object.assign(ctV, DEF, { id: "chung-cu", n: 25, h: 80, a: 37500, vol: 120000, nb: 2, bas: true, pcar: 300, parea: 9000 }); renderCT(); const t = [...document.querySelectorAll("#ctsum .tile")].find(x => /Loa thông báo/.test(x.innerText)); return t ? t.innerText.replace(/\s+/g, " ") : ""; });
   check(/^Có Loa thông báo/.test(loaTile), "ô tóm tắt loa lấy theo G.1 mục 1 (> 10 tầng, ≥ 2 hầm), không lấy dòng loa khu để xe: " + loaTile);
+  await p.evaluate(() => { Object.assign(ctV, DEF, { id: "khach-san", n: 14, h: 46, a: 16800, vol: 60000, nb: 1, bas: true, pcar: 60, parea: 1200 }); renderCT(); });
+  await p.click(".fg-leg [data-sys=spr]"); await p.waitForTimeout(350);
+  const hl = await p.evaluate(() => { const f = document.querySelector(".ctfig"), o = el => +getComputedStyle(el).opacity; return { hl: f.dataset.hl, spr: o(f.querySelector("svg .s-spr")), bc: o(f.querySelector("svg .s-bc")), pressed: f.querySelector(".fg-leg [data-sys=spr]").getAttribute("aria-pressed") }; });
+  await p.click(".fg-leg [data-sys=spr]"); await p.waitForTimeout(50);
+  const hl2 = await p.evaluate(() => document.querySelector(".ctfig").dataset.hl || "");
+  check(hl.hl === "spr" && hl.spr === 1 && hl.bc < .5 && hl.pressed === "true" && hl2 === "", "chạm chú giải Sprinkler → làm nổi bật sprinkler, mờ hệ khác; chạm lại bỏ " + JSON.stringify([hl, hl2]));
   check(/Báo cháy độc lập/.test(ic[1].leg), "khách sạn 3 tầng: chú giải 'Báo cháy độc lập' " + ic[1].leg);
   await p.close();
   // 8. Tràn ngang ở 320 px, sáng và tối

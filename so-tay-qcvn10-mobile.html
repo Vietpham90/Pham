@@ -303,7 +303,26 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .ct-chk ul { margin: 4px 0 0; padding-left: 18px; } .ct-chk li + li { margin-top: 3px; }
 .ctfig { margin: 10px 0 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px 8px; }
 .ctfig > svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; }
-.fg-body { fill: var(--panel); } .fg-out { fill: none; stroke: var(--ink); stroke-width: 1.6; }
+.fg-body { fill: var(--panel); } .fg-shadow { fill: var(--ink); opacity: .12; }
+.fg-sun { fill: #f6c453; opacity: .85; } .fg-cloud path { fill: var(--panel); opacity: .85; }
+.fg-grass { fill: #7fae5b; opacity: .8; } .fg-lit { fill: #f7dc8c !important; }
+.fg-led { fill: var(--fire); } .fg-drop { stroke: var(--water); stroke-width: 1; fill: none; opacity: .8; }
+.fg-wave { stroke: var(--fire); stroke-width: 1; fill: none; }
+.ctfig svg [class^="s-"], .ctfig svg .fg-sp { transition: opacity .25s; }
+.ctfig[data-hl] svg [class*="s-"] { opacity: .12; }
+.ctfig[data-hl="bc"] svg .s-bc, .ctfig[data-hl="spr"] svg .s-spr, .ctfig[data-hl="hn"] svg .s-hn, .ctfig[data-hl="ok"] svg .s-ok, .ctfig[data-hl="loa"] svg .s-loa, .ctfig[data-hl="tru"] svg .s-tru { opacity: 1; }
+.fg-leg [data-sys] { cursor: pointer; border-radius: 999px; padding: 2px 8px 2px 2px; }
+.fg-leg [data-sys]:hover { background: var(--tint); } .fg-leg [aria-pressed="true"] { background: var(--fire-bg); outline: 1.5px solid var(--fire); }
+@media (prefers-reduced-motion: no-preference) {
+  .fg-led { animation: fgBlink 1.6s steps(2, jump-none) infinite; }
+  .fg-drop { animation: fgDrop 1.1s linear infinite; }
+  .fg-wave { animation: fgPulse 1.4s ease-in-out infinite; } .fg-wave2 { animation-delay: .35s; }
+  .fg-cloud { animation: fgDrift 24s ease-in-out infinite alternate; }
+}
+@keyframes fgBlink { 0%, 100% { opacity: 1; } 50% { opacity: .2; } }
+@keyframes fgDrop { 0% { transform: translateY(-1px); opacity: 0; } 30% { opacity: .9; } 100% { transform: translateY(3px); opacity: 0; } }
+@keyframes fgPulse { 0%, 100% { opacity: .15; } 50% { opacity: 1; } }
+@keyframes fgDrift { from { transform: translateX(-6px); } to { transform: translateX(10px); } } .fg-out { fill: none; stroke: var(--ink); stroke-width: 1.6; }
 .fg-slab { fill: var(--ink); opacity: .75; } .fg-win { fill: var(--win); stroke: var(--line); stroke-width: .8; } .fg-mul { stroke: var(--line); stroke-width: .8; }
 .fg-roof { fill: var(--ink); } .fg-brk { fill: var(--tint); stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; }
 .fg-zig { fill: none; stroke: var(--muted); stroke-width: 1.2; }
@@ -543,7 +562,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v43 · cập nhật 22/11/2026</p>
+    <p class="ver">Phiên bản v44 · cập nhật 22/11/2026</p>
     <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
@@ -1763,9 +1782,9 @@ function ctBar() {
 window.addEventListener("scroll", ctBar, { passive: true });
 /* Hình minh họa mặt cắt: tầng, hầm, chiều cao và các hệ thống phải trang bị (vẽ theo kết quả ctEvaluate) */
 /* Biểu tượng nhỏ trong mặt cắt */
-const det = (x, y) => `<rect x="${x - 6}" y="${y}" width="12" height="2" fill="var(--ink)"/><path d="M${x - 7} ${y + 2} h14 q0 5.5 -7 5.5 q-7 0 -7 -5.5z" fill="var(--panel)" stroke="var(--fire)" stroke-width="1.1"/><path d="M${x - 4.5} ${y + 4.6} h9" stroke="var(--line)" stroke-width=".8"/><circle cx="${x}" cy="${y + 3.6}" r="1.1" fill="var(--fire)"/>`;
-const head = (x, y) => `<path d="M${x} ${y} v3 m-3.5 0 h7" stroke="var(--water)" stroke-width="1.5"/><path d="M${x - 4} ${y + 6} l-2 4.5 M${x} ${y + 6.5} v4.5 M${x + 4} ${y + 6} l2 4.5" stroke="var(--water)" stroke-width="1" opacity=".75"/>`;
-const cab = (cx, cy, cs) => `<rect x="${cx}" y="${cy}" width="${cs}" height="${cs}" rx="1.2" fill="var(--fire)"/><rect x="${cx + 1.4}" y="${cy + 1.4}" width="${cs - 2.8}" height="${cs - 2.8}" rx=".6" fill="var(--panel)"/><circle cx="${cx + cs * .58}" cy="${cy + cs * .45}" r="${cs * .3}" fill="none" stroke="var(--muted)" stroke-width="${cs * .1}"/><circle cx="${cx + cs * .58}" cy="${cy + cs * .45}" r="${cs * .09}" fill="var(--ink)"/><rect x="${cx + cs * .14}" y="${cy + cs * .58}" width="${cs * .16}" height="${cs * .26}" fill="var(--ink)"/><circle cx="${cx + cs * .22}" cy="${cy + cs * .56}" r="${cs * .11}" fill="var(--fire)"/>`;
+const det = (x, y) => `<g class="s-bc"><rect x="${x - 6}" y="${y}" width="12" height="2" fill="var(--ink)"/><path d="M${x - 7} ${y + 2} h14 q0 5.5 -7 5.5 q-7 0 -7 -5.5z" fill="var(--panel)" stroke="var(--fire)" stroke-width="1.1"/><path d="M${x - 4.5} ${y + 4.6} h9" stroke="var(--line)" stroke-width=".8"/><circle cx="${x}" cy="${y + 3.6}" r="1.2" class="fg-led"/></g>`;
+const head = (x, y) => `<g class="s-spr"><path d="M${x} ${y} v3 m-3.5 0 h7" stroke="var(--water)" stroke-width="1.5"/><path d="M${x - 4} ${y + 6} l-2 4.5 M${x} ${y + 6.5} v4.5 M${x + 4} ${y + 6} l2 4.5" class="fg-drop"/></g>`;
+const cab = (cx, cy, cs) => `<g class="s-hn"><rect x="${cx}" y="${cy}" width="${cs}" height="${cs}" rx="1.2" fill="var(--fire)"/><rect x="${cx + 1.4}" y="${cy + 1.4}" width="${cs - 2.8}" height="${cs - 2.8}" rx=".6" fill="var(--panel)"/><circle cx="${cx + cs * .58}" cy="${cy + cs * .45}" r="${cs * .3}" fill="none" stroke="var(--muted)" stroke-width="${cs * .1}"/><circle cx="${cx + cs * .58}" cy="${cy + cs * .45}" r="${cs * .09}" fill="var(--ink)"/><rect x="${cx + cs * .14}" y="${cy + cs * .58}" width="${cs * .16}" height="${cs * .26}" fill="var(--ink)"/><circle cx="${cx + cs * .22}" cy="${cy + cs * .56}" r="${cs * .11}" fill="var(--fire)"/></g>`;
 function ctFigure(t, v, all, partS) {
   if (t.og === "ham") return "";
   const st = re => { const it = all.find(i => re.test(i.txt)); return !it ? "na" : it.lv === "req" || it.lv === "alt" ? "on" : it.lv === "no" ? "off" : "na"; };
@@ -1785,41 +1804,43 @@ function ctFigure(t, v, all, partS) {
   const lab = k => brk && k === nd - 1 ? "T" + n : "T" + (k + 1);
   const riserX = R - 9, sRiserX = X + 38, /* vị trí tủ họng, đầu ống nhánh sprinkler */ nums = {}; let num = 0; const badge = [];
   [["bc", bc === "on"], ["loa", loa === "on"], ["spr", sprOn], ["hn", hn === "on"], ["ok", ok === "on"], ["tru", !!qo]].forEach(([k, on]) => { if (on) nums[k] = ++num; });
-  const mark = (key, x, y) => { badge.push(`<g class="fg-bdg"><circle cx="${x}" cy="${y}" r="6.2"/><text x="${x}" y="${y + 3.4}">${nums[key]}</text></g>`); };
+  const mark = (key, x, y) => { badge.push(`<g class="fg-bdg s-${key}"><circle cx="${x}" cy="${y}" r="6.2"/><text x="${x}" y="${y + 3.4}">${nums[key]}</text></g>`); };
   let g = `<defs><linearGradient id="fgSky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color:var(--sky1)"/><stop offset="1" style="stop-color:var(--sky2)"/></linearGradient>
+    <linearGradient id="fgFac" x1="0" y1="0" x2="1" y2="0"><stop offset="0" style="stop-color:var(--panel)"/><stop offset=".82" style="stop-color:var(--panel)"/><stop offset="1" style="stop-color:var(--tint)"/></linearGradient>
+    <linearGradient id="fgGlass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" style="stop-color:var(--win)"/><stop offset=".55" style="stop-color:var(--win)"/><stop offset=".56" style="stop-color:var(--panel);stop-opacity:.55"/><stop offset=".7" style="stop-color:var(--win)"/></linearGradient>
     <pattern id="fgHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" style="stroke:var(--line)" stroke-width="1.2"/></pattern></defs>
-    <rect x="0" y="0" width="340" height="${G}" fill="url(#fgSky)"/><rect x="0" y="${G}" width="340" height="${H - G}" class="fg-soil"/><rect x="0" y="${G}" width="340" height="${H - G}" fill="url(#fgHatch)" opacity=".55"/>`;
+    <rect x="0" y="0" width="340" height="${G}" fill="url(#fgSky)"/><circle cx="300" cy="${Math.min(30, roof)}" r="11" class="fg-sun"/><g class="fg-cloud"><path d="M18 ${Math.min(40, roof + 6)} q2 -9 11 -7 q4 -8 13 -3 q9 -2 9 7 z"/><path d="M246 ${Math.max(22, roof - 18)} q2 -7 9 -6 q4 -6 11 -2 q7 -1 7 6 z" opacity=".8"/></g><rect x="0" y="${G}" width="340" height="${H - G}" class="fg-soil"/><rect x="0" y="${G}" width="340" height="${H - G}" fill="url(#fgHatch)" opacity=".55"/>`;
   // tầng hầm
   for (let k = 0; k < nb; k++) {
     const y = G + k * bh;
     g += `<rect x="${X - 18}" y="${y}" width="${W + 36}" height="${bh}" class="fg-bas"/><text x="${X - 14}" y="${y + bh - 5}" class="fg-fn">B${k + 1}</text>`;
     if (gara) for (let j = 0; j < 4; j++) { const cx = X + 4 + j * 40; g += `<path d="M${cx} ${y + bh - 6} v-5 q1 -4 6 -4 h12 q5 0 7 4 l3 1 v4z" class="fg-car"/><circle cx="${cx + 6}" cy="${y + bh - 5}" r="2.3" class="fg-whl"/><circle cx="${cx + 21}" cy="${y + bh - 5}" r="2.3" class="fg-whl"/>`; }
     if (bc === "on" || (gara && v.pcar > 0)) g += det(X - 4, y);
-    if (sprOn || (gara && v.pcar > 0)) { g += `<path d="M${X - 10} ${y + 3} H${R + 6}" class="fg-sp"/>`; for (let j = 0; j < 5; j++) g += head(X + 6 + j * 38, y + 3); }
+    if (sprOn || (gara && v.pcar > 0)) { g += `<path d="M${X - 10} ${y + 3} H${R + 6}" class="fg-sp s-spr"/>`; for (let j = 0; j < 5; j++) g += head(X + 6 + j * 38, y + 3); }
   }
   if (v.nb > 3) g += `<text x="${R + 22}" y="${G + nb * bh - 6}" class="fg-fn">+${v.nb - 3}</text>`;
   // khung nhà
-  g += `<rect x="${X}" y="${roof}" width="${W}" height="${G - roof}" class="fg-body"/>`;
+  g += `<rect x="${X + 4}" y="${roof + 4}" width="${W}" height="${G - roof - 4}" class="fg-shadow"/><rect x="${X}" y="${roof}" width="${W}" height="${G - roof}" fill="url(#fgFac)"/>`;
   for (let k = 0; k < nd; k++) {
     const y = fy(k);
-    for (let j = 0; j < 3; j++) { const wx = X + 46 + j * 32; g += `<rect x="${wx}" y="${y + fh * .3}" width="22" height="${fh * .48}" rx="1.5" class="fg-win"/><path d="M${wx + 11} ${y + fh * .3} v${fh * .48}" class="fg-mul"/>`; }
+    for (let j = 0; j < 3; j++) { const wx = X + 46 + j * 32, lit = (k * 7 + j * 3 + n) % 5 === 0; g += `<rect x="${wx}" y="${y + fh * .3}" width="22" height="${fh * .48}" rx="1.5" class="fg-win${lit ? " fg-lit" : ""}" fill="url(#fgGlass)"/><path d="M${wx + 11} ${y + fh * .3} v${fh * .48}" class="fg-mul"/>`; }
     g += `<rect x="${X}" y="${y}" width="${W}" height="2.2" class="fg-slab"/><text x="${R + (sia ? 17 : 5)}" y="${y + 9}" class="fg-fn">${lab(k)}</text>`;
-    if (sprOn && (spr === "on" || k === 0)) { g += `<path d="M${sRiserX} ${y + 4} H${R - 22}" class="fg-sp"/>`; for (let j = 0; j < 3; j++) g += head(X + 52 + j * 40, y + 4); }
-    if (bc === "on") { g += det(X + 12, y + 2); if (!alt) { const by = y + fh * .5, bs = Math.min(7, fh * .26); g += `<rect x="${X + 4}" y="${by}" width="${bs}" height="${bs}" rx="1.2" fill="var(--fire)"/><circle cx="${X + 4 + bs / 2}" cy="${by + bs / 2}" r="${bs * .27}" fill="var(--on-fire)"/>`; } }
-    if (loa === "on") g += `<path d="M${X + 22} ${y + 4} h3 l4 -2.5 v8 l-4 -2.5 h-3z" fill="var(--fire)"/><path d="M${X + 31} ${y + 3} q2 2.5 0 5" stroke="var(--fire)" stroke-width="1" fill="none"/>`;
+    if (sprOn && (spr === "on" || k === 0)) { g += `<path d="M${sRiserX} ${y + 4} H${R - 22}" class="fg-sp s-spr"/>`; for (let j = 0; j < 3; j++) g += head(X + 52 + j * 40, y + 4); }
+    if (bc === "on") { g += det(X + 12, y + 2); if (!alt) { const by = y + fh * .5, bs = Math.min(7, fh * .26); g += `<g class="s-bc"><rect x="${X + 4}" y="${by}" width="${bs}" height="${bs}" rx="1.2" fill="var(--fire)"/><circle cx="${X + 4 + bs / 2}" cy="${by + bs / 2}" r="${bs * .27}" fill="var(--on-fire)"/></g>`; } }
+    if (loa === "on") g += `<g class="s-loa"><path d="M${X + 22} ${y + 4} h3 l4 -2.5 v8 l-4 -2.5 h-3z" fill="var(--fire)"/><path d="M${X + 31} ${y + 3} q2 2.5 0 5" class="fg-wave"/><path d="M${X + 33} ${y + 1.5} q3.5 4 0 8" class="fg-wave fg-wave2"/></g>`;
     if (hn === "on") { const cs = Math.min(15, fh - 7), cx = riserX - cs - 5, cy = y + fh - cs - 2; g += cab(cx + 4, cy, cs); }
   }
   if (brk) { const y = fy(5) - 14; g += `<rect x="${X}" y="${y}" width="${W}" height="14" class="fg-brk"/><path d="M${X - 7} ${y + 11} l7 -8 l7 8 M${R - 7} ${y + 11} l7 -8 l7 8" class="fg-zig"/><text x="${X + W / 2}" y="${y + 10.5}" class="fg-t fg-c">… ${n - 7} tầng nữa …</text>`; }
   g += `<rect x="${X - 3}" y="${roof - 5}" width="${W + 6}" height="5" rx="1" class="fg-roof"/><rect x="${X}" y="${roof}" width="${W}" height="${G - roof}" class="fg-out"/>`;
   // dây báo cháy về tủ trung tâm
-  if (bc === "on" && !alt) { g += `<path d="M${X + 3} ${roof + 4} V${G - 14}" class="fg-wire"/><path d="M${X + 3} ${G - 14} H${X + 16}" class="fg-wire"/><rect x="${X + 16}" y="${G - 14}" width="15" height="11" rx="1.5" fill="var(--fire)"/><text x="${X + 23.5}" y="${G - 5.8}" class="fg-tt">TT</text>`; }
+  if (bc === "on" && !alt) { g += `<g class="s-bc"><path d="M${X + 3} ${roof + 4} V${G - 14}" class="fg-wire"/><path d="M${X + 3} ${G - 14} H${X + 16}" class="fg-wire"/><rect x="${X + 16}" y="${G - 14}" width="15" height="11" rx="1.5" fill="var(--fire)"/><text x="${X + 23.5}" y="${G - 5.8}" class="fg-tt">TT</text></g>`; }
   // họng chờ tiếp nước (H.2.13)
-  if (sia) { const sy = G - 9; g += `<path d="M${R} ${sy} h7 m0 -4 v8" stroke="var(--fire)" stroke-width="2"/><circle cx="${R + 10}" cy="${sy - 3}" r="2.6" fill="var(--fire)"/><circle cx="${R + 10}" cy="${sy + 4}" r="2.6" fill="var(--fire)"/>`; }
+  if (sia) { const sy = G - 9; g += `<g class="s-hn"><path d="M${R} ${sy} h7 m0 -4 v8" stroke="var(--fire)" stroke-width="2"/><circle cx="${R + 10}" cy="${sy - 3}" r="2.6" fill="var(--fire)"/><circle cx="${R + 10}" cy="${sy + 4}" r="2.6" fill="var(--fire)"/></g>`; }
   // ống khô
-  if (ok === "on") { g += `<path d="M${X - 6} ${G - 6} V${roof + 6}" stroke="var(--fire)" stroke-width="2.4" stroke-dasharray="5 3"/><circle cx="${X - 6}" cy="${G - 6}" r="3" fill="var(--fire)"/><text x="${X - 11}" y="${G - 16}" class="fg-t fg-r" style="fill:var(--fire)">ống khô</text>`; mark("ok", X - 6, roof - 12); }
+  if (ok === "on") { g += `<g class="s-ok"><path d="M${X - 6} ${G - 6} V${roof + 6}" stroke="var(--fire)" stroke-width="2.4" stroke-dasharray="5 3"/><circle cx="${X - 6}" cy="${G - 6}" r="3" fill="var(--fire)"/><text x="${X - 11}" y="${G - 16}" class="fg-t fg-r" style="fill:var(--fire)">ống khô</text></g>`; mark("ok", X - 6, roof - 12); }
   // trụ nước ngoài nhà
-  if (qo) { const hx = 318; g += `<path d="M${hx - 6} ${G} v-16 q6 -9 12 0 v16z" fill="var(--fire)"/><rect x="${hx - 10}" y="${G - 13}" width="20" height="4" rx="2" fill="var(--fire)"/><rect x="${hx - 3}" y="${G - 27}" width="6" height="3" rx="1" fill="var(--fire)"/><text x="${hx}" y="${G - 34}" class="fg-t fg-c fg-b">${qo[1]} L/s</text>`; mark("tru", hx, G - 50); }
-  g += `<line x1="0" y1="${G}" x2="340" y2="${G}" class="fg-gnd"/>`;
+  if (qo) { const hx = 318; g += `<g class="s-tru"><path d="M${hx - 6} ${G} v-16 q6 -9 12 0 v16z" fill="var(--fire)"/><rect x="${hx - 10}" y="${G - 13}" width="20" height="4" rx="2" fill="var(--fire)"/><rect x="${hx - 3}" y="${G - 27}" width="6" height="3" rx="1" fill="var(--fire)"/><text x="${hx}" y="${G - 34}" class="fg-t fg-c fg-b">${qo[1]} L/s</text></g>`; mark("tru", hx, G - 50); }
+  g += `<line x1="0" y1="${G}" x2="340" y2="${G}" class="fg-gnd"/><rect x="0" y="${G - 3}" width="${X - 14}" height="3" class="fg-grass"/><rect x="${R + 30}" y="${G - 3}" width="${340 - R - 30}" height="3" class="fg-grass"/>`;
   // kích thước chiều cao PCCC
   if (v.h > 0) { const x = 30; g += `<path d="M${x} ${G} V${roof} M${x - 4} ${roof + 6} l4 -6 l4 6 M${x - 4} ${G - 6} l4 6 l4 -6 M${x - 8} ${roof} h16 M${x - 8} ${G} h16" class="fg-dim"/><text x="${x - 5}" y="${(G + roof) / 2}" class="fg-t fg-r fg-b" transform="rotate(-90 ${x - 5} ${(G + roof) / 2})" style="text-anchor:middle">${fmtN(v.h)} m</text>`; }
   g += `<text x="${X + W / 2}" y="14" class="fg-t fg-c fg-b">${n} tầng${v.nb ? ` · ${v.nb} hầm` : ""}${v.h ? ` · cao PCCC ${fmtN(v.h)} m` : ""}</text>`;
@@ -1843,7 +1864,7 @@ function ctFigure(t, v, all, partS) {
   const ORD = ["bc", "loa", "spr", "hn", "ok", "tru"], lg = ORD.map(k => lg0.find(x => x[2] === k)).filter(Boolean);
   const lbl = lg.map(x => x[0] + (x[1] === "on" ? ": phải trang bị" : ": không bắt buộc")).join("; ");
   return `<figure class="ctfig"><svg viewBox="0 0 340 ${H}" role="img" aria-label="Mặt cắt minh họa — ${esc(lbl)}">${g}</svg>
-  <figcaption class="fg-leg">${lg.map(([l, s2, ic, note]) => `<span class="${s2 === "on" ? "on" : "off"}">${s2 === "on" && nums[KEY[ic]] ? `<b class="fg-n">${nums[KEY[ic]]}</b>` : ""}<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">${IC[ic]}</svg>${esc(l)}${note ? ` (${note})` : ""}</span>`).join("")}</figcaption><p class="fg-note">Hình minh họa theo kết quả tra, không theo tỉ lệ. Số trên hình khớp số trong chú giải; gạch ngang: không bắt buộc với quy mô đã nhập. Nét đứt đỏ: dây báo cháy về tủ trung tâm (TT); xanh: ống nhánh sprinkler.</p></figure>`;
+  <figcaption class="fg-leg">${lg.map(([l, s2, ic, note]) => `<span class="${s2 === "on" ? "on" : "off"}"${s2 === "on" ? ` role="button" tabindex="0" data-sys="${ic}" title="Chạm để làm nổi bật trên hình"` : ""}>${s2 === "on" && nums[KEY[ic]] ? `<b class="fg-n">${nums[KEY[ic]]}</b>` : ""}<svg viewBox="0 0 14 14" width="14" height="14" aria-hidden="true">${IC[ic]}</svg>${esc(l)}${note ? ` (${note})` : ""}</span>`).join("")}</figcaption><p class="fg-note">Hình minh họa theo kết quả tra, không theo tỉ lệ. Số trên hình khớp số trong chú giải — chạm một mục để làm nổi bật; gạch ngang: không bắt buộc với quy mô đã nhập. Nét đứt đỏ: dây báo cháy về tủ trung tâm (TT); xanh: ống nhánh sprinkler.</p></figure>`;
 }
 /* Kiểm tra số liệu nhập có hợp lý không (bắt lỗi gõ nhầm) — chỉ cảnh báo, không đổi kết quả */
 function ctCheck(t, v) {
@@ -2347,6 +2368,10 @@ function go(hash, block) {
   if (location.hash.slice(1) === hash) route(); else location.hash = hash;
 }
 window.addEventListener("hashchange", route);
+/* Chú giải mặt cắt: chạm để làm nổi bật hệ thống trên hình */
+function figHl(el) { const f = el.closest(".ctfig"); if (!f) return; const k = el.dataset.sys; if (f.dataset.hl === k) delete f.dataset.hl; else f.dataset.hl = k; f.querySelectorAll(".fg-leg [data-sys]").forEach(x => x.setAttribute("aria-pressed", f.dataset.hl === x.dataset.sys)); }
+document.addEventListener("click", e => { const el = e.target.closest && e.target.closest(".fg-leg [data-sys]"); if (el) figHl(el); });
+document.addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && e.target.matches && e.target.matches(".fg-leg [data-sys]")) { e.preventDefault(); figHl(e.target); } });
 
 /* ---------- Đồng bộ theo tài khoản Claude (chỉ khi mở qua link claude.ai) ----------
    Lưu riêng cho từng người tại data/users/<id>/q10 — người khác (kể cả chủ sở hữu) không đọc được.

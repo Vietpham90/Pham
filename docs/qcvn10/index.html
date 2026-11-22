@@ -571,7 +571,7 @@ function renderHome() {
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v45 · cập nhật 22/11/2026</p>
+    <p class="ver">Phiên bản v46 · cập nhật 22/11/2026</p>
     <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
@@ -1804,7 +1804,6 @@ function ctFigure(t, v, all, partS) {
   let jt = (all.find(i => /^\*\*Số tia × lưu lượng/.test(i.txt)) || { txt: "" }).txt.replace(/\*\*/g, "").match(/:\s*(\d+) × ([\d,]+) L\/s/);
   { const qd = (((all.find(i => /^\*\*Lưu lượng mỗi tia theo Bảng H\.7/.test(i.txt)) || { txt: "" }).txt.match(/lấy \*\*([\d,]+) L\/s\/tia/)) || [])[1]; if (jt && qd) jt = [jt[0], jt[1], qd]; }
   const gara = v.pcar > 0 || v.parea > 0 || (["de-xe", "gara-ck"].includes(t.id) && (v.bas || v.nb > 0));
-  const sia = hn === "on" && all.some(i => /Họng chờ tiếp nước/.test(i.txt));
   const sprOn = spr === "on" || spr === "part";
   const n = Math.max(1, v.n), brk = n > 8, nd = brk ? 7 : n, fh = Math.max(22, Math.min(36, Math.floor(200 / nd)));
   const nb = Math.min(3, v.nb || (v.bas ? 1 : 0)), bh = 24, X = 74, W = 172, R = X + W, top = 44;
@@ -1834,7 +1833,7 @@ function ctFigure(t, v, all, partS) {
   for (let k = 0; k < nd; k++) {
     const y = fy(k);
     for (let j = 0; j < 3; j++) { if (k === 0 && j === 1 && nd > 1) { const dx = X + 46 + 32, dh = Math.min(fh - 5, 20); g += `<rect x="${dx - 3}" y="${G - dh - 4}" width="28" height="2.5" rx="1" class="fg-canopy"/><rect x="${dx}" y="${G - dh}" width="22" height="${dh}" class="fg-door" fill="url(#fgGlass)"/><path d="M${dx + 11} ${G - dh} v${dh}" class="fg-mul"/>`; continue; } const wx = X + 46 + j * 32, lit = (k * 7 + j * 3 + n) % 5 === 0; g += `<rect x="${wx}" y="${y + fh * .3}" width="22" height="${fh * .48}" rx="1.5" class="fg-win${lit ? " fg-lit" : ""}" fill="url(#fgGlass)"/><path d="M${wx + 11} ${y + fh * .3} v${fh * .48}" class="fg-mul"/>`; }
-    g += `<rect x="${X}" y="${y}" width="${W}" height="2.2" class="fg-slab"/><text x="${R + (sia ? 17 : 5)}" y="${y + 9}" class="fg-fn">${lab(k)}</text>`;
+    g += `<rect x="${X}" y="${y}" width="${W}" height="2.2" class="fg-slab"/><text x="${R + 5}" y="${y + 9}" class="fg-fn">${lab(k)}</text>`;
     if (sprOn && (spr === "on" || k === 0)) { g += `<path d="M${sRiserX} ${y + 4} H${R - 22}" class="fg-sp s-spr"/>`; for (let j = 0; j < 3; j++) g += head(X + 52 + j * 40, y + 4); }
     if (bc === "on") { g += det(X + 12, y + 2); if (!alt) { const by = y + fh * .5, bs = Math.min(7, fh * .26); g += `<g class="s-bc"><rect x="${X + 4}" y="${by}" width="${bs}" height="${bs}" rx="1.2" fill="var(--fire)"/><circle cx="${X + 4 + bs / 2}" cy="${by + bs / 2}" r="${bs * .27}" fill="var(--on-fire)"/></g>`; } }
     if (loa === "on") g += `<g class="s-loa"><path d="M${X + 22} ${y + 4} h3 l4 -2.5 v8 l-4 -2.5 h-3z" fill="var(--fire)"/><path d="M${X + 31} ${y + 3} q2 2.5 0 5" class="fg-wave"/><path d="M${X + 33} ${y + 1.5} q3.5 4 0 8" class="fg-wave fg-wave2"/></g>`;
@@ -1846,9 +1845,9 @@ function ctFigure(t, v, all, partS) {
   // dây báo cháy về tủ trung tâm
   if (bc === "on" && !alt) { g += `<g class="s-bc"><path d="M${X + 3} ${roof + 4} V${G - 14}" class="fg-wire"/><path d="M${X + 3} ${G - 14} H${X + 16}" class="fg-wire"/><rect x="${X + 16}" y="${G - 14}" width="15" height="11" rx="1.5" fill="var(--fire)"/><text x="${X + 23.5}" y="${G - 5.8}" class="fg-tt">TT</text></g>`; }
   // họng chờ tiếp nước (H.2.13)
-  if (sia) { const sy = G - 9; g += `<g class="s-hn"><path d="M${R} ${sy} h7 m0 -4 v8" stroke="var(--fire)" stroke-width="2"/><circle cx="${R + 10}" cy="${sy - 3}" r="2.6" fill="var(--fire)"/><circle cx="${R + 10}" cy="${sy + 4}" r="2.6" fill="var(--fire)"/></g>`; }
+  // họng tiếp nước ngoài nhà: vẽ tại chân ống khô (nối với ống khô)
   // ống khô
-  if (ok === "on") { g += `<g class="s-ok"><path d="M${X - 6} ${G - 6} V${roof + 6}" stroke="var(--fire)" stroke-width="2.4" stroke-dasharray="5 3"/><circle cx="${X - 6}" cy="${G - 6}" r="3" fill="var(--fire)"/><text x="${X - 11}" y="${G - 16}" class="fg-t fg-r" style="fill:var(--fire)">ống khô</text></g>`; mark("ok", X - 6, roof - 12); }
+  if (ok === "on") { const sx = X - 6, sy = G - 9; g += `<g class="s-ok"><path d="M${sx} ${sy} V${roof + 6}" stroke="var(--fire)" stroke-width="2.4" stroke-dasharray="5 3"/><path d="M${sx} ${sy} H${sx - 9}" stroke="var(--fire)" stroke-width="2.4"/><path d="M${sx - 9} ${sy - 5} v10" stroke="var(--fire)" stroke-width="2"/><circle cx="${sx - 12}" cy="${sy - 4}" r="2.8" fill="var(--fire)"/><circle cx="${sx - 12}" cy="${sy + 4}" r="2.8" fill="var(--fire)"/><text x="${sx - 7}" y="${G - 20}" class="fg-t" style="fill:var(--fire)" transform="rotate(-90 ${sx - 7} ${G - 20})">ống khô</text></g>`; mark("ok", X - 6, roof - 12); }
   // trụ nước ngoài nhà
   if (qo) { const hx = 318; g += `<g class="s-tru"><path d="M${hx - 6} ${G} v-16 q6 -9 12 0 v16z" fill="var(--fire)"/><rect x="${hx - 10}" y="${G - 13}" width="20" height="4" rx="2" fill="var(--fire)"/><rect x="${hx - 3}" y="${G - 27}" width="6" height="3" rx="1" fill="var(--fire)"/><text x="${hx}" y="${G - 34}" class="fg-t fg-c fg-b">${qo[1]} L/s</text></g>`; mark("tru", hx, G - 50); }
   g += `<g class="fg-tree"><rect x="9" y="${G - 13}" width="3" height="13" rx="1"/><circle cx="10.5" cy="${G - 20}" r="8"/><circle cx="6" cy="${G - 15}" r="5"/><circle cx="15.5" cy="${G - 15}" r="5"/></g>`;
@@ -1872,7 +1871,7 @@ function ctFigure(t, v, all, partS) {
     pump: '<rect x="1" y="3" width="12" height="9" rx="1.5" fill="none" stroke="var(--fire)" stroke-width="1.3"/><circle cx="5" cy="7.5" r="2.4" fill="none" stroke="var(--fire)" stroke-width="1.2"/>'
   };
   const KEY = { bc: "bc", spr: "spr", hn: "hn", ok: "ok", loa: "loa", tru: "tru", pump: "pump" };
-  const lg0 = [[alt ? "Báo cháy độc lập" : "Báo cháy" + (bc === "on" ? " + nút ấn" : ""), bc, "bc"], ["Sprinkler", spr === "part" ? "on" : spr, "spr", spr === "part" ? "một phần" : ""], ["Họng nước" + (jt ? ` ${jt[1]} × ${jt[2]} L/s` : "") , hn, "hn"], ["Ống khô", ok, "ok"], ["Loa", loa, "loa"], ["Nước ngoài nhà" + (qo ? ` ${qo[1]} L/s` : ""), qo ? "on" : "na", "tru"]].filter(x => x[1] !== "na" || x[0].startsWith("Báo") || x[0].startsWith("Spr"));
+  const lg0 = [[alt ? "Báo cháy độc lập" : "Báo cháy" + (bc === "on" ? " + nút ấn" : ""), bc, "bc"], ["Sprinkler", spr === "part" ? "on" : spr, "spr", spr === "part" ? "một phần" : ""], ["Họng nước" + (jt ? ` ${jt[1]} × ${jt[2]} L/s` : "") , hn, "hn"], ["Ống khô + họng tiếp nước", ok, "ok"], ["Loa", loa, "loa"], ["Nước ngoài nhà" + (qo ? ` ${qo[1]} L/s` : ""), qo ? "on" : "na", "tru"]].filter(x => x[1] !== "na" || x[0].startsWith("Báo") || x[0].startsWith("Spr"));
   const ORD = ["bc", "loa", "spr", "hn", "ok", "tru"], lg = ORD.map(k => lg0.find(x => x[2] === k)).filter(Boolean);
   const lbl = lg.map(x => x[0] + (x[1] === "on" ? ": phải trang bị" : ": không bắt buộc")).join("; ");
   return `<figure class="ctfig"><div class="fg-head"><b>Mặt cắt minh họa</b><span>chạm chú giải để làm nổi bật</span></div><svg viewBox="0 0 340 ${H}" role="img" aria-label="Mặt cắt minh họa — ${esc(lbl)}">${g}</svg>

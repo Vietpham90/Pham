@@ -14,6 +14,7 @@ const C = [
   ["gara ngầm 2 tầng 300 xe", /2 hầm · 300 xe/, "de-xe", null, true],
   ["chung cư 20 tầng 65m hành lang 60m", /hành lang 60 m · 20 tầng · 65 m/, "chung-cu", null, true],
   ["chua chay tu dong kho", null, "kho", null, true],
+  ["sprinkler kho", null, "kho", null, true],
   ["phong may bien ap", null, null, null, true],
   ["tru nuoc", null, null, /Trụ nước/, true],
   ["den su co", null, null, /Chiếu sáng sự cố/, true],
@@ -60,7 +61,9 @@ const C = [
   if (!/20 tầng · 60 m/.test(await p.innerText("#ctlist"))) fail.push("ô loại nhà trong form không hiện thẻ tra ngay");
   await p.click("#ctlist .precard"); await p.waitForTimeout(120);
   if (!(await p.evaluate(() => ctV.id === "chung-cu" && ctV.n === 20 && ctV.h === 60))) fail.push("thẻ trong form không điền thông số");
+  const noGa = await p.evaluate(() => { renderSearch("sprinkler kho"); return [...document.querySelectorAll("#view .pick[data-ct]")].map(b => b.dataset.ct); });
+  if (noGa.some(id => /^ga-/.test(id))) fail.push("'sprinkler kho' không được gợi ý nhà ga: " + noGa.join(", "));
   fail.concat(errs).forEach(f => console.log("✗", f));
-  console.log(`${C.length + 4 - fail.length}/${C.length + 4} kiểm tra tìm kiếm đạt`);
+  console.log(`${C.length + 5 - fail.length}/${C.length + 5} kiểm tra tìm kiếm đạt`);
   await b.close(); process.exit(fail.length || errs.length ? 1 : 0);
 })();

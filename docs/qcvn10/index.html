@@ -21,7 +21,7 @@
 :root {
   --bg: #f4ecda; --panel: #fffdf8; --tint: #ebe1cb; --line: #d8c9ab;
   --ink: #1f1a17; --muted: #5e554d;
-  --fire: #b42318; --fire-bg: #fde4e1; --on-fire: #ffffff;
+  --fire: #b42318; --fire-deep: #8a1a12; --fire-bg: #fde4e1; --on-fire: #ffffff;
   --exit: #067647; --exit-bg: #dcf5e7;
   --water: #1f6fd1; --sky1: #d6e4f0; --sky2: #f4ecda; --win: #c9dcec; --sun: #f6c453; --star: 0; --leaf: #6f9f4e; --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
   --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -32,14 +32,14 @@
 @media (prefers-color-scheme: dark) { :root[data-mau="may"] {
   --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
   --ink: #f3ece3; --muted: #b8ada1;
-  --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
+  --fire: #f97066; --fire-deep: #c2412f; --fire-bg: #4a1712; --on-fire: #1a0705;
   --exit: #47cd89; --exit-bg: #0f3a26;
   --water: #6aa9f0; --sky1: #1b2633; --sky2: #171310; --win: #2a3a4a; --sun: #e9e4c6; --star: .85; --leaf: #4d7a3a; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
   color-scheme: dark; } }
 :root[data-mau="toi"] {
   --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
   --ink: #f3ece3; --muted: #b8ada1;
-  --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
+  --fire: #f97066; --fire-deep: #c2412f; --fire-bg: #4a1712; --on-fire: #1a0705;
   --exit: #47cd89; --exit-bg: #0f3a26;
   --water: #6aa9f0; --sky1: #1b2633; --sky2: #171310; --win: #2a3a4a; --sun: #e9e4c6; --star: .85; --leaf: #4d7a3a; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
   color-scheme: dark; }
@@ -57,14 +57,15 @@ button { font: inherit; color: inherit; }
 .wrap { max-width: 760px; margin: 0 auto; }
 
 /* Header */
-header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--fire); color: var(--on-fire); padding-block: 10px 12px; }
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: linear-gradient(135deg, var(--fire) 0%, var(--fire-deep) 100%); color: var(--on-fire); padding-block: 10px 12px; box-shadow: 0 4px 14px rgba(120, 20, 10, .22); }
+.logo { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.14); flex: none; } .logo svg { width: 24px; height: 24px; color: var(--on-fire); } .logo[hidden] { display: none; }
 .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; min-height: 32px; }
 .brand h1 { font-size: 17px; line-height: 1.2; font-weight: 800; margin: 0; flex: 1; min-width: 0; letter-spacing: -0.01em; }
 .brand small { display: block; font-weight: 500; font-size: 12px; opacity: .85; }
 .back { border: 0; background: transparent; color: inherit; width: 36px; height: 36px; margin-left: -8px; border-radius: 8px; display: grid; place-items: center; cursor: pointer; }
 .back svg { width: 22px; height: 22px; }
 .search { position: relative; }
-.search input { width: 100%; height: 44px; border-radius: 10px; border: 0; padding: 0 40px 0 40px; font: inherit; font-size: 16px; background: var(--panel); color: var(--ink); }
+.search input { width: 100%; height: 44px; border-radius: 12px; border: 0; box-shadow: 0 2px 8px rgba(0,0,0,.14); padding: 0 40px 0 40px; font: inherit; font-size: 16px; background: var(--panel); color: var(--ink); }
 .search input::placeholder { color: var(--muted); }
 .search .ico { position: absolute; left: 12px; top: 12px; width: 20px; height: 20px; color: var(--muted); pointer-events: none; }
 .search .clear { position: absolute; right: 4px; top: 4px; width: 36px; height: 36px; border: 0; background: transparent; color: var(--muted); border-radius: 8px; cursor: pointer; font-size: 20px; line-height: 1; }
@@ -77,11 +78,15 @@ nav.bottom .row { display: grid; grid-template-columns: repeat(4, 1fr); max-widt
 nav.bottom button { border: 0; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer; }
 nav.bottom button svg { width: 22px; height: 22px; }
 nav.bottom button[aria-current="page"] { color: var(--fire); }
+nav.bottom button svg { padding: 2px 12px; box-sizing: content-box; border-radius: 999px; transition: background .2s; }
+nav.bottom button[aria-current="page"] svg { background: var(--fire-bg); }
+nav.bottom { box-shadow: 0 -4px 14px rgba(0,0,0,.06); }
 
 /* Home */
 .intro { font-size: 14px; color: var(--muted); margin: 0 0 16px; }
 .label { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 24px 0 8px; }
 .label:first-child { margin-top: 0; }
+.toc, .ct-sec, .quick, .doc details, .results button, .ctfig { box-shadow: 0 1px 3px rgba(60, 40, 20, .06), 0 4px 12px rgba(60, 40, 20, .05); }
 .toc { list-style: none; margin: 0; padding: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
 .toc li + li { border-top: 1px solid var(--line); }
 .toc button { width: 100%; text-align: left; border: 0; background: transparent; display: grid; grid-template-columns: 36px 1fr 16px; gap: 12px; align-items: center; padding: 12px 14px; cursor: pointer; min-height: 60px; }
@@ -179,6 +184,9 @@ mark { background: var(--amber-bg); color: inherit; border-radius: 3px; padding:
 
 
 /* Tra theo công trình */
+.ct-cta { position: relative; overflow: hidden; padding-right: 96px !important; background: linear-gradient(135deg, var(--fire) 0%, var(--fire-deep) 100%) !important; box-shadow: 0 6px 16px rgba(120, 20, 10, .25); }
+.ct-cta i { font-style: normal; display: inline-block; transition: transform .2s; } .ct-cta:hover i { transform: translateX(4px); }
+.cta-art { position: absolute; right: 12px; bottom: 8px; width: 80px; height: 64px; } .cta-art rect { fill: rgba(255,255,255,.18); } .cta-art .w rect { fill: rgba(255,240,200,.75); } .cta-art path { stroke: rgba(255,255,255,.5); }
 .ct-cta { width: 100%; text-align: left; border: 0; border-radius: 12px; padding: 14px 16px; margin: 0 0 8px; background: var(--fire); color: var(--on-fire); cursor: pointer; display: grid; gap: 4px; }
 .ct-cta b { font-size: 16px; } .ct-cta span { font-size: 13px; opacity: .9; line-height: 1.4; }
 .ct-form { display: grid; gap: 12px; }
@@ -357,7 +365,9 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .tile.n b { color: var(--exit); }
 .jump { justify-self: start; }
 .tools { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 0 0 8px; }
-.tools .btn2 { min-height: 48px; border-radius: 12px; font-weight: 600; font-size: 14px; text-align: left; padding: 10px 12px; line-height: 1.3; }
+.tools .btn2 { height: auto; min-height: 56px; border-radius: 14px; font-weight: 600; font-size: 14px; text-align: left; padding: 10px 12px; line-height: 1.3; display: flex; gap: 10px; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.tool svg { width: 30px; height: 30px; flex: none; padding: 6px; border-radius: 10px; background: var(--fire-bg); color: var(--fire); box-sizing: border-box; }
+.tool span { display: grid; gap: 1px; min-width: 0; } .tool small { font-weight: 500; font-size: 11.5px; color: var(--muted); }
 .precard { width: 100%; display: grid; gap: 3px; text-align: left; border: 2px solid var(--fire); background: var(--fire-bg); color: var(--ink); border-radius: 14px; padding: 12px 14px; margin: 0 0 12px; cursor: pointer; font: inherit; }
 .precard small { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--fire); }
 .precard b { font-size: 16px; } .precard span { font-size: 14px; font-family: var(--mono); }
@@ -412,6 +422,7 @@ img { max-width: 100%; }
   <div class="wrap">
     <div class="brand">
       <button class="back" id="backBtn" aria-label="Quay lại" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <span class="logo" id="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2l8 3v6c0 5-3.4 9.3-8 11-4.6-1.7-8-6-8-11V5z" fill="currentColor" opacity=".22"/><path d="M12 6.5c.6 2 2.8 3.2 2.8 6a2.8 2.8 0 0 1-5.6 0c0-1.3.6-2 1.2-2.6.1 1 .6 1.6 1.2 1.6-.3-1.9-.2-3.6.4-5z" fill="currentColor"/></svg></span>
       <h1 id="hdr">Sổ tay trang bị PCCC<small>QCVN 10:2025/BCA · TT 103/2025/TT-BCA</small></h1>
     </div>
     <div class="search">
@@ -553,9 +564,10 @@ const q = document.getElementById("q");
 const clearQ = document.getElementById("clearQ");
 const HDR_HOME = hdr.innerHTML;
 function setNav(name) { document.querySelectorAll("nav.bottom button").forEach(b => { if (b.dataset.nav === name) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current"); }); }
+function setHeaderLogo(show) { const l = document.getElementById("logo"); if (l) l.hidden = !show; }
 function setHeader(title) {
-  if (title) { hdr.innerHTML = esc(title) + "<small>QCVN 10:2025/BCA</small>"; backBtn.hidden = false; }
-  else { hdr.innerHTML = HDR_HOME; backBtn.hidden = true; }
+  if (title) { hdr.innerHTML = esc(title) + "<small>QCVN 10:2025/BCA</small>"; backBtn.hidden = false; setHeaderLogo(false); }
+  else { hdr.innerHTML = HDR_HOME; backBtn.hidden = true; setHeaderLogo(true); }
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 const chev = '<svg class="chev" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 6l6 6-6 6"/></svg>';
@@ -564,14 +576,14 @@ function renderHome() {
   setHeader(null); setNav("home");
   view.innerHTML = `
     <p class="intro">Tra cứu trang bị phương tiện PCCC và CNCH theo QCVN 10:2025/BCA, hiệu lực từ 30/12/2025. Gõ từ khóa ở ô tìm (tìm được không dấu), hoặc chọn mục bên dưới.</p>
-    <button class="ct-cta" data-go="cong-trinh"><b>Tra theo công trình</b><span>Chọn loại nhà, nhập số tầng, diện tích sàn, chiều cao PCCC — nhận danh sách hệ thống phải trang bị kèm số bảng, số điều.</span></button>
+    <button class="ct-cta" data-go="cong-trinh"><b>Tra theo công trình <i>→</i></b><span>Chọn loại nhà, nhập số tầng, diện tích sàn, chiều cao PCCC — nhận danh sách hệ thống phải trang bị kèm số bảng, số điều.</span><svg class="cta-art" viewBox="0 0 80 64" aria-hidden="true"><rect x="10" y="14" width="26" height="46" rx="2"/><rect x="40" y="26" width="30" height="34" rx="2"/><g class="w"><rect x="15" y="20" width="6" height="5"/><rect x="25" y="20" width="6" height="5"/><rect x="15" y="30" width="6" height="5"/><rect x="25" y="30" width="6" height="5"/><rect x="15" y="40" width="6" height="5"/><rect x="25" y="40" width="6" height="5"/><rect x="46" y="32" width="6" height="5"/><rect x="58" y="32" width="6" height="5"/><rect x="46" y="42" width="6" height="5"/><rect x="58" y="42" width="6" height="5"/></g><path d="M0 60h80" stroke-width="2"/></svg></button>
     <p class="label" style="margin:4px 0 6px">Tra nhanh theo loại</p>${popHTML("")}
-    <p class="label" style="margin:10px 0 6px">Công cụ</p><div class="tools"><button class="btn2" data-go="nhieu-khoi">Dự án nhiều khối</button><button class="btn2" data-go="gian-phong">Gian phòng, thiết bị</button><button class="btn2" data-go="tinh-nuoc">Lưu lượng nước</button><button class="btn2" data-go="h7">Áp suất họng (H.7)</button><button class="btn2" data-go="cong-truong">Công trình đang thi công</button><button class="btn2" data-go="so-sanh">Điểm mới cần lưu ý</button>${/^https?:$/.test(location.protocol) && /\/qcvn10\//.test(location.pathname) ? '<a class="btn2" href="../" style="text-decoration:none;display:inline-flex;align-items:center">← Sổ tay QCVN 06</a>' : ""}</div>
+    <p class="label" style="margin:10px 0 6px">Công cụ</p><div class="tools"><button class="btn2 tool" data-go="nhieu-khoi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21V10l5-3v14M8 21V5l7 4v12M15 21v-8l6-2v10M2 21h20"/></svg><span><b>Dự án nhiều khối</b><small>Tháp, khối đế, hầm chung</small></span></button><button class="btn2 tool" data-go="gian-phong"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1.5"/><path d="M3 12h9V4M12 12v8"/></svg><span><b>Gian phòng, thiết bị</b><small>Bảng A.2 – A.4</small></span></button><button class="btn2 tool" data-go="tinh-nuoc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3c3 4 6 7 6 11a6 6 0 0 1-12 0c0-4 3-7 6-11z"/><path d="M9.5 15a2.5 2.5 0 0 0 2.5 2.5"/></svg><span><b>Lưu lượng nước</b><small>Khu dân cư, H.1</small></span></button><button class="btn2 tool" data-go="h7"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="7"/><path d="M12 13l3.5-3.5M12 3v3"/></svg><span><b>Áp suất họng (H.7)</b><small>Lưu lượng, áp suất lăng</small></span></button><button class="btn2 tool" data-go="cong-truong"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21h16M6 21V9l6-4 6 4v12M10 21v-5h4v5"/><path d="M2 9l10-6 10 6"/></svg><span><b>Công trình đang thi công</b><small>Bình chữa cháy theo tầng</small></span></button><button class="btn2 tool" data-go="so-sanh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6 6.6 19.5l1.2-6L3.3 9.3l6.1-.7z"/></svg><span><b>Điểm mới cần lưu ý</b><small>So với quy chuẩn cũ</small></span></button></div>
     <p class="label">Mục lục</p>
     <ul class="toc">${ORDER.map(id => { const m = META[id]; return `<li><button data-go="${id}"><span class="num ${m.c}">${m.n}</span><span><b>${m.t}</b><span class="d">${m.d}</span></span>${chev}</button></li>`; }).join("")}</ul>
     <p class="disclaimer">Đối chiếu với bản QCVN 10:2025/BCA ban hành kèm Thông tư 103/2025/TT-BCA ngày 04/11/2025. Mỗi giá trị kèm số điều, số bảng để tra nguyên văn; sổ tay không thay thế văn bản quy chuẩn.</p>
     <div class="mau" role="group" aria-label="Màu nền">${[["be", "Nền be"], ["toi", "Nền tối"], ["may", "Theo máy"]].map(([k, l]) => `<button data-mau="${k}" aria-pressed="${mauGet() === k}">${l}</button>`).join("")}</div>
-    <p class="ver">Phiên bản v46 · cập nhật 22/11/2026</p>
+    <p class="ver">Phiên bản v47 · cập nhật 22/11/2026</p>
     <p class="sync" id="syncst">${syncMsg()}</p>`;
   window.scrollTo(0, 0);
 }
@@ -2056,11 +2068,11 @@ function phraseScore(hay, terms) { return norm(hay).includes(terms.join(" ")) ? 
 /* Điểm khớp loại nhà: cụm nguyên văn trong tên > trong từ khóa; từ đúng > đầu từ. 0 = không khớp */
 function typeScore(t, terms) {
   if (!terms.length) return 0;
-  const name = " " + norm(t.n).replace(/[^a-z0-9.]+/g, " ") + " ", kw = " " + norm(t.k + " " + t.g).replace(/[^a-z0-9.]+/g, " ") + " ";
+  const name = " " + norm(t.n).replace(/[^a-z0-9.]+/g, " ").replace(/ tro len /g, " ") + " ", kw = " " + norm(t.k + " " + t.g).replace(/[^a-z0-9.]+/g, " ") + " ";
   let sc = 0;
   for (const x of terms) {
     if (name.includes(" " + x + " ")) sc += 3; else if (kw.includes(" " + x + " ")) sc += 2;
-    else if (name.includes(" " + x) || kw.includes(" " + x)) sc += 1; else return 0;
+    else if (x.length > 3 && (name.includes(" " + x) || kw.includes(" " + x))) sc += 1; else return 0;
   }
   const ph = " " + terms.join(" ") + " ";
   if (name.includes(ph)) sc += 6; else if (kw.includes(ph)) sc += 5;

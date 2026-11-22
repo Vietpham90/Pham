@@ -52,8 +52,11 @@ def movers(svg):
         x1, y1, x2, y2 = (float(v) for v in m.groups())
         L = ((x2 - x1) ** 2 + (y2 - y1) ** 2) ** .5; dur = max(1.4, L / 45)
         for j in range(2):
-            out += (f'<circle class="mover" r="2.8"><animateMotion dur="{dur:.1f}s" begin="{-(j * dur / 2 + k * .3):.1f}s" repeatCount="indefinite" path="M{x1:.0f} {y1:.0f} L{x2:.0f} {y2:.0f}"/>'
-                    f'<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.85;1" dur="{dur:.1f}s" begin="{-(j * dur / 2 + k * .3):.1f}s" repeatCount="indefinite"/></circle>')
+            sym = "#dg-walker-l" if x2 < x1 - 1 else "#dg-walker"
+            b0 = -(j * dur / 2 + k * .3)
+            out += (f'<g class="mover"><animateMotion dur="{dur:.1f}s" begin="{b0:.1f}s" repeatCount="indefinite" path="M{x1:.0f} {y1:.0f} L{x2:.0f} {y2:.0f}"/>'
+                    f'<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.85;1" dur="{dur:.1f}s" begin="{b0:.1f}s" repeatCount="indefinite"/>'
+                    f'<use href="{sym}" x="-5" y="-12" width="10" height="13"/></g>')
     return out
 def cloud(x, y, s=1.0, d=0):
     return f'<use class="cloud c{d}" href="#dg-cloud" x="{x:.0f}" y="{y:.0f}" width="{46*s:.0f}" height="{20*s:.0f}"/>'
@@ -67,6 +70,8 @@ for k in D:
     if k in SKY: pre += ''.join(cloud(*c) for c in CLOUDS.get(k, [])) + f'<rect class="grass" x="0" y="{SKY[k]-3}" width="360" height="3"/>'
     if pre:
         m = re.search(r'<rect class="sky"[^>]*/>', D[k]); D[k] = D[k][:m.end()] + pre + D[k][m.end():]
+    if k not in SKY:
+        m = re.match(r'(<svg[^>]*>)(<defs>.*?</defs>)?', D[k], re.S); D[k] = D[k][:m.end()] + '<rect class="paper" x="-20" y="-20" width="420" height="340"/>' + D[k][m.end():]
     post = movers(D[k])
     if k == 'bai-do': post += mtruck(206, 9, .9, rev=True)
     if k == 'duong-tranh': post += mtruck(94, 7, .8) 

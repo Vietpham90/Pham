@@ -10,7 +10,7 @@
   --ink: #1f1a17; --muted: #5e554d;
   --fire: #b42318; --fire-bg: #fde4e1; --on-fire: #ffffff;
   --exit: #067647; --exit-bg: #dcf5e7;
-  --water: #1f6fd1; --sky1: #d6e4f0; --sky2: #f4ecda; --win: #c9dcec; --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
+  --water: #1f6fd1; --sky1: #d6e4f0; --sky2: #f4ecda; --win: #c9dcec; --sun: #f6c453; --star: 0; --leaf: #6f9f4e; --amber: #f2a516; --amber-ink: #7a5000; --amber-bg: #fff1d1;
   --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
   --nav-h: 60px;
@@ -21,14 +21,14 @@
   --ink: #f3ece3; --muted: #b8ada1;
   --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
   --exit: #47cd89; --exit-bg: #0f3a26;
-  --water: #6aa9f0; --sky1: #1b2633; --sky2: #171310; --win: #2a3a4a; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  --water: #6aa9f0; --sky1: #1b2633; --sky2: #171310; --win: #2a3a4a; --sun: #e9e4c6; --star: .85; --leaf: #4d7a3a; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
   color-scheme: dark; } }
 :root[data-mau="toi"] {
   --bg: #171310; --panel: #211b17; --tint: #2c2520; --line: #43392f;
   --ink: #f3ece3; --muted: #b8ada1;
   --fire: #f97066; --fire-bg: #4a1712; --on-fire: #1a0705;
   --exit: #47cd89; --exit-bg: #0f3a26;
-  --water: #6aa9f0; --sky1: #1b2633; --sky2: #171310; --win: #2a3a4a; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
+  --water: #6aa9f0; --sky1: #1b2633; --sky2: #171310; --win: #2a3a4a; --sun: #e9e4c6; --star: .85; --leaf: #4d7a3a; --amber: #e09b13; --amber-ink: #f5c46b; --amber-bg: #3a2a08;
   color-scheme: dark; }
 
 * { box-sizing: border-box; }
@@ -294,14 +294,20 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .ctfig { margin: 10px 0 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 8px 8px; }
 .ctfig > svg { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; }
 .fg-body { fill: var(--panel); } .fg-shadow { fill: var(--ink); opacity: .12; }
-.fg-sun { fill: #f6c453; opacity: .85; } .fg-cloud path { fill: var(--panel); opacity: .85; }
-.fg-grass { fill: #7fae5b; opacity: .8; } .fg-lit { fill: #f7dc8c !important; }
+.fg-sun { fill: var(--sun); opacity: .9; } .fg-stars circle { fill: #fff; opacity: var(--star); }
+.fg-tree rect { fill: #8a6a4a; } .fg-tree circle { fill: var(--leaf); }
+.fg-canopy { fill: var(--ink); opacity: .7; } .fg-door { stroke: var(--ink); stroke-width: .8; }
+.fg-tum { fill: var(--panel); stroke: var(--ink); stroke-width: 1.2; } .fg-tumdoor { fill: var(--tint); stroke: var(--line); stroke-width: .6; }
+.fg-rail { stroke: var(--ink); stroke-width: .8; opacity: .55; }
+.fg-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin: 0 4px 6px; }
+.fg-head b { font-size: 14px; } .fg-head span { font-size: 11.5px; color: var(--muted); } .fg-cloud path { fill: var(--panel); opacity: .85; }
+.fg-grass { fill: var(--leaf); opacity: .85; } .fg-lit { fill: #f7dc8c !important; }
 .fg-led { fill: var(--fire); } .fg-drop { stroke: var(--water); stroke-width: 1; fill: none; opacity: .8; }
 .fg-wave { stroke: var(--fire); stroke-width: 1; fill: none; }
 .ctfig svg [class^="s-"], .ctfig svg .fg-sp { transition: opacity .25s; }
 .ctfig[data-hl] svg [class*="s-"] { opacity: .12; }
 .ctfig[data-hl="bc"] svg .s-bc, .ctfig[data-hl="spr"] svg .s-spr, .ctfig[data-hl="hn"] svg .s-hn, .ctfig[data-hl="ok"] svg .s-ok, .ctfig[data-hl="loa"] svg .s-loa, .ctfig[data-hl="tru"] svg .s-tru { opacity: 1; }
-.fg-leg [data-sys] { cursor: pointer; border-radius: 999px; padding: 2px 8px 2px 2px; }
+.fg-leg [data-sys] { cursor: pointer; border-radius: 999px; padding: 3px 10px 3px 3px; background: var(--bg); border: 1px solid var(--line); }
 .fg-leg [data-sys]:hover { background: var(--tint); } .fg-leg [aria-pressed="true"] { background: var(--fire-bg); outline: 1.5px solid var(--fire); }
 @media (prefers-reduced-motion: no-preference) {
   .fg-led { animation: fgBlink 1.6s steps(2, jump-none) infinite; }
@@ -323,7 +329,7 @@ ul.plain { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; } 
 .fg-wire { fill: none; stroke: var(--fire); stroke-width: 1; stroke-dasharray: 2.5 2; opacity: .8; }
 .fg-pump { fill: var(--panel); stroke: var(--fire); stroke-width: 1.4; }
 .fg-fn { font: 600 8.5px var(--mono); fill: var(--muted); } .fg-tt { font: 800 7.5px var(--sans); fill: var(--on-fire); text-anchor: middle; }
-.fg-bdg circle { fill: var(--ink); } .fg-bdg text { font: 800 8.5px var(--sans); fill: var(--bg); text-anchor: middle; }
+.fg-bdg circle { fill: var(--ink); stroke: var(--panel); stroke-width: 1.4; } .fg-bdg text { font: 800 8.5px var(--sans); fill: var(--bg); text-anchor: middle; }
 .fg-n { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; background: var(--ink); color: var(--bg); font-size: 10px; font-weight: 800; }
 .fg-t { font: 500 10.5px var(--sans); fill: var(--ink); } .fg-c { text-anchor: middle; } .fg-r { text-anchor: end; } .fg-b { font-weight: 700; }
 .fg-leg { display: flex; flex-wrap: wrap; gap: 6px 12px; justify-content: center; margin-top: 8px; font-size: 12.5px; }

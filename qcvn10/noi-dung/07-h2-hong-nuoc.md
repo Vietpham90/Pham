@@ -118,6 +118,8 @@ Lưu lượng lăng (L/s) và áp suất họng (MPa) theo chiều dài cuộn v
 
 Giá trị in nguyên như văn bản (ô 16 mm – 20 m – vòi 20 m ghi 0,418, nhỏ hơn ô vòi 15 m — đối chiếu bản gốc khi dùng).
 
+**Cách tra Bảng H.7** (H.2.1, H.2.7): mỗi tia phải đồng thời đạt **lưu lượng** theo Bảng H.5 / H.6 và **chiều cao tia đặc** tối thiểu. Với từng đường kính lăng, lấy dòng đầu tiên có tia đặc **≥** yêu cầu **và** lưu lượng **≥** lưu lượng mỗi tia; lưu lượng, áp suất ở dòng đó là giá trị thiết kế. Ví dụ: cần 2,5 L/s, tia 6 m, DN 50 → lăng 16 mm cho 2,6 L/s, 0,100 MPa (vòi 20 m). Cần 5 L/s, tia 6 m, DN 65 → lăng 19 mm phải lên dòng tia 12 m mới đạt 5,2 L/s, 0,199 MPa; lăng 13 mm không đạt.
+
 ## 7.8 Bể áp lực, thời gian làm việc (H.2.8, H.2.9)
 
 - Bơm **không** điều khiển tự động hoặc từ xa → **bể áp lực**: mọi thời điểm cấp tia đặc **> 4 m** tại tầng cao nhất hoặc tầng ngay dưới nơi đặt bể, **≥ 6 m** các tầng còn lại; dung tích: **2 tia × 2,5 L/s trong 10 min** (khi số tia tính toán ≥ 2), **1 tia** các trường hợp khác. Bơm điều khiển tự động → không cần xét bể áp lực (H.2.8).

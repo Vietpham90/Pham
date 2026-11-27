@@ -63,7 +63,7 @@ const { chromium } = require("playwright");
   await p.evaluate(() => { location.hash = "h7"; }); await p.waitForTimeout(80);
   await p.selectOption("[data-h7=dn]", "65"); await p.selectOption("[data-h7=tip]", "19"); await p.selectOption("[data-h7=jet]", "16"); await p.selectOption("[data-h7=hose]", "20"); await p.waitForTimeout(60);
   const h7 = await p.innerText("#view");
-  check(h7.includes("6,3 L/s") && h7.includes("0,28 MPa"), "H.7: DN65, lăng 19, tia 16 m, vòi 20 m → 6,3 L/s, 0,28 MPa");
+  check(h7.includes("6,3 L/s") && h7.includes("0,280 MPa"), "H.7: DN65, lăng 19, tia 16 m, vòi 20 m → 6,3 L/s, 0,280 MPa");
   await p.evaluate(() => { location.hash = "cong-truong"; }); await p.waitForTimeout(80);
   await p.fill("#cs-floors", "1200; 450; 1000"); await p.waitForTimeout(60);
   check((await p.innerText("#cs-out")).includes("6 bình"), "công trường 1200; 450; 1000 m² → 3 + 1 + 2 = 6 bình");

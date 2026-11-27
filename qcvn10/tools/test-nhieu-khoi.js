@@ -12,9 +12,9 @@ const { chromium } = require("playwright");
   const R = await p.evaluate(() => { const r = mkEval(mkV); return { n: r.rows.length, hyd: r.hydrMax.q, who: r.hydrMax.r.x.ten, q: r.qOut, t: r.tOut, two: r.two, pump: r.pump, h219: r.anySpr && r.anyHydr,
     rows: r.rows.map(x => [x.alarm, x.spr, x.jets, x.od && x.od.q, x.dry, x.loa, x.bad6]) }; });
   check(R.n === 4, "mẫu có 4 khối");
-  check(JSON.stringify(R.rows[0]) === JSON.stringify(["req", "req", "3 × 2,5 L/s", 30, true, "req", 0]), "Tòa A 17 tầng: báo cháy, sprinkler, 3 × 2,5, 30 L/s, ống khô, loa, QCVN 06 đạt — " + JSON.stringify(R.rows[0]));
-  check(JSON.stringify(R.rows[3]) === JSON.stringify(["req", "req", "2 × 5 L/s", 20, false, "no", 0]), "Tầng hầm gara: báo cháy, sprinkler, 2 × 5, 20 L/s, không ống khô, không loa — " + JSON.stringify(R.rows[3]));
-  check(R.hyd === 10 && R.who === "Tầng hầm gara", "bơm họng nước 10 L/s do tầng hầm gara quyết định (H.2.5)");
+  check(JSON.stringify(R.rows[0]) === JSON.stringify(["req", "req", "3 × 2,9 L/s (H.7)", 30, true, "req", 0]), "Tòa A 17 tầng: báo cháy, sprinkler, 3 × 2,9 (H.7, tia 8 m), 30 L/s, ống khô, loa, QCVN 06 đạt — " + JSON.stringify(R.rows[0]));
+  check(JSON.stringify(R.rows[3]) === JSON.stringify(["req", "req", "2 × 5,2 L/s (H.7)", 20, false, "no", 0]), "Tầng hầm gara: báo cháy, sprinkler, 2 × 5,2 (H.7), 20 L/s, không ống khô, không loa — " + JSON.stringify(R.rows[3]));
+  check(R.hyd === 10.4 && R.who === "Tầng hầm gara", "bơm họng nước 10,4 L/s (2 × 5,2 theo H.7) do tầng hầm gara quyết định (H.2.5)");
   check(R.q === 30 && R.t === 3 && R.two, "ngoài nhà 30 L/s × 3 h, ≥ 2 trụ (1 đám cháy)");
   check(R.pump && R.h219, "bơm tay + tự động; họng lấy nước hai cửa DN65");
   // 2. Dân số → 2 đám cháy: cộng 2 khối lớn nhất (30 + 30)
@@ -29,7 +29,7 @@ const { chromium } = require("playwright");
   // 3. Sửa khối: tòa A còn 15 tầng 48 m → không ống khô (chung cư ≤ 50 m)
   await p.fill("#mk-0-n", "15"); await p.fill("#mk-0-h", "48"); await p.waitForTimeout(60);
   const a = await p.evaluate(() => mkEval(mkV).rows[0]).then(r => [r.dry, r.jets]);
-  check(a[0] === false && a[1] === "2 × 2,5 L/s", "Tòa A 15 tầng 48 m: không ống khô, 2 × 2,5 — " + a);
+  check(a[0] === false && a[1] === "2 × 2,6 L/s (H.7)", "Tòa A 15 tầng 48 m: không ống khô, 2 × 2,6 (H.7) — " + a);
   check(await p.evaluate(() => document.activeElement.id) === "mk-0-h", "gõ không mất tiêu điểm");
   // 4. Thêm, xóa khối, đổi loại
   await p.click("#mkadd"); await p.waitForTimeout(80);

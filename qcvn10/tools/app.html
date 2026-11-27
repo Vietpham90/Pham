@@ -1487,10 +1487,14 @@ function mkEval(V) {
     const out = ctEvaluate(t, v), all = out.flatMap(s => s.items);
     const lv = re => { const it = all.find(i => re.test(i.txt)); return it ? it.lv : "none"; };
     const jt = all.find(i => /^\*\*Số tia × lưu lượng\*\*/.test(i.txt));
-    const jq = jt ? +jt.txt.match(/= \*\*([\d,.]+) L\/s\*\*/)[1].replace(/\./g, "").replace(",", ".") : 0;
+    const h7 = all.find(i => /^\*\*Lưu lượng, áp suất mỗi tia theo Bảng H\.7/.test(i.txt));
+    const h7m = h7 && h7.txt.match(/lưu lượng thiết kế lấy \*\*([\d,]+) L\/s\/tia\*\*.*= \*\*([\d,.]+) L\/s\*\*/);
+    const num = x => +x.replace(/\./g, "").replace(",", ".");
+    const jq = h7m ? num(h7m[2]) : jt ? num(jt.txt.match(/= \*\*([\d,.]+) L\/s\*\*/)[1]) : 0;
+    const jets = jt ? (h7m ? jt.txt.match(/\*\*: (\d+) ×/)[1] + " × " + h7m[1] + " L/s (H.7)" : jt.txt.match(/\*\*: ([^=]+) =/)[1].trim()) : "—";
     const r6 = q06Eval(t, v); const bad6 = r6 ? r6.out.reduce((n, s) => n + s.items.filter(i => i.lv === "bad").length, 0) : null;
     return { k, x, t, v, out, alarm: lv(/^\*\*Hệ thống báo cháy tự động/), spr: lv(/^\*\*Hệ thống chữa cháy tự động/), hydr: lv(/^\*\*Hệ thống họng nước/),
-      jets: jt ? jt.txt.match(/\*\*: ([^=]+) =/)[1].trim() : "—", jq, dry: lv(/^\*\*Đường ống khô/) === "req", loa: lv(/^\*\*Loa thông báo và hướng dẫn/),
+      jets, jq, dry: lv(/^\*\*Đường ống khô/) === "req", loa: lv(/^\*\*Loa thông báo và hướng dẫn/),
       pump: all.some(i => /điều khiển bằng tay tại phòng bơm/.test(i.txt) && i.lv === "req"), od: outdoorQT(t, v), bad6, r6, r13: q13Eval(t, v) };
   });
   const pop = +V.pop || 0, h1 = pop ? H1.find(r => pop <= r[0] * 1000) : null, fires = h1 ? h1[1] : 1;
@@ -1614,7 +1618,7 @@ function renderH7() {
       ${sel("jet", "Tia nước đặc yêu cầu", H7H.map(x => [x, x + " m"]))}
       ${sel("hose", "Chiều dài cuộn vòi", [[10, "10 m"], [15, "15 m"], [20, "20 m"]])}
     </div>
-    ${r.err ? `<p class="note">${esc(r.err)}</p>` : `<dl class="kv"><dt>Lưu lượng lăng phun</dt><dd>${fmtN(r.q)} L/s</dd><dt>Áp suất tại họng</dt><dd>${fmtN(r.p)} MPa</dd><dt>≈ cột nước</dt><dd>${fmtN(r.p * 102)} m</dd></dl>`}
+    ${r.err ? `<p class="note">${esc(r.err)}</p>` : `<dl class="kv"><dt>Lưu lượng lăng phun</dt><dd>${fmtN(r.q)} L/s</dd><dt>Áp suất tại họng</dt><dd>${r.p.toFixed(3).replace(".", ",")} MPa</dd><dt>≈ cột nước</dt><dd>${fmtN(r.p * 102)} m</dd></dl>`}
     <p class="note">Tia đặc tối thiểu: 6 m (≤ 50 m), 8 m (nhà ở > 50 m), 16 m (công cộng, SX > 50 m) — H.2.7. Tia ≤ 4 L/s dùng DN 50, > 4 L/s dùng DN 65 (H.2.7 CT2). Áp suất giữa van và đầu nối > 0,45 MPa phải giảm áp dư (H.2.6).</p>
   </section>`;
 }

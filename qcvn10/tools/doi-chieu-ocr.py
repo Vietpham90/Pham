@@ -24,7 +24,7 @@ src13 = norm_nums(q13_txt, ocr=True) if q13_txt else None
 # Số do sổ tay tự tính / tự đặt, không có trong văn bản (đánh số mục sổ tay, ví dụ minh họa…)
 ALLOW = {"3,6", "10,8", "64"}
 # Ô bảng OCR không đọc được nhưng đã đối chiếu bằng ảnh phân giải cao (tệp: các số)
-SEEN = {"03-phu-luc-a.md": {"7000", "3600"}, "06-h1-nuoc-ngoai-nha.md": {"85", "90"}, "07-h2-hong-nuoc.md": {"5,0"},
+SEEN = {"03-phu-luc-a.md": {"7000", "3600"}, "06-h1-nuoc-ngoai-nha.md": {"85", "90"}, "07-h2-hong-nuoc.md": {"5,0", "0,100", "0,199", "2,6", "5,2"},
         # QCVN 06 Bảng G.3 ghi khối tích theo đơn vị 1 000 m³ (30, ≥ 60, ≥ 80); sổ tay viết 30 000 m³…
         "10-kho-xuong-qcvn06.md": {"30000", "60000", "80000"},
         "11-gara-qcvn13.md": {"2025"}}   # "QCVN 10:2025" là tên văn bản dẫn chiếu, không phải số liệu QCVN 13

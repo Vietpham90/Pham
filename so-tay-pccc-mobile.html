@@ -411,6 +411,10 @@ details.sub summary { cursor: pointer; font-weight: 600; font-size: 13.5px; colo
 .dg .dleaf { fill: #a0673a; stroke: #6b4226; stroke-width: 1.2; } .dg .dpanel { fill: none; stroke: #c48a5a; stroke-width: 1.2; } .dg .dbar { fill: #d4d4d8; stroke: #71717a; stroke-width: .8; }
 .dg .solidw { fill: #dccbaa; opacity: .7; }
 .dg .flight { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
+.dgov-bar b { flex: 1; min-width: 0; } .dgov-bar > span { flex: none; display: flex; }
+.dglinks { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0 10px; padding: 8px 10px; border-radius: 10px; background: #e7f4ec; border: 1px solid #c4e3d0; }
+.dglinks > span { font-size: 11px; font-weight: 700; letter-spacing: .03em; text-transform: uppercase; color: #05603a; margin-right: 2px; }
+.dglinks .ref.dg { font-size: 12.5px; line-height: 1.25; padding: 6px 9px; background: var(--panel); border-color: #a6d4b8; text-align: left; }
 </style>
 <style>
 html { padding-top: env(safe-area-inset-top, 0px); -webkit-tap-highlight-color: transparent; }
@@ -594,7 +598,8 @@ function setHeader(title) {
 }
 const starSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
 
-const APP_VER = { so: "1.38", ngay: "22/11/2026", moi: [
+const APP_VER = { so: "1.39", ngay: "27/11/2026", moi: [
+  "Mỗi mục trong sổ tay có dải \"Sơ đồ\" mở nhanh các sơ đồ minh họa liên quan (dò theo số điều trong mục).",
   "Thêm 5 sơ đồ: khoảng cách phòng cháy giữa hai nhà (Bảng E.1), thang bộ (bậc, độ dốc, chiếu nghỉ), cửa lối ra thoát nạn, khoang đệm ngăn cháy (Bảng 3), thang loại 3 ngoài nhà. Thẻ sơ đồ xếp theo nhóm, số thứ tự liền mạch với mục lục.",
   "Ngọn lửa trong sơ đồ vẽ lại thật hơn: ba lớp lưỡi lửa (đỏ sẫm, cam, lõi vàng trắng) uốn lượn theo nhịp riêng, viền mềm, tàn lửa bay lên, khói đậm bốc cao.",
   "Sơ đồ sinh động hơn nữa: lửa có quầng sáng, nhà có cửa sổ sáng đèn, đầu phun sprinkler có nước rơi, vùng nóng phía khoang cháy bị tường ngăn cháy chặn lại, cây đung đưa; nét kích thước tự vẽ dần khi cuộn tới sơ đồ.",
@@ -644,7 +649,7 @@ function renderSection(id, openBlock) {
   s.blocks.forEach((b, k) => {
     const open = openBlock ? b.id === openBlock : (s.blocks.length <= 2 || id === "checklist" || k === 0);
     const isSaved = saved.includes(b.id);
-    html += `<details id="${b.id}"${open ? " open" : ""}><summary>${inline(b.title)}<button class="star" data-star="${b.id}" aria-pressed="${isSaved}" aria-label="${isSaved ? "Bỏ lưu" : "Lưu mục này"}">${starSvg}</button></summary><div class="body">${mdToHtml(b.lines, b.id)}</div></details>`;
+    html += `<details id="${b.id}"${open ? " open" : ""}><summary>${inline(b.title)}<button class="star" data-star="${b.id}" aria-pressed="${isSaved}" aria-label="${isSaved ? "Bỏ lưu" : "Lưu mục này"}">${starSvg}</button></summary><div class="body">${dgStrip(b)}${mdToHtml(b.lines, b.id)}</div></details>`;
   });
   const idx = ORDER.indexOf(id), prev = ORDER[idx - 1], next = ORDER[idx + 1];
   html += `<div class="pager">${prev ? `<button data-go="${prev}"><small>← Trước</small>${META[prev].t}</button>` : ""}${next ? `<button class="next" data-go="${next}"><small>Tiếp →</small>${META[next].t}</button>` : ""}</div></article>`;
@@ -654,6 +659,15 @@ function renderSection(id, openBlock) {
   else window.scrollTo(0, 0);
 }
 
+/* Sơ đồ liên quan cho từng mục sổ tay: dò số điều trong tiêu đề và nội dung mục */
+function dgStrip(b) {
+  if (!b._dg) {
+    const ids = new Set();
+    (b.title.replace(/^\d+(\.\d+)*\s+/, "") + " " + b.raw).replace(/Bảng\s+[A-Z]?\.?\d+(?:\.\d+)*|(?<![\p{L}\d])[A-H]\.\d+(?:\.\d+)*|(?<![\p{L}\d,.])\d+\.\d+(?:\.\d+)*/gu, m => { const q = m.replace(/\s+/g, " "); DIAG_FOR.forEach(([re, id]) => { if (re.test(q)) ids.add(id); }); return m; });
+    b._dg = [...ids].filter(id => DIAGS[id]).slice(0, 5);
+  }
+  return b._dg.length ? `<div class="dglinks"><span>Sơ đồ</span>${b._dg.map(id => `<button class="ref dg" data-diag="${id}">${esc(DIAGS[id].t)}</button>`).join("")}</div>` : "";
+}
 function updateProgress() {
   const boxes = view.querySelectorAll("input[data-ck]"); const done = [...boxes].filter(b => b.checked).length;
   const bar = document.getElementById("pbar"), t = document.getElementById("ptext");
@@ -1355,7 +1369,7 @@ function resolveRef(q) {
 function refHTML(ref) {
   return refTokens(ref).map(r => `<button class="ref" data-ref="${esc(r.q)}" title="Tìm ${esc(r.q)} trong sổ tay">${esc(r.label)}</button>`).join("");
 }
-const DIAG_FOR = [[/^1\.4\.6[02]/, "tang-ham"], [/^3\.2\.1[23]/, "khan-cap"], [/^3\.3\.5|^3\.2\.10/, "hanh-lang"], [/^6\.13|^A\.2\.12/, "thang-may-cc"], [/^6\.(6|7|10|11)\b/, "loi-ra-mai"], [/^6\.[45]\b|^6\.2\.5/, "duong-tranh"], [/^A\.3\.2/, "lanh-nan"], [/^1\.4\.9/, "chieu-cao"], [/^3\.4\.1[1-3]|^2\.4\.3|^3\.4\.9/, "buong-thang"], [/^3\.4\.10/, "vung-dem"], [/^4\.33/, "dai-ngan-chay"], [/^3\.2\.8/, "loi-ra"], [/^Bảng G\.[12]|^3\.3\.2|^A\.2\.19/, "khoang-cach"], [/^4\.32|^4\.17/, "tuong-ngan-chay"], [/^6\.2|^6\.3|Bảng 1[456]/, "bai-do"], [/^Bảng E\.[12]\b|^4\.1\b/, "khoang-cach-nha"], [/^3\.4\.[13]\b/, "thang-bo"], [/^3\.2\.(9|10|11|14)\b/, "cua-thoat-nan"], [/^1\.4\.3\b|^Bảng 3\b|^4\.2[38]\b/, "khoang-dem"], [/^3\.4\.(2|11)\b/, "thang-loai-3"]];
+const DIAG_FOR = [[/^1\.4\.6[02]/, "tang-ham"], [/^3\.2\.1[23]/, "khan-cap"], [/^3\.3\.5|^3\.2\.10/, "hanh-lang"], [/^6\.13|^A\.2\.12/, "thang-may-cc"], [/^6\.(6|7|10|11)\b/, "loi-ra-mai"], [/^6\.[45]\b|^6\.2\.5/, "duong-tranh"], [/^A\.3\.2/, "lanh-nan"], [/^1\.4\.9/, "chieu-cao"], [/^3\.4\.1[1-3]|^2\.4\.3|^3\.4\.9/, "buong-thang"], [/^3\.4\.10/, "vung-dem"], [/^4\.33/, "dai-ngan-chay"], [/^3\.2\.8/, "loi-ra"], [/^Bảng G\.[12]|^3\.3\.2|^A\.2\.19/, "khoang-cach"], [/^4\.32|^4\.17/, "tuong-ngan-chay"], [/^6\.2|^6\.3|Bảng 1[456]/, "bai-do"], [/^Bảng E\.[12]\b|^4\.1$/, "khoang-cach-nha"], [/^3\.4\.[13]\b/, "thang-bo"], [/^3\.2\.(9|10|11|14)\b/, "cua-thoat-nan"], [/^1\.4\.3\b|^Bảng 3\b|^4\.2[38]\b/, "khoang-dem"], [/^3\.4\.(2|11)\b/, "thang-loai-3"]];
 function diagLink(ref) {
   const ids = new Set();
   refTokens(ref).forEach(r => DIAG_FOR.forEach(([re, id]) => { if (re.test(r.q)) ids.add(id); }));
